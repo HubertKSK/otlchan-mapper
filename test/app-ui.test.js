@@ -42,6 +42,15 @@ test("follow player control uses a stable icon instead of text glyphs", () => {
   assert.match(appSource, /followPlayerBtn\.setAttribute\("aria-label", followPlayer \? "Sledzenie gracza wlaczone" : "Sledz gracza"\)/);
 });
 
+test("editing a non-player map room targets the persisted project room", () => {
+  assert.match(appSource, /const projectRoom = getRoomById\(room\.id\) \|\| room;/);
+  assert.match(appSource, /selectedRoomId = projectRoom\.id;/);
+  assert.match(appSource, /selectedRoomPreview = projectRoom;/);
+  assert.match(appSource, /project\.selectedRoomId = selectedRoomId;/);
+  const previewFunction = appSource.match(/function previewAtlasRoom\(room\) \{[\s\S]*?\n\}/)?.[0] || "";
+  assert.doesNotMatch(previewFunction, /followPlayer = false/);
+});
+
 test("mapper claims activation before the first command after returning to the tab", () => {
   assert.match(appSource, /function claimMapperActivationIfVisible\(reason\) \{/);
   assert.match(appSource, /if \(document\.visibilityState === "hidden"\) return;/);

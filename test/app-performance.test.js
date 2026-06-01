@@ -12,12 +12,25 @@ test("terminal keeps only a small technical scrollback", () => {
 });
 
 test("process memory position is the only mapper position sync", () => {
-  assert.match(appSource, /source\.addEventListener\("game-position", \(event\) => applyGameMemoryPosition\(JSON\.parse\(event\.data\)\)\);/);
+  assert.match(appSource, /source\.addEventListener\("game-position", \(event\) => receiveGameMemoryPosition\(JSON\.parse\(event\.data\)\)\);/);
   assert.match(appSource, /function applyGameMemoryPosition\(position = \{\}\) \{/);
   assert.match(appSource, /const worldRoom = worldRoomsByKey\.get\(worldKey\);/);
   assert.match(appSource, /ensureProjectRoomForWorldRoom\(worldRoom, \{\}\)/);
   assert.match(appSource, /logMapper\("game-position-memory-applied"/);
   assert.match(appSource, /saveProject\(\{ immediateServerSave: true, positionOnly: !layerChanged \}\);/);
+});
+
+test("refresh waits for process memory before showing player position", () => {
+  assert.match(appSource, /let playerPositionKnown = false;/);
+  assert.match(appSource, /let pendingGameMemoryPosition = null;/);
+  assert.match(appSource, /function receiveGameMemoryPosition\(position = \{\}\) \{/);
+  assert.match(appSource, /if \(!worldRoomsByKey\.size\) \{[\s\S]*pendingGameMemoryPosition = position;[\s\S]*return;/);
+  assert.match(appSource, /function applyPendingGameMemoryPosition\(\) \{/);
+  assert.match(appSource, /applyPendingGameMemoryPosition\(\);/);
+  assert.match(appSource, /function shouldShowWaitingForPlayerPosition\(\) \{/);
+  assert.match(appSource, /Pozycja postaci nieznana/);
+  assert.match(appSource, /if \(!playerPositionKnown\) return null;/);
+  assert.match(appSource, /playerPositionKnown && item\.id === playerRoomId/);
 });
 
 test("terminal output no longer drives mapper position", () => {

@@ -81,6 +81,8 @@ let selectedRoomId = project.selectedRoomId || project.currentRoomId;
 let selectedRoomPreview = null;
 let selectedWorldPreview = null;
 let playerRoomId = project.playerRoomId || project.currentRoomId;
+let playerPositionKnown = false;
+let pendingGameMemoryPosition = null;
 let followPlayer = project.followPlayer !== false;
 let descriptionVisible = true;
 let editingGlobalNotesPageId = null;
@@ -147,6 +149,7 @@ async function initWorldCache() {
     await initWorldAtlas();
     repairProjectRoomsFromWorldData();
     await loadProjectFromServer({ silentMissing: true });
+    applyPendingGameMemoryPosition();
     logMapper("world-cache-loaded", {
       rooms: worldCache.rooms.length,
       areas: worldCache.areas?.length || 0,
@@ -263,7 +266,8 @@ function bindEvents() {
   });
   document.querySelector("#resetBtn").addEventListener("click", () => {
     project = createEmptyProject();
-    playerRoomId = project.currentRoomId;
+    playerRoomId = "";
+    playerPositionKnown = false;
     selectedRoomId = project.currentRoomId;
     selectedRoomPreview = null;
     selectedWorldPreview = null;
@@ -547,8 +551,11 @@ function previewAtlasRoom(room) {
     selectedWorldPreview = room;
     return;
   }
-  selectedRoomPreview = room;
+  const projectRoom = getRoomById(room.id) || room;
+  selectedRoomId = projectRoom.id;
+  selectedRoomPreview = projectRoom;
   selectedWorldPreview = null;
+  project.selectedRoomId = selectedRoomId;
 }
 
 function findMapRoomAtClientPoint(clientX, clientY) {
@@ -627,7 +634,7 @@ function connectEventStream() {
     const state = JSON.parse(event.data);
     serverActiveMapperId = state.activeInstanceId || null;
   });
-  source.addEventListener("game-position", (event) => applyGameMemoryPosition(JSON.parse(event.data)));
+  source.addEventListener("game-position", (event) => receiveGameMemoryPosition(JSON.parse(event.data)));
   source.addEventListener("terminal-output-history-v3", (event) => {
     for (const entry of JSON.parse(event.data)) addGameOutput(entry, false);
   });
@@ -673,8 +680,22 @@ function addGameOutput(entry, live) {
   }
 }
 
+function receiveGameMemoryPosition(position = {}) {
+  pendingGameMemoryPosition = position;
+  applyGameMemoryPosition(position);
+}
+
+function applyPendingGameMemoryPosition() {
+  if (!pendingGameMemoryPosition) return;
+  applyGameMemoryPosition(pendingGameMemoryPosition);
+}
+
 function applyGameMemoryPosition(position = {}) {
   applyGameMemoryStats(position);
+  if (!worldRoomsByKey.size) {
+    pendingGameMemoryPosition = position;
+    return;
+  }
   const worldKey = String(position.worldKey || "");
   if (!worldKey) return;
   const worldRoom = worldRoomsByKey.get(worldKey);
@@ -699,6 +720,8 @@ function applyGameMemoryPosition(position = {}) {
   syncDiscoveredWorldLinks(room);
 
   playerRoomId = room.id;
+  playerPositionKnown = true;
+  pendingGameMemoryPosition = null;
   project.playerRoomId = playerRoomId;
   project.currentRoomId = playerRoomId;
   if (followPlayer) {
@@ -1394,7 +1417,12 @@ function getSelectedRoom() {
 }
 
 function getPlayerRoom() {
+  if (!playerPositionKnown) return null;
   return getRoomById(playerRoomId) || project.rooms[0] || null;
+}
+
+function shouldShowWaitingForPlayerPosition() {
+  return followPlayer && !playerPositionKnown && !selectedRoomPreview && !selectedWorldPreview;
 }
 
 function render() {
@@ -1404,6 +1432,22 @@ function render() {
 }
 
 function renderInspector() {
+  if (shouldShowWaitingForPlayerPosition()) {
+    els.roomContext.textContent = "Czekam na odczyt pozycji z gry.";
+    els.roomContext.hidden = false;
+    els.roomTitleInput.value = "Pozycja postaci nieznana";
+    els.roomDescriptionInput.value = "Jesli gra jest uruchomiona, mapper uzupelni to pole po pierwszym odczycie pamieci procesu.";
+    els.roomTagsInput.value = "";
+    els.roomNotesInput.value = "";
+    els.roomTagsInput.disabled = true;
+    els.roomNotesInput.disabled = true;
+    els.roomTagsInput.placeholder = "Dostepne po wybraniu lokacji";
+    els.roomNotesInput.placeholder = "Dostepne po wybraniu lokacji";
+    renderGlobalNotesPanel();
+    els.mapTitle.textContent = "Mapa";
+    els.mapCount.textContent = "Pozycja nieznana";
+    return;
+  }
   const room = getSelectedRoom();
   if (!room) return;
   const playerRoom = getPlayerRoom();
@@ -1611,10 +1655,10 @@ function renderMap() {
     const point = coords.get(item.id);
     const selectedForPreview = selectedRoomPreview?.id === item.id;
     const selectedForProject = !selectedRoomPreview && item.id === selectedRoomId;
-    const group = svg("g", { class: `room-node ${item.id === playerRoomId ? "current" : ""} ${selectedForPreview || selectedForProject ? "selected" : ""}` });
+    const group = svg("g", { class: `room-node ${playerPositionKnown && item.id === playerRoomId ? "current" : ""} ${selectedForPreview || selectedForProject ? "selected" : ""}` });
     group.append(drawRoomHitTarget(point, cell));
     group.append(svg("rect", { x: point.x, y: point.y, width: cell, height: cell }));
-    if (item.id === playerRoomId) drawPlayerLocationMarker(group, point, cell);
+    if (playerPositionKnown && item.id === playerRoomId) drawPlayerLocationMarker(group, point, cell);
     drawRoomLabel(group, item, point, cell);
     drawRoomMapBadges(group, item, point, cell);
     group.append(svg("title", {}, item.title || "Lokacja"));
@@ -2587,15 +2631,16 @@ function applyUserLayerImport(payload) {
   }
 
   const firstWorldRoom = project.rooms.find((room) => room.worldKey);
-  playerRoomId = firstWorldRoom?.id || project.currentRoomId;
-  selectedRoomId = playerRoomId;
+  playerRoomId = "";
+  playerPositionKnown = false;
+  selectedRoomId = firstWorldRoom?.id || project.currentRoomId;
   selectedRoomPreview = null;
   selectedWorldPreview = null;
   followPlayer = true;
 
   project.playerRoomId = playerRoomId;
   project.selectedRoomId = selectedRoomId;
-  project.currentRoomId = playerRoomId;
+  project.currentRoomId = "";
   project.followPlayer = followPlayer;
 }
 
