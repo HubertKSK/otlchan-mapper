@@ -1,6 +1,8 @@
 # Otchlan Mapper
 
 Lokalna aplikacja webowa do grania w Otchlan 1.3 i prowadzenia mapy lokacji. Aplikacja uruchamia gre w pseudo-terminalu, pokazuje terminal w przegladarce przez xterm.js i synchronizuje pozycje gracza z pamieci procesu `otchlan.exe`.
+<img width="2155" height="1264" alt="image" src="https://github.com/user-attachments/assets/31a62d99-4722-44bf-a9ee-90c23505ff6f" />
+
 
 Projekt jest przeznaczony do lokalnego uruchamiania na Windowsie.
 
