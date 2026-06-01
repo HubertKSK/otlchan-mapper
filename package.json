@@ -1,0 +1,22 @@
+{
+  "name": "otchlan-mapper",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node scripts/check-syntax.mjs",
+    "smoke": "node scripts/smoke-server.mjs",
+    "test": "node --test",
+    "verify": "npm run check && npm test && npm run smoke",
+    "world:extract": "node scripts/extract-world.mjs",
+    "world:atlas": "node scripts/build-world-atlas.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@homebridge/node-pty-prebuilt-multiarch": "^0.13.1",
+    "@xterm/xterm": "^6.0.0"
+  }
+}

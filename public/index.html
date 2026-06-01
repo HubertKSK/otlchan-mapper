@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Otchlan Mapper</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%2315191c'/%3E%3Cpath d='M14.8 3.8 20.2 9.2M12.3 6.3l5.4 5.4M4.3 19.7l5.5-5.5M7.2 16.8l-2-2M10.4 13.6 17.8 6.2l-2-2-7.4 7.4 2 2Z' fill='none' stroke='%2368d8b0' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/vendor/@xterm/xterm/css/xterm.css">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <svg class="brand-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M14.8 3.8 20.2 9.2"></path>
+          <path d="M12.3 6.3l5.4 5.4"></path>
+          <path d="M4.3 19.7l5.5-5.5"></path>
+          <path d="M7.2 16.8l-2-2"></path>
+          <path d="M10.4 13.6 17.8 6.2l-2-2-7.4 7.4 2 2Z"></path>
+        </svg>
+        <h1>Otchlan Mapper</h1>
+        <p id="statusText">Laczenie z watcherem...</p>
+      </div>
+    </header>
+
+    <main id="appShell" class="layout" data-workspace="game">
+      <section class="terminal-panel" aria-label="Terminal Otchlani">
+        <div class="panel-head">
+          <div>
+            <strong>Terminal Otchlani</strong>
+            <span class="panel-subtitle">120 x 48</span>
+            <span id="gameStatus" class="game-status">nie uruchomiona</span>
+          </div>
+          <button id="startGameBtn" class="game-toggle-btn icon-btn" type="button" title="Uruchom gre" aria-label="Uruchom gre">
+            <svg class="button-icon game-start-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M8 5v14l11-7z"></path>
+            </svg>
+            <svg class="button-icon game-stop-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <rect x="7" y="7" width="10" height="10" rx="1.5"></rect>
+            </svg>
+          </button>
+        </div>
+        <div class="terminal-stage">
+          <div id="gameOutput" class="game-output" aria-label="Wyjscie gry"></div>
+        </div>
+        <div id="characterVitals" class="character-vitals" aria-label="Stan postaci">
+          <div class="vital-meter vital-hp" aria-label="Zdrowie">
+            <div class="vital-meta">
+              <span>HP</span>
+              <strong id="hpValue">--/--</strong>
+            </div>
+            <div class="vital-track" aria-hidden="true"><span id="hpBar"></span></div>
+          </div>
+          <div class="vital-meter vital-mana" aria-label="Mana">
+            <div class="vital-meta">
+              <span>Mana</span>
+              <strong id="manaValue">--/--</strong>
+            </div>
+            <div class="vital-track" aria-hidden="true"><span id="manaBar"></span></div>
+          </div>
+          <div class="vital-meter vital-mv" aria-label="Punkty ruchu">
+            <div class="vital-meta">
+              <span>MV</span>
+              <strong id="mvValue">--/--</strong>
+            </div>
+            <div class="vital-track" aria-hidden="true"><span id="mvBar"></span></div>
+          </div>
+          <div class="resource-pill resource-gold" title="Zloto przy postaci i w banku">
+            <div class="resource-line">
+              <span>Przy sobie</span>
+              <strong id="goldValue">--</strong>
+            </div>
+            <div class="resource-line resource-subline">
+              <span>Bank</span>
+              <strong id="goldBankValue">--</strong>
+            </div>
+          </div>
+          <div class="resource-pill resource-exp" title="Doswiadczenie do nastepnego poziomu">
+            <div class="resource-line">
+              <span>Exp</span>
+              <strong id="expValue">--/--</strong>
+            </div>
+            <div class="vital-track resource-track" aria-hidden="true"><span id="expBar"></span></div>
+          </div>
+          <div class="active-effects" aria-label="Aktywne czary i statusy">
+            <span>Statusy</span>
+            <div id="activeEffectsList" class="active-effects-list">
+              <strong>--</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="map-panel" aria-label="Mapa">
+        <div class="panel-head">
+          <div>
+            <div class="map-title-row">
+              <strong id="mapTitle">Mapa</strong>
+            </div>
+            <span id="mapCount">Poziom 0</span>
+          </div>
+          <div class="map-actions">
+            <div class="zoom" aria-label="Narzędzia mapy">
+              <button id="followPlayerBtn" class="map-toggle icon-btn active" type="button" title="Śledź gracza" aria-label="Śledź gracza" aria-pressed="true">
+                <svg class="button-icon follow-player-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M12 3v3M12 18v3M3 12h3M18 12h3"></path>
+                  <circle cx="12" cy="12" r="7"></circle>
+                  <path d="m9.5 14.5 1.2-3.8 3.8-1.2-1.2 3.8-3.8 1.2Z"></path>
+                </svg>
+              </button>
+              <button id="centerMapBtn" class="icon-btn" type="button" title="Wycentruj na graczu" aria-label="Wycentruj na graczu">
+                <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M12 3v3M12 18v3M3 12h3M18 12h3"></path>
+                  <circle cx="12" cy="12" r="6"></circle>
+                  <circle cx="12" cy="12" r="1.5"></circle>
+                </svg>
+              </button>
+              <button id="mapDebugBtn" class="map-toggle icon-btn" type="button" title="Pokaż ukryte lokacje" aria-label="Pokaż ukryte lokacje" aria-pressed="false">
+                <svg class="button-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+              </button>
+              <button id="mapZDownBtn" class="icon-btn" type="button" title="Poziom niżej" aria-label="Poziom niżej">Z−</button>
+              <button id="mapZUpBtn" class="icon-btn" type="button" title="Poziom wyżej" aria-label="Poziom wyżej">Z+</button>
+              <button id="zoomOutBtn" class="icon-btn" type="button" title="Pomniejsz" aria-label="Pomniejsz">−</button>
+              <button id="zoomInBtn" class="icon-btn" type="button" title="Powiększ" aria-label="Powiększ">+</button>
+            </div>
+            <div class="app-menu">
+              <button id="menuBtn" class="menu-btn icon-btn" type="button" title="Opcje aplikacji" aria-label="Opcje aplikacji" aria-expanded="false" aria-controls="appMenuPanel">⋯</button>
+              <div id="appMenuPanel" class="menu-panel" hidden>
+                <div class="actions" aria-label="Akcje mapy i ustawien">
+                  <button id="debugRecordBtn" class="debug-only" type="button" hidden title="Nagrywaj output terminala do logs/terminal-output-debug.jsonl">Nagrywaj terminal</button>
+                  <button id="themeBtn" title="Przelacz jasny lub ciemny tryb">Ciemny tryb</button>
+                  <button id="toggleDescriptionBtn" class="setting-toggle" type="button" title="Pokaz lub ukryj opis lokacji w panelu UI" aria-pressed="true">
+                    <span>Opis lokacji</span>
+                    <span class="toggle-switch" aria-hidden="true"></span>
+                  </button>
+                  <button id="saveServerBtn" type="button" title="Zapisz mape na serwerze">Zapisz na serwerze</button>
+                  <button id="loadServerBtn" type="button" title="Wczytaj mape zapisana na serwerze">Wczytaj z serwera</button>
+                  <div class="data-actions" aria-label="Import i eksport backupu">
+                    <button id="exportBtn" title="Eksportuj backup mapy do pliku JSON">Eksportuj backup</button>
+                    <label class="file-btn" title="Importuj backup mapy z pliku JSON">
+                      Importuj backup
+                      <input id="importInput" type="file" accept="application/json,.json">
+                    </label>
+                  </div>
+                  <button id="resetBtn" class="danger-action" title="Utworz nowa pusta mape">Nowa mapa</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="map-stage">
+          <svg id="mapSvg" role="img" aria-label="Mapa lokacji"></svg>
+          <div id="mapLevelTransitionOverlay" class="map-level-transition-overlay" aria-hidden="true" hidden></div>
+        </div>
+      </section>
+
+      <section class="location-panel" aria-label="Informacje o lokacji">
+        <section class="current-card">
+          <div class="room-heading">
+            <input id="roomTitleInput" aria-label="Nazwa lokacji" value="Start" readonly>
+          </div>
+          <p id="roomContext" class="room-context" hidden></p>
+          <div class="text-fields">
+            <label id="roomDescriptionField" class="full-label readonly-field room-description-field">Opis
+              <textarea id="roomDescriptionInput" rows="5" placeholder="Opis lokacji z gry lub wlasne streszczenie..." readonly></textarea>
+            </label>
+            <label class="full-label editable-field">Tagi
+              <input id="roomTagsInput" placeholder="sklep, quest, ukryte">
+            </label>
+            <label class="full-label editable-field">Notatki
+              <textarea id="roomNotesInput" rows="4" placeholder="Mob, sklep, zagadka, droga powrotna..."></textarea>
+            </label>
+          </div>
+        </section>
+      </section>
+
+      <section class="global-notes-panel" aria-label="Notes">
+        <div class="notes-panel-head">
+          <strong>Notes</strong>
+          <div id="globalNotesPages" class="notes-page-tabs" role="tablist" aria-label="Strony notesu"></div>
+          <div class="notes-actions">
+            <button id="addGlobalNotePageBtn" type="button" title="Dodaj strone notesu" aria-label="Dodaj strone notesu">+</button>
+            <button id="deleteGlobalNotePageBtn" type="button" title="Usun strone notesu" aria-label="Usun strone notesu">-</button>
+          </div>
+        </div>
+        <textarea id="globalNotesInput" rows="8" aria-label="Notatki wybranej strony" placeholder="Plan wyprawy, rzeczy do sprawdzenia, cele niezalezne od lokacji..."></textarea>
+      </section>
+    </main>
+
+    <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="false"></div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

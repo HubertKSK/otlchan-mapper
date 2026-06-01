@@ -1,0 +1,12 @@
+*.log
+*.log.*
+*.jsonl
+*.jsonl.*
+*.tmp
+otchlan-map.json
+user-layer.json
+world-cache.json
+world-atlas.json
+node_modules/
+codex.md
+.hidden

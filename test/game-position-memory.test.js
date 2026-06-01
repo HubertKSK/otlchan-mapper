@@ -1,0 +1,56 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
+
+const serverSource = await readFile(new URL("../server.js", import.meta.url), "utf8");
+const readerSource = await readFile(new URL("../scripts/read-otchlan-position.ps1", import.meta.url), "utf8");
+
+test("server publishes Otchlan position from process memory", () => {
+  assert.match(serverSource, /const OTCHLAN_POSITION_READER = path\.join\(__dirname, "scripts", "read-otchlan-position\.ps1"\);/);
+  assert.match(serverSource, /startGamePositionReader\(gameProcess\.pid\);/);
+  assert.match(serverSource, /sendEvent\(client, "game-position", lastGamePosition\);/);
+  assert.match(serverSource, /broadcast\("game-position", lastGamePosition\);/);
+  assert.match(serverSource, /event: "game-position-memory"/);
+  assert.match(serverSource, /source: "process-memory"/);
+  assert.match(serverSource, /vitals: normalizeGameVitals\(payload\.vitals\)/);
+  assert.match(serverSource, /economy: normalizeGameEconomy\(payload\.economy\)/);
+  assert.match(serverSource, /effects: normalizeGameEffects\(payload\.effects\)/);
+  assert.match(serverSource, /conditions: normalizeGameConditions\(payload\.conditions\)/);
+});
+
+test("position reader extracts G1 location and area file offsets", () => {
+  assert.match(readerSource, /\$G1_ADDRESS = \[IntPtr\]0x47f570/);
+  assert.match(readerSource, /\$BUFFER_SIZE = 8192/);
+  assert.match(readerSource, /\$LOKAC_OFFSET = 312/);
+  assert.match(readerSource, /\$PLIKAREA_OFFSET = 1084/);
+  assert.match(readerSource, /\$UMI_OFFSET = 1102/);
+  assert.match(readerSource, /\$HP_OFFSET = 202/);
+  assert.match(readerSource, /\$MANA_OFFSET = 210/);
+  assert.match(readerSource, /\$MV_OFFSET = 218/);
+  assert.match(readerSource, /\$EXPE_OFFSET = 226/);
+  assert.match(readerSource, /\$LICZG_OFFSET = 234/);
+  assert.match(readerSource, /\$LICZS_OFFSET = 238/);
+  assert.match(readerSource, /\$HUNGER_WARNING_THRESHOLD = 3000/);
+  assert.match(readerSource, /\$MINEXP_OFFSET = 5062/);
+  assert.match(readerSource, /\$EXPLIMIT_OFFSET = 5066/);
+  assert.match(readerSource, /\$PRZYSOBIE_OFFSET = 318/);
+  assert.match(readerSource, /\$CZARKI_OFFSET = 4462/);
+  assert.match(readerSource, /\$CZARKI_SKILL_BASE_NUMER = 152/);
+  assert.match(readerSource, /\$MONEY_OBJECT_VALUES = @\{/);
+  assert.match(readerSource, /500 = 1/);
+  assert.match(readerSource, /1105 = 100/);
+  assert.match(readerSource, /495 = 50000/);
+  assert.match(readerSource, /ReadProcessMemory/);
+  assert.match(readerSource, /ToInt16\(\$buffer, \$LOKAC_OFFSET\)/);
+  assert.match(readerSource, /ToDouble\(\$buffer, \$HP_OFFSET\)/);
+  assert.match(readerSource, /\$MONEY_OBJECT_VALUES\.ContainsKey\(\$objectNumber\)/);
+  assert.match(readerSource, /\$gold \+= \$quantity \* \$MONEY_OBJECT_VALUES\[\$objectNumber\]/);
+  assert.match(readerSource, /GetEncoding\(1250\)/);
+  assert.match(readerSource, /worldKey = \$worldKey/);
+  assert.match(readerSource, /vitals = @\{/);
+  assert.match(readerSource, /economy = @\{/);
+  assert.match(readerSource, /minExp = \$minExp/);
+  assert.match(readerSource, /expLimit = \$expLimit/);
+  assert.match(readerSource, /effects = \$effects/);
+  assert.match(readerSource, /conditions = \$conditions/);
+});
