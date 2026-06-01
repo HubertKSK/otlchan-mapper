@@ -9,7 +9,8 @@ import { StringDecoder } from "node:string_decoder";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, "public");
-const GAME_DIR = process.env.OTCHLAN_DIR || "C:\\Program Files (x86)\\Otchlan 1.3";
+const DEFAULT_GAME_DIR = "C:\\Program Files (x86)\\Otchlan 1.3";
+const GAME_DIR = process.env.OTCHLAN_DIR || DEFAULT_GAME_DIR;
 const PORT = Number(process.env.PORT || 5173);
 const LOG_DIR = path.join(__dirname, "logs");
 const SERVER_LOG_FILE = path.join(__dirname, "server.log");
@@ -256,7 +257,7 @@ async function handleRequest(req, res) {
 }
 
 server.listen(PORT, () => {
-  console.log(`Otchlan Automapper: http://localhost:${PORT}`);
+  console.log(`Otchlan Mapper: http://localhost:${PORT}`);
   console.log(`Watching: ${GAME_DIR}`);
   writeServerLog({
     level: "info",
@@ -271,7 +272,7 @@ await startWatcher();
 
 async function startWatcher() {
   if (!existsSync(GAME_DIR)) {
-    updateStatus({ message: "Nie znaleziono katalogu gry. Ustaw OTCHLAN_DIR i zrestartuj aplikacje." });
+    updateStatus({ message: `Nie znaleziono katalogu gry. Domyslnie szukam w ${DEFAULT_GAME_DIR}. Jesli gra jest gdzie indziej, ustaw OTCHLAN_DIR i zrestartuj aplikacje.` });
     setInterval(scanForLogs, 4000);
     return;
   }

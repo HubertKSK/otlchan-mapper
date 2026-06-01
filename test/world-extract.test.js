@@ -1,6 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { linkWorldRooms, parseAreaRooms } from "../scripts/extract-world.mjs";
+
+const extractorSource = await readFile(new URL("../scripts/extract-world.mjs", import.meta.url), "utf8");
+
+test("world extraction defaults to the standard Otchlan 1.3 install directory", () => {
+  assert.match(extractorSource, /const DEFAULT_OTCHLAN_DIR = "C:\\\\Program Files \(x86\)\\\\Otchlan 1\.3";/);
+  assert.match(extractorSource, /const DEFAULT_GAME_DIR = process\.env\.OTCHLAN_DIR \|\| DEFAULT_OTCHLAN_DIR;/);
+});
 
 test("extracts rooms that reuse shared descriptions through %call templates", () => {
   const rooms = parseAreaRooms("traktes.are", [

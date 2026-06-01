@@ -3,7 +3,8 @@ import path from "node:path";
 import { TextDecoder } from "node:util";
 import { pathToFileURL } from "node:url";
 
-const DEFAULT_GAME_DIR = process.env.OTCHLAN_DIR || "C:\\Program Files (x86)\\Otchlan 1.3";
+const DEFAULT_OTCHLAN_DIR = "C:\\Program Files (x86)\\Otchlan 1.3";
+const DEFAULT_GAME_DIR = process.env.OTCHLAN_DIR || DEFAULT_OTCHLAN_DIR;
 const DEFAULT_OUTPUT = "world-cache.json";
 const RECORD_SIZE = 251;
 const END_MARKER = 0xfe;

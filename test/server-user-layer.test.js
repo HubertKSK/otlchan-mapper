@@ -4,6 +4,12 @@ import { readFile } from "node:fs/promises";
 
 const serverSource = await readFile(new URL("../server.js", import.meta.url), "utf8");
 
+test("server defaults to the standard Otchlan 1.3 install directory", () => {
+  assert.match(serverSource, /const DEFAULT_GAME_DIR = "C:\\\\Program Files \(x86\)\\\\Otchlan 1\.3";/);
+  assert.match(serverSource, /const GAME_DIR = process\.env\.OTCHLAN_DIR \|\| DEFAULT_GAME_DIR;/);
+  assert.match(serverSource, /Domyslnie szukam w \$\{DEFAULT_GAME_DIR\}/);
+});
+
 test("server exposes user-layer save and load endpoints", () => {
   assert.match(serverSource, /const USER_LAYER_FILE = path\.join\(__dirname, "user-layer\.json"\);/);
   assert.match(serverSource, /url\.pathname === "\/api\/user-layer" && req\.method === "GET"/);
