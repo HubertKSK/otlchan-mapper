@@ -27,7 +27,7 @@ Projekt jest przeznaczony do lokalnego uruchamiania na Windowsie.
 - Windows
 - Node.js 18+
 - .NET SDK 8+ do zbudowania szybkiego czytnika pamieci
-- Otchlan 1.3
+- [Otchlan 1.3](https://otchlan.pl)
 
 Wazne: `Otchlan Mapper` nie musi byc w katalogu gry. To sa dwa osobne miejsca:
 

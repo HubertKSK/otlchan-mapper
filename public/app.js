@@ -9,10 +9,23 @@ import { Terminal } from "/vendor/@xterm/xterm/lib/xterm.mjs";
 const THEME_KEY = "otchlan-automapper-theme";
 const WORKSPACE_KEY = "otchlan-automapper-workspace-mode";
 const DESCRIPTION_VISIBLE_KEY = "otchlan-automapper-description-visible";
+const MOBS_VISIBLE_KEY = "otchlan-automapper-mobs-visible";
+const NOTES_VISIBLE_KEY = "otchlan-automapper-notes-visible";
+const STATS_VISIBLE_KEY = "otchlan-automapper-stats-visible";
 const ACTIVE_MAPPER_KEY = "otchlan-automapper-active-instance";
 const INSTANCE_ID = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 const TERMINAL_COLS = 120;
 const TERMINAL_ROWS = 48;
+const DEFAULT_STAT_VISIBILITY = Object.freeze({
+  hp: true,
+  mana: true,
+  mv: true,
+  gold: true,
+  exp: true,
+  statuses: true,
+  clock: true,
+  date: true
+});
 const TERMINAL_SCROLLBACK_LINES = 200;
 const TERMINAL_PARSE_WINDOW_LINES = 100;
 const SERVER_AUTOSAVE_MS = 120000;
@@ -66,9 +79,14 @@ const els = {
   menuPanel: document.querySelector("#appMenuPanel"),
   themeBtn: document.querySelector("#themeBtn"),
   toggleDescriptionBtn: document.querySelector("#toggleDescriptionBtn"),
-  saveServerBtn: document.querySelector("#saveServerBtn"),
-  loadServerBtn: document.querySelector("#loadServerBtn"),
+  toggleMobsBtn: document.querySelector("#toggleMobsBtn"),
+  toggleNotesBtn: document.querySelector("#toggleNotesBtn"),
+  statVisibilityButtons: document.querySelectorAll("[data-stat-toggle]"),
   debugRecordBtn: document.querySelector("#debugRecordBtn"),
+  debugSettingsSection: document.querySelector(".settings-section.debug-only"),
+  resetConfirmModal: document.querySelector("#resetConfirmModal"),
+  cancelResetBtn: document.querySelector("#cancelResetBtn"),
+  confirmResetBtn: document.querySelector("#confirmResetBtn"),
   toastStack: document.querySelector("#toastStack")
 };
 
@@ -89,6 +107,9 @@ let pendingGameMemoryPosition = null;
 let pendingPlayerTravelAnimation = null;
 let followPlayer = project.followPlayer !== false;
 let descriptionVisible = true;
+let mobsVisible = true;
+let notesVisible = true;
+let statVisibility = { ...DEFAULT_STAT_VISIBILITY };
 let editingGlobalNotesPageId = null;
 let serverActiveMapperId = null;
 let gameRunning = false;
@@ -136,6 +157,9 @@ const parserTerm = term;
 bindEvents();
 applySavedWorkspace();
 applySavedDescriptionVisibility();
+applySavedMobsVisibility();
+applySavedNotesVisibility();
+applySavedStatVisibility();
 initXterm();
 initMapperActivation();
 connectEventStream();
@@ -256,6 +280,10 @@ function bindEvents() {
     setAppMenuOpen(false);
   });
   document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && els.resetConfirmModal && !els.resetConfirmModal.hidden) {
+      closeResetConfirmModal();
+      return;
+    }
     if (event.key === "Escape") setAppMenuOpen(false);
   });
   window.addEventListener("focus", () => claimMapperActivationIfVisible("window-focus"));
@@ -274,18 +302,15 @@ function bindEvents() {
     setAppMenuOpen(false);
   });
   document.querySelector("#resetBtn").addEventListener("click", () => {
-    project = createEmptyProject();
-    playerRoomId = "";
-    playerPositionKnown = false;
-    selectedRoomId = project.currentRoomId;
-    selectedRoomPreview = null;
-    selectedWorldPreview = null;
-    followPlayer = true;
-    centerMapOnPlayer();
-    saveProject();
-    render();
-    showToast("Utworzono nowa mape.", "success");
-    setAppMenuOpen(false);
+    openResetConfirmModal();
+  });
+  els.cancelResetBtn?.addEventListener("click", closeResetConfirmModal);
+  els.resetConfirmModal?.addEventListener("click", (event) => {
+    if (event.target.closest("[data-confirm-close]")) closeResetConfirmModal();
+  });
+  els.confirmResetBtn?.addEventListener("click", () => {
+    closeResetConfirmModal();
+    resetProject();
   });
   document.querySelector("#zoomInBtn").addEventListener("click", () => {
     zoom = clampMapZoom(zoom * 1.2);
@@ -339,31 +364,26 @@ function bindEvents() {
   els.themeBtn.addEventListener("click", () => {
     const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
     setTheme(next);
-    setAppMenuOpen(false);
   });
   els.toggleDescriptionBtn?.addEventListener("click", () => {
     setDescriptionVisibility(!descriptionVisible);
     showToast(descriptionVisible ? "Opis lokacji wlaczony." : "Opis lokacji ukryty.", "success");
-    setAppMenuOpen(false);
   });
-  els.saveServerBtn?.addEventListener("click", async () => {
-    try {
-      const result = await saveProjectToServer({ force: true });
-      if (result?.ok) {
-        showToast("Mapa zapisana na serwerze.", "success");
-      } else {
-        showToast("Nie udalo sie zapisac mapy.", "error");
-      }
-    } catch (error) {
-      console.warn("[mapper:warn] server save failed", error);
-      showToast("Nie udalo sie zapisac mapy.", "error");
-    }
-    setAppMenuOpen(false);
+  els.toggleMobsBtn?.addEventListener("click", () => {
+    setMobsVisibility(!mobsVisible);
+    showToast(mobsVisible ? "Moby na mapie wlaczone." : "Moby na mapie ukryte.", "success");
   });
-  els.loadServerBtn?.addEventListener("click", async () => {
-    const loaded = await loadProjectFromServer();
-    showToast(loaded ? "Mapa wczytana z serwera." : "Nie udalo sie wczytac mapy.", loaded ? "success" : "error");
-    setAppMenuOpen(false);
+  els.toggleNotesBtn?.addEventListener("click", () => {
+    setNotesVisibility(!notesVisible);
+    showToast(notesVisible ? "Notes wlaczony." : "Notes ukryty.", "success");
+  });
+  els.statVisibilityButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const key = button.dataset.statToggle;
+      if (!Object.prototype.hasOwnProperty.call(DEFAULT_STAT_VISIBILITY, key)) return;
+      setStatVisibility(key, !statVisibility[key]);
+      showToast(`${getStatVisibilityLabel(key)} ${statVisibility[key] ? "widoczne" : "ukryte"}.`, "success");
+    });
   });
   els.debugRecordBtn.addEventListener("click", toggleTerminalRecording);
 }
@@ -371,6 +391,32 @@ function bindEvents() {
 function setAppMenuOpen(open) {
   els.menuPanel.hidden = !open;
   els.menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+}
+
+function openResetConfirmModal() {
+  if (!els.resetConfirmModal) return;
+  setAppMenuOpen(false);
+  els.resetConfirmModal.hidden = false;
+  els.confirmResetBtn?.focus();
+}
+
+function closeResetConfirmModal() {
+  if (!els.resetConfirmModal) return;
+  els.resetConfirmModal.hidden = true;
+}
+
+function resetProject() {
+  project = createEmptyProject();
+  playerRoomId = "";
+  playerPositionKnown = false;
+  selectedRoomId = project.currentRoomId;
+  selectedRoomPreview = null;
+  selectedWorldPreview = null;
+  followPlayer = true;
+  centerMapOnPlayer();
+  saveProject();
+  render();
+  showToast("Utworzono nowa mape.", "success");
 }
 
 async function initDebugControls() {
@@ -397,9 +443,11 @@ async function toggleTerminalRecording() {
 
 function applyDebugState(state = {}) {
   if (!state.enabled) {
+    if (els.debugSettingsSection) els.debugSettingsSection.hidden = true;
     els.debugRecordBtn.hidden = true;
     return;
   }
+  if (els.debugSettingsSection) els.debugSettingsSection.hidden = false;
   els.debugRecordBtn.hidden = false;
   els.debugRecordBtn.dataset.recording = state.terminalRecording ? "true" : "false";
   els.debugRecordBtn.textContent = state.terminalRecording ? "Stop nagrywania" : "Nagrywaj terminal";
@@ -773,9 +821,9 @@ function updateGameMobs(position = {}) {
   if (!Array.isArray(position.mobs)) return false;
   const areaFile = String(position.areaFile || "");
   const mobs = normalizeClientGameMobs(position.mobs, areaFile);
-  const visibilityKey = canObserveGameMobs() ? "observable" : "hidden";
+  const visibilityKey = canRenderGameMobs() ? "visible" : "hidden";
   const visibleMobWorldKeys = getPlayerVisibleMobWorldKeys();
-  const signatureMobs = canObserveGameMobs()
+  const signatureMobs = canRenderGameMobs()
     ? mapDebugAll ? mobs : mobs.filter((mob) => visibleMobWorldKeys.has(mob.worldKey))
     : [];
   const signature = signatureMobs
@@ -1261,6 +1309,95 @@ function setDescriptionVisibility(visible, options = {}) {
   if (options.persist !== false) {
     localStorage.setItem(DESCRIPTION_VISIBLE_KEY, descriptionVisible ? "true" : "false");
   }
+}
+
+function applySavedMobsVisibility() {
+  const saved = localStorage.getItem(MOBS_VISIBLE_KEY);
+  setMobsVisibility(saved !== "false", { persist: false, render: false });
+}
+
+function setMobsVisibility(visible, options = {}) {
+  mobsVisible = Boolean(visible);
+  if (els.toggleMobsBtn) {
+    els.toggleMobsBtn.classList.toggle("is-on", mobsVisible);
+    els.toggleMobsBtn.setAttribute("aria-pressed", mobsVisible ? "true" : "false");
+    els.toggleMobsBtn.title = mobsVisible ? "Ukryj moby na mapie" : "Pokaz moby na mapie";
+  }
+  if (options.persist !== false) {
+    localStorage.setItem(MOBS_VISIBLE_KEY, mobsVisible ? "true" : "false");
+  }
+  currentGameMobSignature = "";
+  currentGameMobVisibilityKey = "";
+  if (options.render !== false) renderMap();
+}
+
+function applySavedNotesVisibility() {
+  const saved = localStorage.getItem(NOTES_VISIBLE_KEY);
+  setNotesVisibility(saved !== "false", { persist: false });
+}
+
+function setNotesVisibility(visible, options = {}) {
+  notesVisible = Boolean(visible);
+  document.body.classList.toggle("notes-hidden", !notesVisible);
+  if (els.toggleNotesBtn) {
+    els.toggleNotesBtn.classList.toggle("is-on", notesVisible);
+    els.toggleNotesBtn.setAttribute("aria-pressed", notesVisible ? "true" : "false");
+    els.toggleNotesBtn.title = notesVisible ? "Ukryj panel notesu" : "Pokaz panel notesu";
+  }
+  if (options.persist !== false) {
+    localStorage.setItem(NOTES_VISIBLE_KEY, notesVisible ? "true" : "false");
+  }
+}
+
+function applySavedStatVisibility() {
+  let saved = {};
+  try {
+    saved = JSON.parse(localStorage.getItem(STATS_VISIBLE_KEY) || "{}") || {};
+  } catch {
+    saved = {};
+  }
+  statVisibility = { ...DEFAULT_STAT_VISIBILITY, ...saved };
+  applyStatVisibility({ persist: false });
+}
+
+function setStatVisibility(key, visible, options = {}) {
+  statVisibility = {
+    ...statVisibility,
+    [key]: Boolean(visible)
+  };
+  applyStatVisibility(options);
+}
+
+function applyStatVisibility(options = {}) {
+  for (const key of Object.keys(DEFAULT_STAT_VISIBILITY)) {
+    const visible = statVisibility[key] !== false;
+    document.body.classList.toggle(`stat-hidden-${key}`, !visible);
+    const button = document.querySelector(`[data-stat-toggle="${key}"]`);
+    if (button) {
+      button.classList.toggle("is-on", visible);
+      button.setAttribute("aria-pressed", visible ? "true" : "false");
+      button.title = visible
+        ? `Ukryj: ${getStatVisibilityLabel(key)}`
+        : `Pokaz: ${getStatVisibilityLabel(key)}`;
+    }
+  }
+  if (options.persist !== false) {
+    localStorage.setItem(STATS_VISIBLE_KEY, JSON.stringify(statVisibility));
+  }
+}
+
+function getStatVisibilityLabel(key) {
+  const labels = {
+    hp: "HP",
+    mana: "Mana",
+    mv: "MV",
+    gold: "Zloto",
+    exp: "Poziom/EXP",
+    statuses: "Statusy",
+    clock: "Zegar",
+    date: "Data"
+  };
+  return labels[key] || key;
 }
 
 function initMapperActivation() {
@@ -1857,12 +1994,16 @@ function drawMobMarkers(coords, worldRenderIds, cell, z) {
 }
 
 function getRenderableMobs(z) {
-  if (!canObserveGameMobs()) return [];
+  if (!canRenderGameMobs()) return [];
   const visibleMobWorldKeys = getPlayerVisibleMobWorldKeys();
   return currentGameMobs.filter((mob) => {
     if (Number(mob.z) !== Number(z)) return false;
     return mapDebugAll || visibleMobWorldKeys.has(mob.worldKey);
   });
+}
+
+function canRenderGameMobs() {
+  return mobsVisible && canObserveGameMobs();
 }
 
 function canObserveGameMobs() {
@@ -2834,8 +2975,13 @@ function exportProject() {
   const link = document.createElement("a");
   link.href = url;
   link.download = "otchlan-map-backup.json";
+  link.style.display = "none";
+  document.body.append(link);
   link.click();
-  URL.revokeObjectURL(url);
+  window.setTimeout(() => {
+    URL.revokeObjectURL(url);
+    link.remove();
+  }, 1000);
 }
 
 async function importProject(event) {

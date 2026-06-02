@@ -60,27 +60,43 @@ test("mapper claims activation before the first command after returning to the t
   assert.match(appSource, /term\.onData\(\(data\) => \{[\s\S]*claimMapperActivation\("terminal-input"\)/);
 });
 
-test("server map save controls are available from the app menu", () => {
-  assert.match(htmlSource, /id="saveServerBtn"/);
-  assert.match(htmlSource, /Zapisz na serwerze/);
-  assert.match(htmlSource, /id="loadServerBtn"/);
-  assert.match(htmlSource, /Wczytaj z serwera/);
+test("manual server save and load controls are not shown in settings", () => {
+  assert.doesNotMatch(htmlSource, /id="saveServerBtn"/);
+  assert.doesNotMatch(htmlSource, /Zapisz na serwerze/);
+  assert.doesNotMatch(htmlSource, /id="loadServerBtn"/);
+  assert.doesNotMatch(htmlSource, /Wczytaj z serwera/);
+  assert.doesNotMatch(appSource, /saveServerBtn: document\.querySelector/);
+  assert.doesNotMatch(appSource, /loadServerBtn: document\.querySelector/);
 });
 
 test("file import and export are labeled as backups", () => {
   assert.match(htmlSource, /Eksportuj backup/);
   assert.match(htmlSource, /Importuj backup/);
   assert.match(appSource, /link\.download = "otchlan-map-backup\.json"/);
+  assert.match(appSource, /document\.body\.append\(link\)/);
+  assert.match(appSource, /window\.setTimeout\(\(\) => \{[\s\S]*URL\.revokeObjectURL\(url\);[\s\S]*link\.remove\(\);/);
 });
 
-test("save, load, and backup actions show bottom-right toast feedback", () => {
+test("backup actions show bottom-right toast feedback", () => {
   assert.match(htmlSource, /id="toastStack"/);
   assert.match(cssSource, /\.toast-stack[\s\S]*right: 16px;[\s\S]*bottom: 16px;/);
   assert.match(appSource, /function showToast\(message, type = "info"\)/);
-  assert.match(appSource, /showToast\("Mapa zapisana na serwerze\.", "success"\)/);
-  assert.match(appSource, /showToast\(loaded \? "Mapa wczytana z serwera\." : "Nie udalo sie wczytac mapy\."/);
   assert.match(appSource, /showToast\("Backup wyeksportowany\.", "success"\)/);
   assert.match(appSource, /showToast\("Backup zaimportowany\.", "success"\)/);
+});
+
+test("new map action requires confirmation modal", () => {
+  assert.match(htmlSource, /id="resetConfirmModal"[\s\S]*role="dialog"/);
+  assert.match(htmlSource, /id="cancelResetBtn"/);
+  assert.match(htmlSource, /id="confirmResetBtn"[\s\S]*Utworz nowa mape/);
+  assert.match(appSource, /resetConfirmModal: document\.querySelector\("#resetConfirmModal"\)/);
+  assert.match(appSource, /document\.querySelector\("#resetBtn"\)\.addEventListener\("click", \(\) => \{[\s\S]*openResetConfirmModal\(\);[\s\S]*\}\);/);
+  assert.match(appSource, /els\.confirmResetBtn\?\.addEventListener\("click", \(\) => \{[\s\S]*resetProject\(\);[\s\S]*\}\);/);
+  assert.match(appSource, /function openResetConfirmModal\(\) \{/);
+  assert.match(appSource, /function closeResetConfirmModal\(\) \{/);
+  assert.match(appSource, /function resetProject\(\) \{[\s\S]*project = createEmptyProject\(\);/);
+  assert.match(cssSource, /\.confirm-modal\s*\{/);
+  assert.match(cssSource, /\.confirm-modal\[hidden\]\s*\{[\s\S]*display: none;/);
 });
 
 test("server request failures show a bottom-right error toast", () => {
@@ -108,6 +124,54 @@ test("location description visibility can be toggled from the app menu", () => {
   assert.match(appSource, /classList\.toggle\("is-on", descriptionVisible\)/);
   assert.match(cssSource, /\.description-hidden \.room-description-field/);
   assert.match(cssSource, /\.toggle-switch::after/);
+});
+
+test("global notes panel visibility can be toggled from settings", () => {
+  assert.match(htmlSource, /id="toggleNotesBtn"[\s\S]*Notes/);
+  assert.match(appSource, /const NOTES_VISIBLE_KEY = "otchlan-automapper-notes-visible";/);
+  assert.match(appSource, /let notesVisible = true;/);
+  assert.match(appSource, /function applySavedNotesVisibility\(\) \{/);
+  assert.match(appSource, /function setNotesVisibility\(visible, options = \{\}\) \{/);
+  assert.match(appSource, /document\.body\.classList\.toggle\("notes-hidden", !notesVisible\)/);
+  assert.match(appSource, /setNotesVisibility\(!notesVisible\)/);
+  assert.match(cssSource, /\.notes-hidden \.global-notes-panel\s*\{[\s\S]*display: none;/);
+  assert.match(cssSource, /body\.notes-hidden \.layout\[data-workspace="game"\] \.location-panel\s*\{[\s\S]*grid-column: 2 \/ 4;/);
+});
+
+test("app menu is structured as settings with map mob visibility toggle", () => {
+  assert.match(htmlSource, /class="settings-panel"/);
+  assert.match(htmlSource, /class="settings-head"[\s\S]*Ustawienia/);
+  assert.match(htmlSource, /class="settings-section" aria-label="Interfejs"/);
+  assert.match(htmlSource, /class="settings-section" aria-label="Mapa"/);
+  assert.match(htmlSource, /id="toggleMobsBtn"[\s\S]*Moby na mapie/);
+  assert.match(htmlSource, /class="settings-section" aria-label="Postac"/);
+  assert.match(htmlSource, /class="settings-section" aria-label="Dane"/);
+  assert.match(htmlSource, /class="settings-section debug-only" aria-label="Debug"/);
+  assert.match(appSource, /const MOBS_VISIBLE_KEY = "otchlan-automapper-mobs-visible";/);
+  assert.match(appSource, /let mobsVisible = true;/);
+  assert.match(appSource, /function applySavedMobsVisibility\(\) \{/);
+  assert.match(appSource, /function setMobsVisibility\(visible, options = \{\}\) \{/);
+  assert.match(appSource, /setMobsVisibility\(!mobsVisible\)/);
+  assert.match(appSource, /return mobsVisible && canObserveGameMobs\(\);/);
+  assert.match(cssSource, /\.settings-panel/);
+  assert.match(cssSource, /\.settings-section/);
+});
+
+test("character stat widgets can be toggled from settings", () => {
+  for (const key of ["hp", "mana", "mv", "gold", "exp", "statuses", "clock", "date"]) {
+    assert.match(htmlSource, new RegExp(`data-stat-toggle="${key}"`));
+    assert.match(htmlSource, new RegExp(`data-stat-panel="${key}"`));
+    assert.match(cssSource, new RegExp(`body\\.stat-hidden-${key} \\[data-stat-panel="${key}"\\]`));
+  }
+  assert.match(appSource, /const STATS_VISIBLE_KEY = "otchlan-automapper-stats-visible";/);
+  assert.match(appSource, /const DEFAULT_STAT_VISIBILITY = Object\.freeze\(\{/);
+  assert.match(appSource, /statVisibilityButtons: document\.querySelectorAll\("\[data-stat-toggle\]"\)/);
+  assert.match(appSource, /function applySavedStatVisibility\(\) \{/);
+  assert.match(appSource, /function setStatVisibility\(key, visible, options = \{\}\) \{/);
+  assert.match(appSource, /document\.body\.classList\.toggle\(`stat-hidden-\$\{key\}`, !visible\)/);
+  assert.match(appSource, /localStorage\.setItem\(STATS_VISIBLE_KEY, JSON\.stringify\(statVisibility\)\)/);
+  assert.match(cssSource, /\.settings-toggle-grid/);
+  assert.match(cssSource, /body\.stat-hidden-statuses\.stat-hidden-clock\.stat-hidden-date \.active-effects/);
 });
 
 test("wide game layout fits location details when description is visible", () => {
@@ -172,14 +236,14 @@ test("map renders process-memory mobs as a separate marker layer", () => {
   assert.match(appSource, /let currentGameMobs = \[\];/);
   assert.match(appSource, /let currentGameMobVisibilityKey = "";/);
   assert.match(appSource, /function updateGameMobs\(position = \{\}\) \{/);
-  assert.match(appSource, /const visibilityKey = canObserveGameMobs\(\) \? "observable" : "hidden";/);
+  assert.match(appSource, /const visibilityKey = canRenderGameMobs\(\) \? "visible" : "hidden";/);
   assert.match(appSource, /function normalizeClientGameMobs\(mobs = \[\], areaFile = ""\) \{/);
   assert.match(appSource, /const worldKey = `\$\{areaFile\}:\$\{x\},\$\{y\},\$\{z\}`;/);
   assert.match(appSource, /const mobsChanged = updateGameMobs\(position\);/);
   assert.match(appSource, /if \(positionChanged \|\| layerChanged\) saveProject/);
   assert.match(appSource, /drawMobMarkers\(coords, worldRenderIds, cell, z\);/);
   assert.match(appSource, /function getRenderableMobs\(z\) \{/);
-  assert.match(appSource, /if \(!canObserveGameMobs\(\)\) return \[\];/);
+  assert.match(appSource, /if \(!canRenderGameMobs\(\)\) return \[\];/);
   assert.match(appSource, /function getPlayerVisibleMobWorldKeys\(\) \{/);
   assert.match(appSource, /for \(const direction of \["n", "e", "w", "s"\]\)/);
   assert.match(appSource, /for \(let distance = 0; distance < 4; distance \+= 1\)/);

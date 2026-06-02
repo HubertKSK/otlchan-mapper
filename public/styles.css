@@ -175,6 +175,59 @@ textarea:focus-visible,
   }
 }
 
+.confirm-modal {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+}
+
+.confirm-modal[hidden] {
+  display: none;
+}
+
+.confirm-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.54);
+}
+
+.confirm-modal-card {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 12px;
+  width: min(420px, 100%);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.confirm-modal-card > strong {
+  font-family: var(--font-heading);
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.confirm-modal-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.confirm-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .brand h1 {
   margin: 0;
   font-family: var(--font-heading);
@@ -257,34 +310,58 @@ textarea:focus-visible,
   z-index: 20;
   top: calc(100% + 8px);
   right: 0;
-  width: min(320px, calc(100vw - 24px));
-  padding: 10px;
+  width: min(360px, calc(100vw - 24px));
+  padding: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
   box-shadow: var(--shadow);
+  overflow: hidden;
 }
 
-.menu-panel .game-control,
-.menu-panel .actions,
-.menu-panel .data-actions {
-  align-items: stretch;
-  flex-direction: column;
+.settings-panel {
+  display: grid;
+  gap: 0;
+  max-height: min(72vh, 620px);
+  overflow-y: auto;
 }
 
-.menu-panel .game-control {
-  margin-bottom: 8px;
+.settings-head {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--panel-soft) 72%, var(--panel));
 }
 
-.menu-panel .game-control span {
-  min-width: 0;
-  padding: 0 2px 2px;
+.settings-head strong,
+.settings-section > strong {
+  font-family: var(--font-heading);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
 }
 
-.menu-panel .data-actions {
+.settings-section {
+  display: grid;
   gap: 8px;
-  padding-left: 0;
-  border-left: 0;
+  padding: 10px 12px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.settings-section:last-child {
+  border-bottom: 0;
+}
+
+.settings-section .data-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.settings-toggle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
 .menu-panel button,
@@ -295,6 +372,10 @@ textarea:focus-visible,
   font-weight: 400;
   line-height: 1.25;
   text-align: left;
+}
+
+.menu-panel .file-btn {
+  justify-content: flex-start;
 }
 
 .menu-panel .setting-toggle {
@@ -398,6 +479,10 @@ textarea:focus-visible,
   display: none;
 }
 
+.notes-hidden .global-notes-panel {
+  display: none;
+}
+
 .layout {
   display: grid;
   width: 100%;
@@ -455,6 +540,10 @@ textarea:focus-visible,
   grid-row: 2;
 }
 
+body.notes-hidden .layout[data-workspace="game"] .location-panel {
+  grid-column: 2 / 4;
+}
+
 @media (min-width: 1680px) {
   .topbar,
   .layout {
@@ -488,6 +577,10 @@ textarea:focus-visible,
   .layout[data-workspace="game"] .global-notes-panel {
     grid-column: 2;
     grid-row: 2;
+  }
+
+  body.notes-hidden .layout[data-workspace="game"] .location-panel {
+    grid-column: 1 / 3;
   }
 
   .layout[data-workspace="game"] #mapSvg {
@@ -693,6 +786,21 @@ textarea:focus-visible,
   color: var(--terminal-fg);
 }
 
+body.stat-hidden-hp [data-stat-panel="hp"],
+body.stat-hidden-mana [data-stat-panel="mana"],
+body.stat-hidden-mv [data-stat-panel="mv"],
+body.stat-hidden-gold [data-stat-panel="gold"],
+body.stat-hidden-exp [data-stat-panel="exp"],
+body.stat-hidden-statuses [data-stat-panel="statuses"],
+body.stat-hidden-clock [data-stat-panel="clock"],
+body.stat-hidden-date [data-stat-panel="date"] {
+  display: none;
+}
+
+body.stat-hidden-statuses.stat-hidden-clock.stat-hidden-date .active-effects {
+  display: none;
+}
+
 .vital-meter,
 .resource-pill,
 .active-effects {
@@ -874,6 +982,12 @@ textarea:focus-visible,
   gap: 4px 7px;
   min-width: 0;
   text-align: right;
+}
+
+.game-time-segment {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .game-time strong {

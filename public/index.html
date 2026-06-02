@@ -47,28 +47,28 @@
           <div id="gameOutput" class="game-output" aria-label="Wyjscie gry"></div>
         </div>
         <div id="characterVitals" class="character-vitals" aria-label="Stan postaci">
-          <div class="vital-meter vital-hp" aria-label="Zdrowie">
+          <div class="vital-meter vital-hp" data-stat-panel="hp" aria-label="Zdrowie">
             <div class="vital-meta">
               <span>HP</span>
               <strong id="hpValue">--/--</strong>
             </div>
             <div class="vital-track" aria-hidden="true"><span id="hpBar"></span></div>
           </div>
-          <div class="vital-meter vital-mana" aria-label="Mana">
+          <div class="vital-meter vital-mana" data-stat-panel="mana" aria-label="Mana">
             <div class="vital-meta">
               <span>Mana</span>
               <strong id="manaValue">--/--</strong>
             </div>
             <div class="vital-track" aria-hidden="true"><span id="manaBar"></span></div>
           </div>
-          <div class="vital-meter vital-mv" aria-label="Punkty ruchu">
+          <div class="vital-meter vital-mv" data-stat-panel="mv" aria-label="Punkty ruchu">
             <div class="vital-meta">
               <span>MV</span>
               <strong id="mvValue">--/--</strong>
             </div>
             <div class="vital-track" aria-hidden="true"><span id="mvBar"></span></div>
           </div>
-          <div class="resource-pill resource-gold" title="Zloto przy postaci i w banku">
+          <div class="resource-pill resource-gold" data-stat-panel="gold" title="Zloto przy postaci i w banku">
             <div class="resource-line">
               <span>Przy sobie</span>
               <strong id="goldValue">--</strong>
@@ -78,7 +78,7 @@
               <strong id="goldBankValue">--</strong>
             </div>
           </div>
-          <div class="resource-pill resource-exp" title="Doswiadczenie do nastepnego poziomu">
+          <div class="resource-pill resource-exp" data-stat-panel="exp" title="Doswiadczenie do nastepnego poziomu">
             <div class="resource-line">
               <span>Poziom</span>
               <strong id="levelValue">--</strong>
@@ -87,15 +87,19 @@
           </div>
           <div class="active-effects" aria-label="Aktywne czary i statusy">
             <div class="active-effects-head">
-              <span>Statusy</span>
+              <span data-stat-panel="statuses">Statusy</span>
               <div class="game-time" title="Czas gry i dzien podrozy">
-                <span>Czas</span>
-                <strong id="gameTimeValue">--:--</strong>
-                <span>Dzien</span>
-                <strong id="journeyDayValue">--</strong>
+                <span class="game-time-segment" data-stat-panel="clock">
+                  <span>Czas</span>
+                  <strong id="gameTimeValue">--:--</strong>
+                </span>
+                <span class="game-time-segment" data-stat-panel="date">
+                  <span>Dzien</span>
+                  <strong id="journeyDayValue">--</strong>
+                </span>
               </div>
             </div>
-            <div id="activeEffectsList" class="active-effects-list">
+            <div id="activeEffectsList" class="active-effects-list" data-stat-panel="statuses">
               <strong>--</strong>
             </div>
           </div>
@@ -140,23 +144,81 @@
             <div class="app-menu">
               <button id="menuBtn" class="menu-btn icon-btn" type="button" title="Opcje aplikacji" aria-label="Opcje aplikacji" aria-expanded="false" aria-controls="appMenuPanel">⋯</button>
               <div id="appMenuPanel" class="menu-panel" hidden>
-                <div class="actions" aria-label="Akcje mapy i ustawien">
-                  <button id="debugRecordBtn" class="debug-only" type="button" hidden title="Nagrywaj output terminala do logs/terminal-output-debug.jsonl">Nagrywaj terminal</button>
-                  <button id="themeBtn" title="Przelacz jasny lub ciemny tryb">Ciemny tryb</button>
-                  <button id="toggleDescriptionBtn" class="setting-toggle" type="button" title="Pokaz lub ukryj opis lokacji w panelu UI" aria-pressed="true">
-                    <span>Opis lokacji</span>
-                    <span class="toggle-switch" aria-hidden="true"></span>
-                  </button>
-                  <button id="saveServerBtn" type="button" title="Zapisz mape na serwerze">Zapisz na serwerze</button>
-                  <button id="loadServerBtn" type="button" title="Wczytaj mape zapisana na serwerze">Wczytaj z serwera</button>
-                  <div class="data-actions" aria-label="Import i eksport backupu">
+                <div class="settings-panel" aria-label="Ustawienia aplikacji">
+                  <div class="settings-head">
+                    <strong>Ustawienia</strong>
+                  </div>
+                  <section class="settings-section" aria-label="Interfejs">
+                    <strong>Interfejs</strong>
+                    <button id="themeBtn" title="Przelacz jasny lub ciemny tryb">Ciemny tryb</button>
+                    <button id="toggleDescriptionBtn" class="setting-toggle" type="button" title="Pokaz lub ukryj opis lokacji w panelu UI" aria-pressed="true">
+                      <span>Opis lokacji</span>
+                      <span class="toggle-switch" aria-hidden="true"></span>
+                    </button>
+                    <button id="toggleNotesBtn" class="setting-toggle" type="button" title="Pokaz lub ukryj panel notesu" aria-pressed="true">
+                      <span>Notes</span>
+                      <span class="toggle-switch" aria-hidden="true"></span>
+                    </button>
+                  </section>
+                  <section class="settings-section" aria-label="Mapa">
+                    <strong>Mapa</strong>
+                    <button id="toggleMobsBtn" class="setting-toggle" type="button" title="Pokaz lub ukryj moby na mapie" aria-pressed="true">
+                      <span>Moby na mapie</span>
+                      <span class="toggle-switch" aria-hidden="true"></span>
+                    </button>
+                  </section>
+                  <section class="settings-section" aria-label="Postac">
+                    <strong>Postac</strong>
+                    <div class="settings-toggle-grid" aria-label="Widocznosc statystyk postaci">
+                      <button class="setting-toggle" type="button" data-stat-toggle="hp" aria-pressed="true">
+                        <span>HP</span>
+                        <span class="toggle-switch" aria-hidden="true"></span>
+                      </button>
+                      <button class="setting-toggle" type="button" data-stat-toggle="mana" aria-pressed="true">
+                        <span>Mana</span>
+                        <span class="toggle-switch" aria-hidden="true"></span>
+                      </button>
+                      <button class="setting-toggle" type="button" data-stat-toggle="mv" aria-pressed="true">
+                        <span>MV</span>
+                        <span class="toggle-switch" aria-hidden="true"></span>
+                      </button>
+                      <button class="setting-toggle" type="button" data-stat-toggle="gold" aria-pressed="true">
+                        <span>Zloto</span>
+                        <span class="toggle-switch" aria-hidden="true"></span>
+                      </button>
+                      <button class="setting-toggle" type="button" data-stat-toggle="exp" aria-pressed="true">
+                        <span>Poziom/EXP</span>
+                        <span class="toggle-switch" aria-hidden="true"></span>
+                      </button>
+                      <button class="setting-toggle" type="button" data-stat-toggle="statuses" aria-pressed="true">
+                        <span>Statusy</span>
+                        <span class="toggle-switch" aria-hidden="true"></span>
+                      </button>
+                      <button class="setting-toggle" type="button" data-stat-toggle="clock" aria-pressed="true">
+                        <span>Zegar</span>
+                        <span class="toggle-switch" aria-hidden="true"></span>
+                      </button>
+                      <button class="setting-toggle" type="button" data-stat-toggle="date" aria-pressed="true">
+                        <span>Data</span>
+                        <span class="toggle-switch" aria-hidden="true"></span>
+                      </button>
+                    </div>
+                  </section>
+                  <section class="settings-section" aria-label="Dane">
+                    <strong>Dane</strong>
+                    <div class="data-actions" aria-label="Import i eksport backupu">
                     <button id="exportBtn" title="Eksportuj backup mapy do pliku JSON">Eksportuj backup</button>
                     <label class="file-btn" title="Importuj backup mapy z pliku JSON">
                       Importuj backup
                       <input id="importInput" type="file" accept="application/json,.json">
                     </label>
-                  </div>
-                  <button id="resetBtn" class="danger-action" title="Utworz nowa pusta mape">Nowa mapa</button>
+                    </div>
+                    <button id="resetBtn" class="danger-action" title="Utworz nowa pusta mape">Nowa mapa</button>
+                  </section>
+                  <section class="settings-section debug-only" aria-label="Debug" hidden>
+                    <strong>Debug</strong>
+                    <button id="debugRecordBtn" type="button" hidden title="Nagrywaj output terminala do logs/terminal-output-debug.jsonl">Nagrywaj terminal</button>
+                  </section>
                 </div>
               </div>
             </div>
@@ -201,6 +263,18 @@
         <textarea id="globalNotesInput" rows="8" aria-label="Notatki wybranej strony" placeholder="Plan wyprawy, rzeczy do sprawdzenia, cele niezalezne od lokacji..."></textarea>
       </section>
     </main>
+
+    <div id="resetConfirmModal" class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="resetConfirmTitle" hidden>
+      <div class="confirm-modal-backdrop" data-confirm-close="reset"></div>
+      <section class="confirm-modal-card">
+        <strong id="resetConfirmTitle">Nowa mapa?</strong>
+        <p>Ta akcja wyczysci aktualna warstwe mapy, notatki, tagi i backup roboczy w aplikacji.</p>
+        <div class="confirm-modal-actions">
+          <button id="cancelResetBtn" type="button">Anuluj</button>
+          <button id="confirmResetBtn" class="danger-action" type="button">Utworz nowa mape</button>
+        </div>
+      </section>
+    </div>
 
     <div id="toastStack" class="toast-stack" aria-live="polite" aria-atomic="false"></div>
 
