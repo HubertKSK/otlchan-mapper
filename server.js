@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import { spawn as spawnProcess } from "node:child_process";
 import pty from "@homebridge/node-pty-prebuilt-multiarch";
-import { createReadStream, existsSync, statSync, watch } from "node:fs";
+import { createReadStream, existsSync, readFileSync, statSync, watch } from "node:fs";
 import { appendFile, mkdir, readdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -45,6 +45,8 @@ let memoryReaderBuffer = "";
 let lastGamePosition = null;
 let lastGamePositionLogSignature = "";
 let lastGamePositionLogAt = 0;
+let worldCacheEffectNames = null;
+let worldCacheEffectNamesMtimeMs = 0;
 let worldBuildTask = null;
 let terminalSize = {
   cols: DEFAULT_TERMINAL_COLS,
@@ -1053,16 +1055,47 @@ function normalizeGameEnvironment(environment = {}) {
 function normalizeGameEffects(effects = []) {
   if (!Array.isArray(effects)) return [];
   return effects
-    .map((effect) => ({
-      slot: finiteNumber(effect?.slot),
-      number: finiteNumber(effect?.number),
-      duration: finiteNumber(effect?.duration),
-      count: finiteNumber(effect?.count),
-      skillIndex: finiteNumber(effect?.skillIndex),
-      name: normalizeEffectName(String(effect?.name || "")),
-      spell: finiteNumber(effect?.spell)
-    }))
+    .map((effect) => {
+      const number = finiteNumber(effect?.number);
+      const name = normalizeEffectName(String(effect?.name || "")) || getWorldCacheEffectName(number);
+      return {
+        slot: finiteNumber(effect?.slot),
+        number,
+        duration: finiteNumber(effect?.duration),
+        count: finiteNumber(effect?.count),
+        skillIndex: finiteNumber(effect?.skillIndex),
+        name,
+        spell: finiteNumber(effect?.spell)
+      };
+    })
     .filter((effect) => effect.number || effect.duration || effect.count);
+}
+
+function getWorldCacheEffectName(number) {
+  if (!number) return "";
+  const names = getWorldCacheEffectNames();
+  return names.get(number) || "";
+}
+
+function getWorldCacheEffectNames() {
+  try {
+    const fileStat = statSync(WORLD_CACHE_FILE);
+    if (worldCacheEffectNames && worldCacheEffectNamesMtimeMs === fileStat.mtimeMs) return worldCacheEffectNames;
+    const cache = JSON.parse(readFileSync(WORLD_CACHE_FILE, "utf8"));
+    const names = new Map();
+    for (const entry of cache.skillSymbols || []) {
+      const number = finiteNumber(entry?.number);
+      const name = normalizeEffectName(String(entry?.name || ""));
+      if (number && name) names.set(number, name);
+    }
+    worldCacheEffectNames = names;
+    worldCacheEffectNamesMtimeMs = fileStat.mtimeMs;
+    return names;
+  } catch {
+    worldCacheEffectNames = new Map();
+    worldCacheEffectNamesMtimeMs = 0;
+    return worldCacheEffectNames;
+  }
 }
 
 function normalizeGameConditions(conditions = []) {

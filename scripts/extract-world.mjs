@@ -69,17 +69,56 @@ export async function extractWorld(areaDirPath) {
   const linkedRooms = linkWorldRooms(rooms);
   const layers = buildWorldLayers(linkedRooms);
   const zLayers = buildZLayers(layers);
+  const skillSymbols = await extractSkillSymbols(gameDir, warnings);
 
   return {
     generatedAt: new Date().toISOString(),
     gameDir,
     recordSize: RECORD_SIZE,
     areas: areaFiles,
+    skillSymbols,
     layers,
     zLayers,
     rooms: linkedRooms,
     warnings
   };
+}
+
+export async function extractSkillSymbols(gameDirPath, warnings = []) {
+  const exePath = path.join(gameDirPath, "otchlan.exe");
+  try {
+    const text = decoder.decode(await readFile(exePath));
+    return parseSkillSymbolsFromText(text);
+  } catch (error) {
+    warnings.push(`otchlan.exe: skill symbol extraction failed: ${error.message}`);
+    return [];
+  }
+}
+
+export function parseSkillSymbolsFromText(text) {
+  const symbols = new Map();
+  const pattern = /UM_([A-Z0-9_]+):c=i([0-9A-Fa-f]+)/g;
+  for (const match of text.matchAll(pattern)) {
+    const symbol = match[1];
+    const raw = match[2];
+    const number = Number.parseInt(raw, 16);
+    if (!Number.isFinite(number) || number <= 0 || symbols.has(number)) continue;
+    symbols.set(number, {
+      number,
+      raw,
+      symbol,
+      name: formatSkillSymbolName(symbol)
+    });
+  }
+  return [...symbols.values()].sort((left, right) => left.number - right.number);
+}
+
+function formatSkillSymbolName(symbol) {
+  return symbol
+    .toLowerCase()
+    .replace(/_/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 export function linkWorldRooms(rooms) {

@@ -38,6 +38,14 @@ test("server publishes Otchlan position from process memory", () => {
   assert.match(serverSource, /canObserveMobs: environment\.canObserveMobs !== false/);
 });
 
+test("server enriches unnamed memory effects from extracted game symbols", () => {
+  assert.match(serverSource, /import \{ createReadStream, existsSync, readFileSync, statSync, watch \} from "node:fs";/);
+  assert.match(serverSource, /let worldCacheEffectNames = null;/);
+  assert.match(serverSource, /const name = normalizeEffectName\(String\(effect\?\.name \|\| ""\)\) \|\| getWorldCacheEffectName\(number\);/);
+  assert.match(serverSource, /function getWorldCacheEffectNames\(\) \{/);
+  assert.match(serverSource, /for \(const entry of cache\.skillSymbols \|\| \[\]\)/);
+});
+
 test("position reader extracts G1 location and area file offsets", () => {
   assert.match(readerSource, /\$G1_ADDRESS = \[IntPtr\]0x47f570/);
   assert.match(readerSource, /\$MOBS_MOBQ_ADDRESS = \[IntPtr\]0x477da0/);

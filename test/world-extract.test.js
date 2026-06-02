@@ -1,13 +1,39 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { linkWorldRooms, parseAreaRooms } from "../scripts/extract-world.mjs";
+import { linkWorldRooms, parseAreaRooms, parseSkillSymbolsFromText } from "../scripts/extract-world.mjs";
 
 const extractorSource = await readFile(new URL("../scripts/extract-world.mjs", import.meta.url), "utf8");
 
 test("world extraction defaults to the standard Otchlan 1.3 install directory", () => {
   assert.match(extractorSource, /const DEFAULT_OTCHLAN_DIR = "C:\\\\Program Files \(x86\)\\\\Otchlan 1\.3";/);
   assert.match(extractorSource, /const DEFAULT_GAME_DIR = process\.env\.OTCHLAN_DIR \|\| DEFAULT_OTCHLAN_DIR;/);
+});
+
+test("extracts skill symbols from otchlan.exe text for effect name fallback", () => {
+  const symbols = parseSkillSymbolsFromText(
+    "UM_UKRYCIE:c=i66;\0UM_LASKA_BLYSKAWIC:c=i9B;\0UM_WYKRYCIE_UKRYCIA:c=i91;"
+  );
+  assert.deepEqual(symbols.filter((symbol) => [0x66, 0x9b, 0x91].includes(symbol.number)), [
+    {
+      number: 0x66,
+      raw: "66",
+      symbol: "UKRYCIE",
+      name: "ukrycie"
+    },
+    {
+      number: 0x91,
+      raw: "91",
+      symbol: "WYKRYCIE_UKRYCIA",
+      name: "wykrycie ukrycia"
+    },
+    {
+      number: 0x9b,
+      raw: "9B",
+      symbol: "LASKA_BLYSKAWIC",
+      name: "laska blyskawic"
+    }
+  ]);
 });
 
 test("extracts rooms that reuse shared descriptions through %call templates", () => {
