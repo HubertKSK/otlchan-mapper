@@ -9,7 +9,8 @@
     "check": "node scripts/check-syntax.mjs",
     "smoke": "node scripts/smoke-server.mjs",
     "test": "node --test",
-    "verify": "npm run check && npm test && npm run smoke",
+    "verify": "npm run check && npm run memory:build && npm test && npm run smoke",
+    "memory:build": "dotnet build src/OtchlanMemoryReader/OtchlanMemoryReader.csproj -c Release",
     "world:extract": "node scripts/extract-world.mjs",
     "world:atlas": "node scripts/build-world-atlas.mjs"
   },

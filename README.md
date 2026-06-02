@@ -26,6 +26,7 @@ Projekt jest przeznaczony do lokalnego uruchamiania na Windowsie.
 
 - Windows
 - Node.js 18+
+- .NET SDK 8+ do zbudowania szybkiego czytnika pamieci
 - Otchlan 1.3
 
 Wazne: `Otchlan Mapper` nie musi byc w katalogu gry. To sa dwa osobne miejsca:
@@ -49,6 +50,7 @@ Potem zainstaluj zaleznosci:
 
 ```powershell
 npm install
+npm.cmd run memory:build
 ```
 
 ## Pierwsze Uruchomienie Dla Nietechnicznej Osoby
@@ -73,6 +75,7 @@ wpisz po kolei w katalogu aplikacji:
 ```powershell
 npm.cmd run world:extract
 npm.cmd run world:atlas
+npm.cmd run memory:build
 npm start
 ```
 
@@ -88,6 +91,7 @@ Jesli Otchlan jest zainstalowana gdzie indziej, nadal zostajesz w katalogu aplik
 $env:OTCHLAN_DIR="D:\Gry\Otchlan 1.3"
 npm.cmd run world:extract
 npm.cmd run world:atlas
+npm.cmd run memory:build
 npm start
 ```
 
@@ -107,6 +111,14 @@ Po pierwszym przygotowaniu atlasu nie trzeba za kazdym razem ekstraktowac mapy. 
 ```powershell
 npm start
 ```
+
+Jesli po aktualizacji projektu zmienil sie czytnik pamieci, uruchom jednorazowo:
+
+```powershell
+npm.cmd run memory:build
+```
+
+Serwer preferuje szybki czytnik `OtchlanMemoryReader.exe`. Jesli nie jest zbudowany, uzyje wolniejszego fallbacku PowerShell.
 
 Nastepnie otworz:
 
@@ -148,7 +160,8 @@ Opcjonalne zmienne srodowiskowe:
 - `OTCHLAN_DIR` - katalog instalacji gry.
 - `PORT` - port HTTP aplikacji, domyslnie `5173`.
 - `OTCHLAN_DEBUG` albo `DEBUG_TERMINAL` - wlacza nagrywanie outputu terminala w trybie debug.
-- `OTCHLAN_POSITION_POLL_MS` - interwal odczytu pamieci procesu, domyslnie `120`.
+- `OTCHLAN_POSITION_POLL_MS` - interwal odczytu pozycji i statystyk procesu, domyslnie `100`.
+- `OTCHLAN_MOB_POLL_MS` - interwal odczytu mobow z pamieci procesu, domyslnie `1000`.
 - `OTCHLAN_TERMINAL_COLS` - liczba kolumn terminala, domyslnie `120`.
 - `OTCHLAN_TERMINAL_ROWS` - liczba wierszy terminala, domyslnie `48`.
 - `OTCHLAN_LOG_MAX_BYTES` - rozmiar pliku logu przed rotacja, domyslnie `1048576`.
@@ -250,7 +263,8 @@ Logi sa lokalne, rotowane i ignorowane przez git.
 - `public/app.js` - terminal, komunikacja z serwerem, mapper, statystyki postaci i renderowanie mapy.
 - `public/map-core.js` - model mapy, kierunki, parser lokacji i laczenie pokoi.
 - `public/styles.css` - layout, motywy i animacje.
-- `scripts/read-otchlan-position.ps1` - odczyt pozycji, statystyk, zlota, EXP, czarow i statusow z pamieci `otchlan.exe`.
+- `src/OtchlanMemoryReader/` - szybki czytnik pamieci `otchlan.exe` w C#; pozycja jest czytana czesto, moby domyslnie co 1 sekunde.
+- `scripts/read-otchlan-position.ps1` - starszy fallback PowerShell do odczytu pamieci, uzywany tylko gdy szybki reader nie jest zbudowany.
 - `scripts/extract-world.mjs` - ekstrakcja danych swiata z plikow gry.
 - `scripts/build-world-atlas.mjs` - budowanie atlasu swiata.
 - `scripts/smoke-server.mjs` - szybki smoke test serwera.

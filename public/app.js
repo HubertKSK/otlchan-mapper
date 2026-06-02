@@ -20,12 +20,14 @@ const SERVER_SAVE_DEBOUNCE_MS = 250;
 const ACTIVE_TTL_MS = 3000;
 const MAP_ZOOM_MIN = 0.35;
 const MAP_ZOOM_MAX = 2.8;
+const PLAYER_TRAVEL_ANIMATION_MS = 320;
 const els = {
   appShell: document.querySelector("#appShell"),
   statusText: document.querySelector("#statusText"),
   mapTitle: document.querySelector("#mapTitle"),
   mapCount: document.querySelector("#mapCount"),
   mapSvg: document.querySelector("#mapSvg"),
+  mapPlayerLayer: document.querySelector("#mapPlayerLayer"),
   mapLevelTransitionOverlay: document.querySelector("#mapLevelTransitionOverlay"),
   mapDebugBtn: document.querySelector("#mapDebugBtn"),
   mapZDownBtn: document.querySelector("#mapZDownBtn"),
@@ -77,7 +79,6 @@ let debugMapZ = null;
 let mapView = { x: 41, y: 41, z: 0, area: "" };
 let mapDrag = null;
 let suppressNextMapClick = false;
-let lastPlayerMapPoint = null;
 let mapHitTargets = [];
 let selectedRoomId = project.selectedRoomId || project.currentRoomId;
 let selectedRoomPreview = null;
@@ -85,6 +86,7 @@ let selectedWorldPreview = null;
 let playerRoomId = project.playerRoomId || project.currentRoomId;
 let playerPositionKnown = false;
 let pendingGameMemoryPosition = null;
+let pendingPlayerTravelAnimation = null;
 let followPlayer = project.followPlayer !== false;
 let descriptionVisible = true;
 let editingGlobalNotesPageId = null;
@@ -103,7 +105,11 @@ let worldCache = null;
 let worldAtlas = null;
 let lastGameStats = null;
 let lastStatDeltaValues = null;
+let currentGameMobs = [];
+let currentGameMobAreaFile = "";
+let currentGameMobSignature = "";
 let playerTravelAnimationId = 0;
+let activePlayerTravelAnimationId = "";
 let mapViewAnimationId = 0;
 let lastAppliedMapViewContext = null;
 let lastRenderedMapLevel = null;
@@ -693,7 +699,8 @@ function applyPendingGameMemoryPosition() {
 }
 
 function applyGameMemoryPosition(position = {}) {
-  applyGameMemoryStats(position);
+  if (hasGameMemoryStatsPayload(position)) applyGameMemoryStats(position);
+  const mobsChanged = updateGameMobs(position);
   if (!worldRoomsByKey.size) {
     pendingGameMemoryPosition = position;
     return;
@@ -709,6 +716,12 @@ function applyGameMemoryPosition(position = {}) {
   }
 
   const previousRoom = getPlayerRoom();
+  if (playerPositionKnown && previousRoom?.worldKey === worldKey) {
+    pendingGameMemoryPosition = null;
+    if (mobsChanged) renderMap();
+    return;
+  }
+
   const previousWorldRoom = previousRoom?.worldKey ? worldRoomsByKey.get(previousRoom.worldKey) : null;
   const previousPlayerRoomId = playerRoomId;
   const previousSelectedRoomId = selectedRoomId;
@@ -736,7 +749,10 @@ function applyGameMemoryPosition(position = {}) {
 
   const positionChanged = previousPlayerRoomId !== playerRoomId || previousSelectedRoomId !== selectedRoomId;
   const layerChanged = project.rooms.length !== roomsBefore || project.exits.length !== exitsBefore;
-  if (positionChanged || layerChanged) {
+  if (previousPlayerRoomId !== playerRoomId) {
+    schedulePlayerTravelAnimation(previousRoom, room);
+  }
+  if (positionChanged || layerChanged || mobsChanged) {
     logMapper("game-position-memory-applied", {
       fromRoomId: previousRoom?.id || "",
       fromWorldKey: previousRoom?.worldKey || "",
@@ -747,9 +763,79 @@ function applyGameMemoryPosition(position = {}) {
       inferredDirection: inferredDirection || "",
       source: position.source || "process-memory"
     });
-    saveProject({ immediateServerSave: true, positionOnly: !layerChanged });
+    if (positionChanged || layerChanged) saveProject({ immediateServerSave: true, positionOnly: !layerChanged });
     render();
   }
+}
+
+function updateGameMobs(position = {}) {
+  if (!Array.isArray(position.mobs)) return false;
+  const areaFile = String(position.areaFile || "");
+  const mobs = normalizeClientGameMobs(position.mobs, areaFile);
+  const visibleMobWorldKeys = getPlayerVisibleMobWorldKeys();
+  const signatureMobs = mapDebugAll ? mobs : mobs.filter((mob) => visibleMobWorldKeys.has(mob.worldKey));
+  const signature = signatureMobs
+    .map((mob) => `${mob.id}:${mob.worldKey}:${mob.name}`)
+    .sort()
+    .join("|");
+  const changed = signature !== currentGameMobSignature || areaFile !== currentGameMobAreaFile;
+  currentGameMobs = mobs;
+  currentGameMobAreaFile = areaFile;
+  currentGameMobSignature = signature;
+  return changed;
+}
+
+function hasGameMemoryStatsPayload(position = {}) {
+  return Boolean(
+    position.vitals ||
+    position.economy ||
+    position.time ||
+    Array.isArray(position.effects) ||
+    Array.isArray(position.conditions)
+  );
+}
+
+function normalizeClientGameMobs(mobs = [], areaFile = "") {
+  if (!Array.isArray(mobs) || !areaFile) return [];
+  return mobs
+    .map((mob) => {
+      const id = finiteNumber(mob?.id);
+      const x = finiteNumber(mob?.x);
+      const y = finiteNumber(mob?.y);
+      const z = finiteNumber(mob?.z);
+      const worldKey = `${areaFile}:${x},${y},${z}`;
+      return {
+        id,
+        name: String(mob?.name || `Mob #${id}`).trim() || `Mob #${id}`,
+        x,
+        y,
+        z,
+        dx: finiteNumber(mob?.dx),
+        dy: finiteNumber(mob?.dy),
+        distance: finiteNumber(mob?.distance),
+        direction: String(mob?.direction || ""),
+        visibleCardinal4: Boolean(mob?.visibleCardinal4),
+        source: String(mob?.source || ""),
+        worldKey
+      };
+    })
+    .filter((mob) => mob.id > 0 && mob.x && mob.y && mob.z);
+}
+
+function schedulePlayerTravelAnimation(fromRoom, toRoom) {
+  if (!fromRoom || !toRoom || fromRoom.id === toRoom.id) {
+    pendingPlayerTravelAnimation = null;
+    return;
+  }
+  pendingPlayerTravelAnimation = {
+    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    fromRoomId: fromRoom.id,
+    toRoomId: toRoom.id,
+    fromZ: Number(fromRoom.z || 0),
+    toZ: Number(toRoom.z || 0),
+    startedAt: 0,
+    duration: PLAYER_TRAVEL_ANIMATION_MS
+  };
 }
 
 function applyGameMemoryStats(position = {}) {
@@ -1680,7 +1766,6 @@ function renderMap() {
     const group = svg("g", { class: `room-node ${playerPositionKnown && item.id === playerRoomId ? "current" : ""} ${selectedForPreview || selectedForProject ? "selected" : ""}` });
     group.append(drawRoomHitTarget(point, cell));
     group.append(svg("rect", { x: point.x, y: point.y, width: cell, height: cell }));
-    if (playerPositionKnown && item.id === playerRoomId) drawPlayerLocationMarker(group, point, cell);
     drawRoomLabel(group, item, point, cell);
     drawRoomMapBadges(group, item, point, cell);
     group.append(svg("title", {}, item.title || "Lokacja"));
@@ -1696,11 +1781,112 @@ function renderMap() {
     els.mapSvg.append(group);
   }
 
+  drawMobMarkers(coords, worldRenderIds, cell, z);
+
   for (const item of rooms) {
     const blocked = new Set(getRenderBlockedDirections(item));
     for (const dir of blocked) drawBlockedBorder(item.id, dir, coords, cell);
   }
-  drawPlayerTravelAnimation(coords, cell, z, viewArea);
+  renderPlayerMarkerLayer(coords, cell, z);
+}
+
+function drawMobMarkers(coords, worldRenderIds, cell, z) {
+  const visibleMobs = getRenderableMobs(z)
+    .map((mob) => {
+      const roomId = worldRenderIds.get(mob.worldKey);
+      const point = roomId ? coords.get(roomId) : null;
+      return point ? { ...mob, roomId, point } : null;
+    })
+    .filter(Boolean);
+  if (!visibleMobs.length) return;
+
+  const mobsByRoom = new Map();
+  for (const mob of visibleMobs) {
+    if (!mobsByRoom.has(mob.roomId)) mobsByRoom.set(mob.roomId, []);
+    mobsByRoom.get(mob.roomId).push(mob);
+  }
+
+  for (const mobs of mobsByRoom.values()) {
+    const point = mobs[0].point;
+    const count = mobs.length;
+    const group = svg("g", { class: "mob-location-marker" });
+    const centerX = point.x + cell - 12;
+    const centerY = point.y + 12;
+    group.append(svg("circle", {
+      cx: centerX,
+      cy: centerY,
+      r: count > 1 ? 8 : 6.5,
+      class: "mob-location-marker-ring"
+    }));
+    group.append(svg("circle", {
+      cx: centerX,
+      cy: centerY,
+      r: count > 1 ? 5 : 3.8,
+      class: "mob-location-marker-core"
+    }));
+    if (count > 1) {
+      group.append(svg("text", {
+        x: centerX,
+        y: centerY + 3,
+        class: "mob-location-marker-count",
+        "text-anchor": "middle"
+      }, String(Math.min(count, 9))));
+    }
+    group.append(svg("title", {}, formatMobMarkerTitle(mobs)));
+    els.mapSvg.append(group);
+  }
+}
+
+function getRenderableMobs(z) {
+  const visibleMobWorldKeys = getPlayerVisibleMobWorldKeys();
+  return currentGameMobs.filter((mob) => {
+    if (Number(mob.z) !== Number(z)) return false;
+    return mapDebugAll || visibleMobWorldKeys.has(mob.worldKey);
+  });
+}
+
+function getPlayerVisibleMobWorldKeys() {
+  const playerRoom = getPlayerRoom();
+  const playerWorldKey = playerRoom?.worldKey;
+  if (!playerPositionKnown || !playerWorldKey) return new Set();
+  const visible = new Set([playerWorldKey]);
+  for (const direction of ["n", "e", "w", "s"]) {
+    let currentWorldKey = playerWorldKey;
+    for (let distance = 0; distance < 4; distance += 1) {
+      const nextWorldKey = getSightNextWorldKey(currentWorldKey, direction);
+      if (!nextWorldKey) break;
+      visible.add(nextWorldKey);
+      currentWorldKey = nextWorldKey;
+    }
+  }
+  return visible;
+}
+
+function getSightNextWorldKey(worldKey, direction) {
+  const worldRoom = worldRoomsByKey.get(worldKey);
+  if (!worldRoom || !isWorldSightOpen(worldRoom, direction)) return "";
+  const linkedWorldKey = worldRoom.links?.[direction];
+  if (linkedWorldKey && worldRoomsByKey.has(linkedWorldKey)) return linkedWorldKey;
+  const vector = DIRECTIONS[direction];
+  const coord = worldRoom.coord || {};
+  const fallbackWorldKey = `${worldRoom.areaFile}:${Number(coord.x || 0) + vector.dx},${Number(coord.y || 0) + vector.dy},${Number(coord.z || 0)}`;
+  return worldRoomsByKey.has(fallbackWorldKey) ? fallbackWorldKey : "";
+}
+
+function isWorldSightOpen(worldRoom, direction) {
+  const dir = normalizeDirection(direction);
+  if (!dir) return false;
+  const atlasRoom = atlasRoomsByKey.get(worldRoom.key);
+  const wallDirections = getAtlasWallDirections(worldRoom.key) || getWorldWallDirections(worldRoom);
+  if (Object.prototype.hasOwnProperty.call(wallDirections, dir) && wallDirections[dir]) return false;
+  const visibleExits = new Set(atlasRoom?.visibleExits || worldRoom.visibleExits || []);
+  return visibleExits.has(dir) || Boolean(worldRoom.links?.[dir]);
+}
+
+function formatMobMarkerTitle(mobs = []) {
+  return mobs
+    .map((mob) => `${mob.name}${mob.distance ? ` (${formatInteger(mob.distance)} pól)` : ""}`)
+    .join("\n");
 }
 
 function scheduleDebugMapViewportRender() {
@@ -1728,10 +1914,6 @@ function isMapItemInRenderWindow(item, window) {
     && Number(item.mapX) <= window.maxX
     && Number(item.mapY) >= window.minY
     && Number(item.mapY) <= window.maxY;
-}
-
-function drawPlayerLocationMarker(group, point, cell) {
-  group.append(createPlayerLocationMarker(point, cell));
 }
 
 function createPlayerLocationMarker(point, cell, extraClass = "") {
@@ -1770,44 +1952,88 @@ function createPlayerLocationMarker(point, cell, extraClass = "") {
   return marker;
 }
 
-function drawPlayerTravelAnimation(coords, cell, z, area) {
+function renderPlayerMarkerLayer(coords, cell, z) {
+  if (!els.mapPlayerLayer) return;
   const point = coords.get(playerRoomId);
-  if (!point) {
-    lastPlayerMapPoint = null;
+  if (!point || !playerPositionKnown) {
+    activePlayerTravelAnimationId = "";
+    pendingPlayerTravelAnimation = null;
+    els.mapPlayerLayer.replaceChildren();
     return;
   }
 
-  const current = {
-    roomId: playerRoomId,
-    x: point.x,
-    y: point.y,
-    z,
-    area
-  };
-  const previous = lastPlayerMapPoint;
-  lastPlayerMapPoint = current;
+  let marker = els.mapPlayerLayer.querySelector(".player-location-marker");
+  if (!marker) {
+    marker = createPlayerLocationMarker(point, cell);
+    els.mapPlayerLayer.replaceChildren(marker);
+  }
 
-  if (!previous) return;
-  if (previous.roomId === current.roomId) return;
-  if (previous.z !== current.z || previous.area !== current.area) return;
-  if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) return;
+  const targetX = point.x + cell / 2;
+  const targetY = point.y + cell - 13;
+  const pending = pendingPlayerTravelAnimation;
+  if (!pending || pending.toRoomId !== playerRoomId) {
+    activePlayerTravelAnimationId = "";
+    marker.setAttribute("transform", `translate(${targetX}, ${targetY})`);
+    marker.setAttribute("opacity", "0.95");
+    return;
+  }
 
-  const marker = createPlayerLocationMarker(previous, cell, "player-travel-marker-moving");
-  const fromX = previous.x + cell / 2;
-  const fromY = previous.y + cell - 13;
-  const toX = current.x + cell / 2;
-  const toY = current.y + cell - 13;
+  if (pending.fromZ !== pending.toZ || Number(pending.toZ) !== Number(z)) {
+    activePlayerTravelAnimationId = "";
+    pendingPlayerTravelAnimation = null;
+    marker.setAttribute("transform", `translate(${targetX}, ${targetY})`);
+    marker.setAttribute("opacity", "0.95");
+    return;
+  }
+
+  if (window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) {
+    activePlayerTravelAnimationId = "";
+    pendingPlayerTravelAnimation = null;
+    marker.setAttribute("transform", `translate(${targetX}, ${targetY})`);
+    marker.setAttribute("opacity", "0.95");
+    return;
+  }
+
+  const fromPoint = coords.get(pending.fromRoomId);
+  const toPoint = coords.get(pending.toRoomId);
+  if (!fromPoint || !toPoint) {
+    activePlayerTravelAnimationId = "";
+    pendingPlayerTravelAnimation = null;
+    marker.setAttribute("transform", `translate(${targetX}, ${targetY})`);
+    marker.setAttribute("opacity", "0.95");
+    return;
+  }
+
+  if (activePlayerTravelAnimationId === pending.id) return;
+  activePlayerTravelAnimationId = pending.id;
+
+  const currentTranslate = readSvgTranslate(marker);
+  const fromX = currentTranslate?.x ?? fromPoint.x + cell / 2;
+  const fromY = currentTranslate?.y ?? fromPoint.y + cell - 13;
+  const toX = toPoint.x + cell / 2;
+  const toY = toPoint.y + cell - 13;
   const animationId = ++playerTravelAnimationId;
-  els.mapSvg.classList.add("player-marker-animating");
-  els.mapSvg.append(marker);
-  animateSvgMarkerTravel(marker, fromX, fromY, toX, toY, 360);
-
-  window.setTimeout(() => {
-    marker.remove();
-    if (playerTravelAnimationId === animationId) {
-      els.mapSvg.classList.remove("player-marker-animating");
+  els.mapPlayerLayer.classList.add("player-marker-animating");
+  animateSvgMarkerTravel(marker, fromX, fromY, toX, toY, PLAYER_TRAVEL_ANIMATION_MS, {
+    fadeOut: false,
+    animationId,
+    onComplete: () => {
+      if (playerTravelAnimationId !== animationId) return;
+      els.mapPlayerLayer.classList.remove("player-marker-animating");
+      activePlayerTravelAnimationId = "";
+      if (pendingPlayerTravelAnimation?.id === pending.id) pendingPlayerTravelAnimation = null;
     }
-  }, 400);
+  });
+}
+
+function readSvgTranslate(marker) {
+  const transform = String(marker?.getAttribute("transform") || "");
+  const match = transform.match(/translate\(([-\d.]+),\s*([-\d.]+)\)/);
+  if (!match) return null;
+  return {
+    x: Number(match[1]),
+    y: Number(match[2])
+  };
 }
 
 function startMapLevelTransition({ fromZ, toZ } = {}) {
@@ -1840,19 +2066,23 @@ function startMapLevelTransition({ fromZ, toZ } = {}) {
   }, 460);
 }
 
-function animateSvgMarkerTravel(marker, fromX, fromY, toX, toY, duration) {
+function animateSvgMarkerTravel(marker, fromX, fromY, toX, toY, duration, options = {}) {
   const start = performance.now();
+  const fadeOut = options.fadeOut !== false;
+  const animationId = options.animationId ?? ++playerTravelAnimationId;
   const ease = (value) => 1 - Math.pow(1 - value, 3);
 
   const step = (now) => {
+    if (playerTravelAnimationId !== animationId) return;
     const progress = Math.min(1, (now - start) / duration);
     const eased = ease(progress);
     const x = fromX + (toX - fromX) * eased;
     const y = fromY + (toY - fromY) * eased;
-    const opacity = progress < 0.82 ? 0.95 : 0.95 * (1 - (progress - 0.82) / 0.18);
+    const opacity = fadeOut && progress >= 0.82 ? 0.95 * (1 - (progress - 0.82) / 0.18) : 0.95;
     marker.setAttribute("transform", `translate(${x}, ${y})`);
     marker.setAttribute("opacity", String(Math.max(0, opacity)));
     if (progress < 1 && marker.isConnected) window.requestAnimationFrame(step);
+    else options.onComplete?.();
   };
 
   marker.setAttribute("transform", `translate(${fromX}, ${fromY})`);
@@ -2526,6 +2756,7 @@ function parseSvgViewBox(value) {
 
 function setSvgViewBox(viewBox) {
   els.mapSvg.setAttribute("viewBox", `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`);
+  els.mapPlayerLayer?.setAttribute("viewBox", `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`);
 }
 
 function animateMapViewBox(from, to, duration) {

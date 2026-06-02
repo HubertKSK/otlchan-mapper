@@ -1,7 +1,7 @@
 param(
   [Parameter(Mandatory = $true)]
   [int]$GamePid,
-  [int]$PollMs = 120
+  [int]$PollMs = 100
 )
 
 $ErrorActionPreference = "Stop"
@@ -25,7 +25,19 @@ public static class OtchlanMemory {
 $PROCESS_VM_READ = 0x0010
 $PROCESS_QUERY_INFORMATION = 0x0400
 $G1_ADDRESS = [IntPtr]0x47f570
+$MOBS_MOBQ_ADDRESS = [IntPtr]0x477da0
+$MOBS_MOBY_ADDRESS = [IntPtr]0x478610
+$MOBS_MOBYWK_ADDRESS = [IntPtr]0x481a40
 $BUFFER_SIZE = 8192
+$MOBQ_BUFFER_SIZE = 9000
+$MOBY_BUFFER_SIZE = 27000
+$MOBYWK_BUFFER_SIZE = 224
+$MOB_RECORD_SIZE = 18
+$MOBYWK_RECORD_OFFSET = 10
+$MOBYWK_SLOTS = 100
+$MOB_VISIBLE_RANGE = 4
+$MOB_POLL_MS = 1000
+$FULL_SNAPSHOT_MS = 100
 $LOKAC_OFFSET = 312
 $PLIKAREA_OFFSET = 1084
 $LEVEL_OFFSET = 310
@@ -67,6 +79,209 @@ $MONEY_OBJECT_VALUES = @{
 }
 $encoding = [Text.Encoding]::GetEncoding(1250)
 $lastSnapshotKey = ""
+$mobNamesById = $null
+$lastMobPollAt = [DateTime]::MinValue
+$lastMobs = @()
+$lastFullSnapshotAt = [DateTime]::MinValue
+$lastWorldKey = ""
+
+function Get-GameDataPath {
+  $gameDir = $env:OTCHLAN_DIR
+  if (-not $gameDir) {
+    $gameDir = "C:\Program Files (x86)\Otchlan 1.3"
+  }
+  return Join-Path $gameDir "dat"
+}
+
+function Read-ProcessBytes([IntPtr]$handle, [IntPtr]$address, [int]$size) {
+  $buffer = New-Object byte[] $size
+  [UIntPtr]$read = [UIntPtr]::Zero
+  $ok = [OtchlanMemory]::ReadProcessMemory($handle, $address, $buffer, [uint32]$buffer.Length, [ref]$read)
+  if (-not $ok) {
+    return $null
+  }
+  return $buffer
+}
+
+function Test-IntegerToken([string]$text) {
+  $number = 0
+  return [int]::TryParse($text, [ref]$number)
+}
+
+function Get-DecodedMobFields([byte[]]$bytes, [int]$offset) {
+  $recordSize = 251
+  $key = [byte[]](0x70, 0x6c, 0x65, 0x70, 0x6c, 0x06)
+  if ($offset + $recordSize -gt $bytes.Length) {
+    return @()
+  }
+  $length = [Math]::Min([int]$bytes[$offset], $recordSize - 1)
+  if ($length -le 0) {
+    return @()
+  }
+  $decoded = New-Object byte[] $length
+  for ($index = 0; $index -lt $length; $index++) {
+    $decoded[$index] = $bytes[$offset + 1 + $index] -bxor $key[$index % $key.Length]
+  }
+  $fields = New-Object System.Collections.Generic.List[string]
+  $start = 0
+  for ($index = 0; $index -lt $decoded.Length; $index++) {
+    if ($decoded[$index] -eq 0xfe) {
+      break
+    }
+    if ($decoded[$index] -eq 0x01) {
+      if ($index -gt $start) {
+        $fields.Add($encoding.GetString($decoded, $start, $index - $start).Trim())
+      }
+      $start = $index + 1
+    }
+  }
+  if ($start -lt $decoded.Length) {
+    $fields.Add($encoding.GetString($decoded, $start, $decoded.Length - $start).Trim())
+  }
+  return $fields
+}
+
+function Get-MobNamesById {
+  if ($script:mobNamesById -ne $null) {
+    return $script:mobNamesById
+  }
+  $names = @{}
+  $mobyPath = Join-Path (Get-GameDataPath) "moby.dat"
+  if (-not (Test-Path $mobyPath)) {
+    $script:mobNamesById = $names
+    return $names
+  }
+  $bytes = [IO.File]::ReadAllBytes($mobyPath)
+  for ($offset = 0; $offset + 251 -le $bytes.Length; $offset += 251) {
+    $fields = Get-DecodedMobFields $bytes $offset
+    for ($index = 0; $index -lt $fields.Count; $index++) {
+      if (-not (Test-IntegerToken $fields[$index])) {
+        continue
+      }
+      $ids = New-Object System.Collections.Generic.List[int]
+      $cursor = $index
+      while ($cursor -lt $fields.Count -and (Test-IntegerToken $fields[$cursor])) {
+        $ids.Add([int]$fields[$cursor])
+        $cursor += 1
+      }
+      if ($ids.Count -gt 0 -and $cursor + 4 -lt $fields.Count) {
+        $name = $fields[$cursor]
+        if ($name.Length -gt 1 -and -not (Test-IntegerToken $name) -and -not (Test-IntegerToken $fields[$cursor + 1]) -and -not (Test-IntegerToken $fields[$cursor + 2])) {
+          foreach ($id in $ids) {
+            if (-not $names.ContainsKey($id)) {
+              $names[$id] = $name
+            }
+          }
+        }
+      }
+    }
+  }
+  $script:mobNamesById = $names
+  return $names
+}
+
+function Get-QuestMobNamesById([byte[]]$mobqBuffer) {
+  $names = @{}
+  if (-not $mobqBuffer) {
+    return $names
+  }
+  for ($offset = 0; $offset + 54 -le $mobqBuffer.Length; $offset += 54) {
+    $nameLength = [Math]::Min([int]$mobqBuffer[$offset], 30)
+    if ($nameLength -le 0) {
+      continue
+    }
+    $name = $encoding.GetString($mobqBuffer, $offset + 1, $nameLength).Trim()
+    $id = [int][BitConverter]::ToInt16($mobqBuffer, $offset + 38)
+    if ($id -gt 0 -and $name) {
+      $names[$id] = $name
+    }
+  }
+  return $names
+}
+
+function Get-Direction([int]$dx, [int]$dy) {
+  if ($dx -eq 0 -and $dy -lt 0) { return "n" }
+  if ($dx -eq 0 -and $dy -gt 0) { return "s" }
+  if ($dy -eq 0 -and $dx -gt 0) { return "e" }
+  if ($dy -eq 0 -and $dx -lt 0) { return "w" }
+  return ""
+}
+
+function Get-CurrentMobs([IntPtr]$handle, [int]$playerX, [int]$playerY, [int]$playerZ) {
+  $mobBuffer = Read-ProcessBytes $handle $MOBS_MOBY_ADDRESS $MOBY_BUFFER_SIZE
+  $mobYwkBuffer = Read-ProcessBytes $handle $MOBS_MOBYWK_ADDRESS $MOBYWK_BUFFER_SIZE
+  $mobqBuffer = Read-ProcessBytes $handle $MOBS_MOBQ_ADDRESS $MOBQ_BUFFER_SIZE
+  if (-not $mobBuffer -or -not $mobYwkBuffer) {
+    return @()
+  }
+  $normalNames = Get-MobNamesById
+  $questNames = Get-QuestMobNamesById $mobqBuffer
+  $mobs = @()
+  $seen = @{}
+  for ($slot = 0; $slot -lt $MOBYWK_SLOTS; $slot++) {
+    $idOffset = $MOBYWK_RECORD_OFFSET + ($slot * 2)
+    if ($idOffset + 2 -gt $mobYwkBuffer.Length) {
+      break
+    }
+    $id = [int][BitConverter]::ToInt16($mobYwkBuffer, $idOffset)
+    if ($id -le 0 -or $seen.ContainsKey($id)) {
+      continue
+    }
+    $seen[$id] = $true
+    $mobOffset = $id * $MOB_RECORD_SIZE
+    if ($mobOffset + $MOB_RECORD_SIZE -gt $mobBuffer.Length) {
+      continue
+    }
+    $x = [BitConverter]::ToInt16($mobBuffer, $mobOffset + 12)
+    $y = [BitConverter]::ToInt16($mobBuffer, $mobOffset + 14)
+    $z = [BitConverter]::ToInt16($mobBuffer, $mobOffset + 16)
+    if ($x -eq 0 -and $y -eq 0 -and $z -eq 0) {
+      continue
+    }
+    $dx = $x - $playerX
+    $dy = $y - $playerY
+    $direction = Get-Direction $dx $dy
+    $distance = [Math]::Abs($dx) + [Math]::Abs($dy)
+    $visibleCardinal4 = $z -eq $playerZ -and $direction -and $distance -gt 0 -and $distance -le $MOB_VISIBLE_RANGE
+    $source = "moby.dat"
+    $name = ""
+    if ($questNames.ContainsKey($id)) {
+      $name = $questNames[$id]
+      $source = "mobq"
+    } elseif ($normalNames.ContainsKey($id)) {
+      $name = $normalNames[$id]
+    }
+    if (-not $name) {
+      $name = "Mob #$id"
+      $source = "unknown"
+    }
+    $mobs += @{
+      id = $id
+      name = $name
+      x = $x
+      y = $y
+      z = $z
+      dx = $dx
+      dy = $dy
+      distance = $distance
+      direction = $direction
+      visibleCardinal4 = [bool]$visibleCardinal4
+      source = $source
+    }
+  }
+  return $mobs
+}
+
+function Get-CurrentMobsCached([IntPtr]$handle, [string]$worldKey, [int]$playerX, [int]$playerY, [int]$playerZ) {
+  $now = [DateTime]::UtcNow
+  $elapsedMs = ($now - $script:lastMobPollAt).TotalMilliseconds
+  if ($elapsedMs -lt $MOB_POLL_MS) {
+    return $script:lastMobs
+  }
+  $script:lastMobPollAt = $now
+  $script:lastMobs = Get-CurrentMobs $handle $playerX $playerY $playerZ
+  return $script:lastMobs
+}
 
 $handle = [OtchlanMemory]::OpenProcess($PROCESS_VM_READ -bor $PROCESS_QUERY_INFORMATION, $false, [uint32]$GamePid)
 if ($handle -eq [IntPtr]::Zero) {
@@ -75,10 +290,8 @@ if ($handle -eq [IntPtr]::Zero) {
 
 try {
   while ($true) {
-    $buffer = New-Object byte[] $BUFFER_SIZE
-    [UIntPtr]$read = [UIntPtr]::Zero
-    $ok = [OtchlanMemory]::ReadProcessMemory($handle, $G1_ADDRESS, $buffer, [uint32]$buffer.Length, [ref]$read)
-    if ($ok) {
+    $buffer = Read-ProcessBytes $handle $G1_ADDRESS $BUFFER_SIZE
+    if ($buffer) {
       $x = [BitConverter]::ToInt16($buffer, $LOKAC_OFFSET)
       $y = [BitConverter]::ToInt16($buffer, $LOKAC_OFFSET + 2)
       $z = [BitConverter]::ToInt16($buffer, $LOKAC_OFFSET + 4)
@@ -89,6 +302,34 @@ try {
       }
       $areaFile = $encoding.GetString($areaBytes)
       $worldKey = if ($areaFile) { "$areaFile`:$x,$y,$z" } else { "" }
+      $now = [DateTime]::UtcNow
+      $worldChanged = $worldKey -and $worldKey -ne $lastWorldKey
+      if (-not $worldKey) {
+        Start-Sleep -Milliseconds $PollMs
+        continue
+      }
+      if ($worldChanged) {
+        $lastWorldKey = $worldKey
+        [Console]::Out.WriteLine((ConvertTo-Json -Compress @{
+          at = (Get-Date).ToUniversalTime().ToString("o")
+          pid = $GamePid
+          areaFile = $areaFile
+          x = $x
+          y = $y
+          z = $z
+          worldKey = $worldKey
+          kind = "position"
+        }))
+        [Console]::Out.Flush()
+        Start-Sleep -Milliseconds $PollMs
+        continue
+      }
+      $fullSnapshotElapsedMs = ($now - $lastFullSnapshotAt).TotalMilliseconds
+      if ($fullSnapshotElapsedMs -lt $FULL_SNAPSHOT_MS) {
+        Start-Sleep -Milliseconds $PollMs
+        continue
+      }
+      $lastFullSnapshotAt = $now
       $hp = [BitConverter]::ToDouble($buffer, $HP_OFFSET)
       $mana = [BitConverter]::ToDouble($buffer, $MANA_OFFSET)
       $mv = [BitConverter]::ToDouble($buffer, $MV_OFFSET)
@@ -173,6 +414,10 @@ try {
       foreach ($condition in $conditions) {
         $snapshotKey += "|condition:$($condition.key),$($condition.level),$($condition.value)"
       }
+      $mobs = Get-CurrentMobsCached $handle $worldKey $x $y $z
+      foreach ($mob in $mobs) {
+        $snapshotKey += "|mob:$($mob.id),$($mob.x),$($mob.y),$($mob.z)"
+      }
       if ($worldKey -and $snapshotKey -ne $lastSnapshotKey) {
         $lastSnapshotKey = $snapshotKey
         [Console]::Out.WriteLine((ConvertTo-Json -Compress @{
@@ -207,6 +452,7 @@ try {
           }
           effects = $effects
           conditions = $conditions
+          mobs = $mobs
         }))
         [Console]::Out.Flush()
       }

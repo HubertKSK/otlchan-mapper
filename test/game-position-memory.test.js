@@ -7,23 +7,38 @@ const readerSource = await readFile(new URL("../scripts/read-otchlan-position.ps
 
 test("server publishes Otchlan position from process memory", () => {
   assert.match(serverSource, /const OTCHLAN_POSITION_READER = path\.join\(__dirname, "scripts", "read-otchlan-position\.ps1"\);/);
+  assert.match(serverSource, /const OTCHLAN_NATIVE_POSITION_READER = path\.join\(__dirname, "src", "OtchlanMemoryReader"/);
+  assert.match(serverSource, /const OTCHLAN_POSITION_POLL_MS = Number\(process\.env\.OTCHLAN_POSITION_POLL_MS \|\| 100\);/);
+  assert.match(serverSource, /const OTCHLAN_MOB_POLL_MS = Number\(process\.env\.OTCHLAN_MOB_POLL_MS \|\| 1000\);/);
   assert.match(serverSource, /startGamePositionReader\(gameProcess\.pid\);/);
   assert.match(serverSource, /sendEvent\(client, "game-position", lastGamePosition\);/);
   assert.match(serverSource, /broadcast\("game-position", lastGamePosition\);/);
+  assert.match(serverSource, /const readerKind = nativeReaderAvailable \? "native-dotnet" : "powershell";/);
+  assert.match(serverSource, /"-MobPollMs",/);
   assert.match(serverSource, /event: "game-position-memory"/);
   assert.match(serverSource, /source: "process-memory"/);
-  assert.match(serverSource, /vitals: normalizeGameVitals\(payload\.vitals\)/);
-  assert.match(serverSource, /economy: normalizeGameEconomy\(payload\.economy\)/);
-  assert.match(serverSource, /time: normalizeGameTime\(payload\.time\)/);
-  assert.match(serverSource, /effects: normalizeGameEffects\(payload\.effects\)/);
-  assert.match(serverSource, /conditions: normalizeGameConditions\(payload\.conditions\)/);
+  assert.match(serverSource, /const hasVitals = payload\.vitals && typeof payload\.vitals === "object"/);
+  assert.match(serverSource, /vitals: hasVitals \? normalizeGameVitals\(payload\.vitals\) : previousPosition\.vitals/);
+  assert.match(serverSource, /economy: hasEconomy \? normalizeGameEconomy\(payload\.economy\) : previousPosition\.economy/);
+  assert.match(serverSource, /time: hasTime \? normalizeGameTime\(payload\.time\) : previousPosition\.time/);
+  assert.match(serverSource, /effects: hasEffects \? normalizeGameEffects\(payload\.effects\) : previousPosition\.effects/);
+  assert.match(serverSource, /conditions: hasConditions \? normalizeGameConditions\(payload\.conditions\) : previousPosition\.conditions/);
+  assert.match(serverSource, /mobs: hasMobs \? normalizeGameMobs\(payload\.mobs\) : previousPosition\.mobs/);
+  assert.match(serverSource, /function normalizeGameMobs\(mobs = \[\]\) \{/);
+  assert.match(serverSource, /function logGamePositionMemory\(position\) \{/);
+  assert.match(serverSource, /const mobs = Array\.isArray\(position\.mobs\) \? position\.mobs : \[\]/);
+  assert.match(serverSource, /const mobCount = mobs\.length/);
   assert.match(serverSource, /level: finiteNumber\(economy\.level\)/);
   assert.match(serverSource, /function normalizeGameTime\(time = \{\}\) \{/);
 });
 
 test("position reader extracts G1 location and area file offsets", () => {
   assert.match(readerSource, /\$G1_ADDRESS = \[IntPtr\]0x47f570/);
+  assert.match(readerSource, /\$MOBS_MOBQ_ADDRESS = \[IntPtr\]0x477da0/);
+  assert.match(readerSource, /\$MOBS_MOBY_ADDRESS = \[IntPtr\]0x478610/);
+  assert.match(readerSource, /\$MOBS_MOBYWK_ADDRESS = \[IntPtr\]0x481a40/);
   assert.match(readerSource, /\$BUFFER_SIZE = 8192/);
+  assert.match(readerSource, /\$MOB_VISIBLE_RANGE = 4/);
   assert.match(readerSource, /\$LOKAC_OFFSET = 312/);
   assert.match(readerSource, /\$PLIKAREA_OFFSET = 1084/);
   assert.match(readerSource, /\$LEVEL_OFFSET = 310/);
@@ -66,4 +81,9 @@ test("position reader extracts G1 location and area file offsets", () => {
   assert.match(readerSource, /day = \$journeyDay/);
   assert.match(readerSource, /effects = \$effects/);
   assert.match(readerSource, /conditions = \$conditions/);
+  assert.match(readerSource, /mobs = \$mobs/);
+  assert.match(readerSource, /function Get-MobNamesById/);
+  assert.match(readerSource, /function Get-QuestMobNamesById/);
+  assert.match(readerSource, /function Get-CurrentMobs/);
+  assert.match(readerSource, /\$visibleCardinal4 = \$z -eq \$playerZ -and \$direction -and \$distance -gt 0 -and \$distance -le \$MOB_VISIBLE_RANGE/);
 });

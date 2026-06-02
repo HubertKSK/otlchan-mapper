@@ -136,13 +136,25 @@ test("app UI uses the selected UI fonts while terminal keeps monospace", () => {
 });
 
 test("player movement animation moves the player marker instead of a room rectangle", () => {
+  assert.match(htmlSource, /id="mapSvg"[\s\S]*id="mapPlayerLayer"[\s\S]*id="mapLevelTransitionOverlay"/);
+  assert.match(appSource, /mapPlayerLayer: document\.querySelector\("#mapPlayerLayer"\)/);
   assert.match(appSource, /function createPlayerLocationMarker\(point, cell, extraClass = ""\)/);
-  assert.match(appSource, /createPlayerLocationMarker\(previous, cell, "player-travel-marker-moving"\)/);
-  assert.match(appSource, /function animateSvgMarkerTravel\(marker, fromX, fromY, toX, toY, duration\)/);
+  assert.match(appSource, /function renderPlayerMarkerLayer\(coords, cell, z\) \{/);
+  assert.match(appSource, /function animateSvgMarkerTravel\(marker, fromX, fromY, toX, toY, duration, options = \{\}\)/);
   assert.match(appSource, /marker\.setAttribute\("transform", `translate\(\$\{x\}, \$\{y\}\)`\)/);
   assert.match(appSource, /let playerTravelAnimationId = 0;/);
-  assert.match(appSource, /els\.mapSvg\.classList\.add\("player-marker-animating"\)/);
-  assert.match(cssSource, /\.player-marker-animating \.room-node\.current \.player-location-marker:not\(\.player-travel-marker-moving\)/);
+  assert.match(appSource, /let activePlayerTravelAnimationId = "";/);
+  assert.match(appSource, /let pendingPlayerTravelAnimation = null;/);
+  assert.match(appSource, /function schedulePlayerTravelAnimation\(fromRoom, toRoom\) \{/);
+  assert.match(appSource, /schedulePlayerTravelAnimation\(previousRoom, room\);/);
+  assert.match(appSource, /els\.mapPlayerLayer\.querySelector\("\.player-location-marker"\)/);
+  assert.match(appSource, /if \(activePlayerTravelAnimationId === pending\.id\) return;/);
+  assert.match(appSource, /readSvgTranslate\(marker\)/);
+  assert.match(appSource, /animateSvgMarkerTravel\(marker, fromX, fromY, toX, toY, PLAYER_TRAVEL_ANIMATION_MS/);
+  assert.match(appSource, /els\.mapPlayerLayer\.classList\.add\("player-marker-animating"\)/);
+  assert.match(appSource, /els\.mapPlayerLayer\?\.setAttribute\("viewBox"/);
+  assert.match(cssSource, /\.map-player-layer/);
+  assert.doesNotMatch(cssSource, /\.player-marker-animating \.room-node\.current \.player-location-marker/);
   assert.doesNotMatch(appSource, /class: "player-travel-marker player-travel-marker-moving"/);
   assert.doesNotMatch(cssSource, /player-travel-marker-pulse/);
 });
@@ -156,13 +168,33 @@ test("map view follows player movement with animated viewBox panning", () => {
   assert.match(appSource, /setSvgViewBox\(\{[\s\S]*x: from\.x \+ \(to\.x - from\.x\) \* eased/);
 });
 
+test("map renders process-memory mobs as a separate marker layer", () => {
+  assert.match(appSource, /let currentGameMobs = \[\];/);
+  assert.match(appSource, /function updateGameMobs\(position = \{\}\) \{/);
+  assert.match(appSource, /function normalizeClientGameMobs\(mobs = \[\], areaFile = ""\) \{/);
+  assert.match(appSource, /const worldKey = `\$\{areaFile\}:\$\{x\},\$\{y\},\$\{z\}`;/);
+  assert.match(appSource, /const mobsChanged = updateGameMobs\(position\);/);
+  assert.match(appSource, /if \(positionChanged \|\| layerChanged\) saveProject/);
+  assert.match(appSource, /drawMobMarkers\(coords, worldRenderIds, cell, z\);/);
+  assert.match(appSource, /function getRenderableMobs\(z\) \{/);
+  assert.match(appSource, /function getPlayerVisibleMobWorldKeys\(\) \{/);
+  assert.match(appSource, /for \(const direction of \["n", "e", "w", "s"\]\)/);
+  assert.match(appSource, /for \(let distance = 0; distance < 4; distance \+= 1\)/);
+  assert.match(appSource, /function isWorldSightOpen\(worldRoom, direction\) \{/);
+  assert.match(appSource, /return mapDebugAll \|\| visibleMobWorldKeys\.has\(mob\.worldKey\);/);
+  assert.match(appSource, /class: "mob-location-marker"/);
+  assert.match(appSource, /formatMobMarkerTitle\(mobs\)/);
+  assert.match(cssSource, /\.mob-location-marker/);
+  assert.match(cssSource, /\.mob-location-marker-count/);
+});
+
 test("debug map discovery does not rename the map header", () => {
   assert.doesNotMatch(appSource, /mapTitle\.textContent = mapDebugAll \?/);
   assert.doesNotMatch(appSource, /Caly poziom|Ca.y poziom/);
 });
 
 test("map level changes use a crossfade overlay instead of player marker travel", () => {
-  assert.match(htmlSource, /class="map-stage"[\s\S]*id="mapSvg"[\s\S]*id="mapLevelTransitionOverlay"/);
+  assert.match(htmlSource, /class="map-stage"[\s\S]*id="mapSvg"[\s\S]*id="mapPlayerLayer"[\s\S]*id="mapLevelTransitionOverlay"/);
   assert.match(appSource, /mapLevelTransitionOverlay: document\.querySelector\("#mapLevelTransitionOverlay"\)/);
   assert.match(appSource, /let lastRenderedMapLevel = null;/);
   assert.match(appSource, /const mapLevelChanged = Boolean\(previousMapLevel && Number\(previousMapLevel\.z\) !== Number\(z\)\)/);
@@ -172,7 +204,8 @@ test("map level changes use a crossfade overlay instead of player marker travel"
   assert.match(appSource, /els\.mapLevelTransitionOverlay\.replaceChildren\(oldMap\);/);
   assert.match(appSource, /els\.mapSvg\.classList\.add\("map-level-transition-new-map"\)/);
   assert.match(appSource, /prefers-reduced-motion: reduce/);
-  assert.match(appSource, /if \(previous\.z !== current\.z \|\| previous\.area !== current\.area\) return;/);
+  assert.match(appSource, /if \(pending\.fromZ !== pending\.toZ \|\| Number\(pending\.toZ\) !== Number\(z\)\) \{/);
+  assert.match(appSource, /pendingPlayerTravelAnimation = null;\s*return;/);
   assert.match(cssSource, /\.map-level-transition-overlay/);
   assert.match(cssSource, /\.map-level-transition-old-map/);
   assert.match(cssSource, /#mapSvg\.map-level-transition-new-map/);

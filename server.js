@@ -24,7 +24,10 @@ const USER_LAYER_FILE = path.join(__dirname, "user-layer.json");
 const DEBUG_ENABLED = process.argv.includes("--debug") || isTruthyEnv(process.env.OTCHLAN_DEBUG) || isTruthyEnv(process.env.DEBUG_TERMINAL);
 const TERMINAL_DEBUG_FILE = path.join(LOG_DIR, "terminal-output-debug.jsonl");
 const OTCHLAN_POSITION_READER = path.join(__dirname, "scripts", "read-otchlan-position.ps1");
-const OTCHLAN_POSITION_POLL_MS = Number(process.env.OTCHLAN_POSITION_POLL_MS || 120);
+const OTCHLAN_NATIVE_POSITION_READER = path.join(__dirname, "src", "OtchlanMemoryReader", "bin", "Release", "net8.0", "OtchlanMemoryReader.exe");
+const OTCHLAN_POSITION_POLL_MS = Number(process.env.OTCHLAN_POSITION_POLL_MS || 100);
+const OTCHLAN_MOB_POLL_MS = Number(process.env.OTCHLAN_MOB_POLL_MS || 1000);
+const GAME_POSITION_LOG_INTERVAL_MS = Number(process.env.OTCHLAN_POSITION_LOG_INTERVAL_MS || 5000);
 const DEFAULT_TERMINAL_COLS = Number(process.env.OTCHLAN_TERMINAL_COLS || 120);
 const TERMINAL_ROWS = Number(process.env.OTCHLAN_TERMINAL_ROWS || 48);
 
@@ -38,6 +41,8 @@ let logWriteQueue = Promise.resolve();
 let memoryReaderProcess = null;
 let memoryReaderBuffer = "";
 let lastGamePosition = null;
+let lastGamePositionLogSignature = "";
+let lastGamePositionLogAt = 0;
 let terminalSize = {
   cols: DEFAULT_TERMINAL_COLS,
   rows: TERMINAL_ROWS
@@ -699,19 +704,34 @@ function stopGame() {
 
 function startGamePositionReader(pid) {
   stopGamePositionReader();
-  if (!pid || !existsSync(OTCHLAN_POSITION_READER)) return;
+  if (!pid) return;
+  const nativeReaderAvailable = existsSync(OTCHLAN_NATIVE_POSITION_READER);
+  const powershellReaderAvailable = existsSync(OTCHLAN_POSITION_READER);
+  if (!nativeReaderAvailable && !powershellReaderAvailable) return;
   memoryReaderBuffer = "";
-  memoryReaderProcess = spawnProcess("powershell.exe", [
-    "-NoProfile",
-    "-ExecutionPolicy",
-    "Bypass",
-    "-File",
-    OTCHLAN_POSITION_READER,
-    "-GamePid",
-    String(pid),
-    "-PollMs",
-    String(OTCHLAN_POSITION_POLL_MS)
-  ], {
+  const readerKind = nativeReaderAvailable ? "native-dotnet" : "powershell";
+  const readerCommand = nativeReaderAvailable ? OTCHLAN_NATIVE_POSITION_READER : "powershell.exe";
+  const readerArgs = nativeReaderAvailable
+    ? [
+        "-GamePid",
+        String(pid),
+        "-PollMs",
+        String(OTCHLAN_POSITION_POLL_MS),
+        "-MobPollMs",
+        String(OTCHLAN_MOB_POLL_MS)
+      ]
+    : [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        OTCHLAN_POSITION_READER,
+        "-GamePid",
+        String(pid),
+        "-PollMs",
+        String(OTCHLAN_POSITION_POLL_MS)
+      ];
+  memoryReaderProcess = spawnProcess(readerCommand, readerArgs, {
     cwd: __dirname,
     windowsHide: true,
     stdio: ["ignore", "pipe", "pipe"]
@@ -721,7 +741,9 @@ function startGamePositionReader(pid) {
     level: "info",
     event: "game-position-reader-started",
     pid,
-    pollMs: OTCHLAN_POSITION_POLL_MS
+    reader: readerKind,
+    pollMs: OTCHLAN_POSITION_POLL_MS,
+    mobPollMs: OTCHLAN_MOB_POLL_MS
   }).catch((error) => console.error("[server:error] failed to write position reader log", error));
 
   memoryReaderProcess.stdout.setEncoding("utf8");
@@ -781,9 +803,17 @@ function handleGamePositionLine(line) {
     return;
   }
   if (!payload?.worldKey) return;
+  const previousPosition = lastGamePosition || {};
+  const hasVitals = payload.vitals && typeof payload.vitals === "object";
+  const hasEconomy = payload.economy && typeof payload.economy === "object";
+  const hasTime = payload.time && typeof payload.time === "object";
+  const hasEffects = Array.isArray(payload.effects);
+  const hasConditions = Array.isArray(payload.conditions);
+  const hasMobs = Array.isArray(payload.mobs);
   lastGamePosition = {
     source: "process-memory",
     at: payload.at || new Date().toISOString(),
+    kind: String(payload.kind || (hasVitals || hasEconomy || hasTime || hasEffects || hasConditions || hasMobs ? "telemetry" : "position")),
     pid: Number(payload.pid || gameState.pid || 0),
     areaFile: String(payload.areaFile || ""),
     coord: {
@@ -792,17 +822,33 @@ function handleGamePositionLine(line) {
       z: Number(payload.z)
     },
     worldKey: String(payload.worldKey || ""),
-    vitals: normalizeGameVitals(payload.vitals),
-    economy: normalizeGameEconomy(payload.economy),
-    time: normalizeGameTime(payload.time),
-    effects: normalizeGameEffects(payload.effects),
-    conditions: normalizeGameConditions(payload.conditions)
+    vitals: hasVitals ? normalizeGameVitals(payload.vitals) : previousPosition.vitals,
+    economy: hasEconomy ? normalizeGameEconomy(payload.economy) : previousPosition.economy,
+    time: hasTime ? normalizeGameTime(payload.time) : previousPosition.time,
+    effects: hasEffects ? normalizeGameEffects(payload.effects) : previousPosition.effects,
+    conditions: hasConditions ? normalizeGameConditions(payload.conditions) : previousPosition.conditions,
+    mobs: hasMobs ? normalizeGameMobs(payload.mobs) : previousPosition.mobs
   };
   broadcast("game-position", lastGamePosition);
+  logGamePositionMemory(lastGamePosition);
+}
+
+function logGamePositionMemory(position) {
+  const now = Date.now();
+  const mobs = Array.isArray(position.mobs) ? position.mobs : [];
+  const mobCount = mobs.length;
+  const unknownMobCount = mobs.filter((mob) => mob.source === "unknown").length;
+  const signature = `${position.worldKey}|${mobCount}|${unknownMobCount}|${position.kind || ""}`;
+  if (signature === lastGamePositionLogSignature && now - lastGamePositionLogAt < GAME_POSITION_LOG_INTERVAL_MS) return;
+  lastGamePositionLogSignature = signature;
+  lastGamePositionLogAt = now;
   writeServerLog({
     level: "info",
     event: "game-position-memory",
-    ...lastGamePosition
+    ...position,
+    mobs: undefined,
+    mobCount,
+    unknownMobCount
   }).catch((error) => console.error("[server:error] failed to write position log", error));
 }
 
@@ -865,6 +911,35 @@ function normalizeGameConditions(conditions = []) {
       level: String(condition?.level || "")
     }))
     .filter((condition) => condition.key || condition.name);
+}
+
+function normalizeGameMobs(mobs = []) {
+  if (!Array.isArray(mobs)) return [];
+  return mobs
+    .map((mob) => {
+      const id = finiteNumber(mob?.id);
+      const x = finiteNumber(mob?.x);
+      const y = finiteNumber(mob?.y);
+      const z = finiteNumber(mob?.z);
+      const dx = finiteNumber(mob?.dx);
+      const dy = finiteNumber(mob?.dy);
+      const distance = finiteNumber(mob?.distance);
+      const direction = String(mob?.direction || "");
+      return {
+        id,
+        name: normalizeEffectName(String(mob?.name || "")),
+        x,
+        y,
+        z,
+        dx,
+        dy,
+        distance,
+        direction,
+        visibleCardinal4: Boolean(mob?.visibleCardinal4),
+        source: String(mob?.source || "")
+      };
+    })
+    .filter((mob) => mob.id > 0 && mob.x && mob.y && mob.z);
 }
 
 function normalizeWindowsMojibake(text) {
