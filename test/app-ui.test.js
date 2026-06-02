@@ -194,6 +194,10 @@ test("world atlas setup can be managed from settings and onboarding", () => {
   assert.match(appSource, /async function initWorldSetup\(\) \{/);
   assert.match(appSource, /await fetchJson\("\/api\/world\/status"\)/);
   assert.match(appSource, /function updateWorldSetupStatus\(status = \{\}\) \{/);
+  assert.match(appSource, /const cacheReady = Boolean\(status\.cache\?\.ready\);/);
+  assert.match(appSource, /function getWorldFileStatusText\(fileStatus = \{\}\) \{/);
+  assert.match(appSource, /if \(fileStatus\.stale\) return "nieaktualny";/);
+  assert.match(appSource, /function getWorldFileStatusState\(fileStatus = \{\}\) \{/);
   assert.match(appSource, /els\.worldSetupWelcome\.hidden = cacheReady && atlasReady;/);
   assert.match(appSource, /runWorldSetupStep\("extract"\)/);
   assert.match(appSource, /runWorldSetupStep\("atlas"\)/);
@@ -295,9 +299,18 @@ test("map renders process-memory mobs as a separate marker layer", () => {
   assert.match(appSource, /function isWorldSightOpen\(worldRoom, direction\) \{/);
   assert.match(appSource, /return mapDebugAll \|\| visibleMobWorldKeys\.has\(mob\.worldKey\);/);
   assert.match(appSource, /class: "mob-location-marker"/);
+  assert.match(appSource, /const centerY = point\.y \+ cell - 12;/);
+  assert.doesNotMatch(appSource, /const centerY = point\.y \+ 12;/);
   assert.match(appSource, /formatMobMarkerTitle\(mobs\)/);
   assert.match(cssSource, /\.mob-location-marker/);
   assert.match(cssSource, /\.mob-location-marker-count/);
+});
+
+test("mob markers use a different room slot than vertical level badges", () => {
+  assert.match(appSource, /const centerX = point\.x \+ cell - 12;/);
+  assert.match(appSource, /const centerY = point\.y \+ cell - 12;/);
+  assert.match(appSource, /const y = point\.y \+ 6;/);
+  assert.match(appSource, /class: `map-badge map-badge-\$\{badge\.kind\}`/);
 });
 
 test("mob layer respects darkness when player cannot look around", () => {

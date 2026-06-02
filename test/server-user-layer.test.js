@@ -24,6 +24,8 @@ test("server exposes user-layer save and load endpoints", () => {
 });
 
 test("server exposes world extraction and atlas build endpoints", () => {
+  assert.match(serverSource, /const PACKAGE_JSON = JSON\.parse\(readFileSync\(path\.join\(__dirname, "package\.json"\), "utf8"\)\);/);
+  assert.match(serverSource, /const APP_VERSION = String\(PACKAGE_JSON\.version \|\| "0\.0\.0"\);/);
   assert.match(serverSource, /const WORLD_CACHE_FILE = path\.join\(__dirname, "world-cache\.json"\);/);
   assert.match(serverSource, /const WORLD_ATLAS_FILE = path\.join\(__dirname, "world-atlas\.json"\);/);
   assert.match(serverSource, /url\.pathname === "\/api\/world\/status"/);
@@ -33,6 +35,9 @@ test("server exposes world extraction and atlas build endpoints", () => {
   assert.match(serverSource, /async function runWorldBuildStep\(step\)/);
   assert.match(serverSource, /spawnProcess\(process\.execPath, \[script\]/);
   assert.match(serverSource, /world-build-step-finished/);
+  assert.match(serverSource, /validateWorldFileVersion\(payload, label\);/);
+  assert.match(serverSource, /error: "world-file-version-mismatch"/);
+  assert.match(serverSource, /ready: cache\.ready && atlas\.ready/);
 });
 
 test("server prefers packaged memory reader before development build output", () => {

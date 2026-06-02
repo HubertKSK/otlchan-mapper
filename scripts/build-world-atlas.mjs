@@ -1,5 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
+import packageJson from "../package.json" with { type: "json" };
 
 const DEFAULT_INPUT = "world-cache.json";
 const DEFAULT_OUTPUT = "world-atlas.json";
@@ -77,6 +78,7 @@ export function buildAtlas(world, options = {}) {
 
   return {
     generatedAt: new Date().toISOString(),
+    appVersion: packageJson.version,
     source: options.source || DEFAULT_INPUT,
     rooms: atlasRooms,
     localMaps,

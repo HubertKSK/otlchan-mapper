@@ -2,6 +2,7 @@ import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { TextDecoder } from "node:util";
 import { pathToFileURL } from "node:url";
+import packageJson from "../package.json" with { type: "json" };
 
 const DEFAULT_OTCHLAN_DIR = "C:\\Program Files (x86)\\Otchlan 1.3";
 const DEFAULT_GAME_DIR = process.env.OTCHLAN_DIR || DEFAULT_OTCHLAN_DIR;
@@ -73,6 +74,7 @@ export async function extractWorld(areaDirPath) {
 
   return {
     generatedAt: new Date().toISOString(),
+    appVersion: packageJson.version,
     gameDir,
     recordSize: RECORD_SIZE,
     areas: areaFiles,

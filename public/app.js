@@ -523,16 +523,16 @@ async function refreshWorldSetupStatus() {
 
 function updateWorldSetupStatus(status = {}) {
   worldSetupStatus = status;
-  const cacheReady = Boolean(status.cache?.exists);
-  const atlasReady = Boolean(status.atlas?.exists);
+  const cacheReady = Boolean(status.cache?.ready);
+  const atlasReady = Boolean(status.atlas?.ready);
   const busy = Boolean(status.busy);
   if (els.worldCacheStatus) {
-    els.worldCacheStatus.textContent = cacheReady ? "gotowy" : "brak";
-    els.worldCacheStatus.dataset.state = cacheReady ? "ready" : "missing";
+    els.worldCacheStatus.textContent = getWorldFileStatusText(status.cache);
+    els.worldCacheStatus.dataset.state = getWorldFileStatusState(status.cache);
   }
   if (els.worldAtlasStatus) {
-    els.worldAtlasStatus.textContent = atlasReady ? "gotowy" : "brak";
-    els.worldAtlasStatus.dataset.state = atlasReady ? "ready" : "missing";
+    els.worldAtlasStatus.textContent = getWorldFileStatusText(status.atlas);
+    els.worldAtlasStatus.dataset.state = getWorldFileStatusState(status.atlas);
   }
   if (els.worldSetupWelcome) {
     els.worldSetupWelcome.hidden = cacheReady && atlasReady;
@@ -547,6 +547,18 @@ function updateWorldSetupStatus(status = {}) {
     button.disabled = busy || !cacheReady;
     button.textContent = busy && status.runningStep === "atlas" ? "Buduje..." : "Zbuduj atlas";
   }
+}
+
+function getWorldFileStatusText(fileStatus = {}) {
+  if (fileStatus.ready) return "gotowy";
+  if (fileStatus.stale) return "nieaktualny";
+  return "brak";
+}
+
+function getWorldFileStatusState(fileStatus = {}) {
+  if (fileStatus.ready) return "ready";
+  if (fileStatus.stale) return "stale";
+  return "missing";
 }
 
 async function runWorldSetupStep(step) {
@@ -2377,7 +2389,7 @@ function drawMobMarkers(coords, worldRenderIds, cell, z) {
     const count = mobs.length;
     const group = svg("g", { class: "mob-location-marker" });
     const centerX = point.x + cell - 12;
-    const centerY = point.y + 12;
+    const centerY = point.y + cell - 12;
     group.append(svg("circle", {
       cx: centerX,
       cy: centerY,

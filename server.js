@@ -9,6 +9,8 @@ import { StringDecoder } from "node:string_decoder";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, "public");
+const PACKAGE_JSON = JSON.parse(readFileSync(path.join(__dirname, "package.json"), "utf8"));
+const APP_VERSION = String(PACKAGE_JSON.version || "0.0.0");
 const DEFAULT_GAME_DIR = "C:\\Program Files (x86)\\Otchlan 1.3";
 const GAME_DIR = process.env.OTCHLAN_DIR || DEFAULT_GAME_DIR;
 const PORT = Number(process.env.PORT || 5173);
@@ -330,30 +332,37 @@ function sendJson(res, payload, statusCode = 200) {
 
 async function sendWorldCache(res) {
   try {
-    const body = await readFile(WORLD_CACHE_FILE, "utf8");
+    const body = await readValidatedWorldFile(WORLD_CACHE_FILE, "world-cache.json");
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
     res.end(body);
-  } catch {
-    res.writeHead(404, { "Content-Type": "application/json; charset=utf-8" });
-    res.end(JSON.stringify({
-      ok: false,
-      message: "world-cache.json nie istnieje. Uruchom npm.cmd run world:extract."
-    }));
+  } catch (error) {
+    sendJson(res, makeWorldFileError("world-cache.json", "world:extract", error), worldFileErrorStatus(error));
   }
 }
 
 async function sendWorldAtlas(res) {
   try {
-    const body = await readFile(WORLD_ATLAS_FILE, "utf8");
+    const body = await readValidatedWorldFile(WORLD_ATLAS_FILE, "world-atlas.json");
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
     res.end(body);
-  } catch {
-    res.writeHead(404, { "Content-Type": "application/json; charset=utf-8" });
-    res.end(JSON.stringify({
-      ok: false,
-      message: "world-atlas.json nie istnieje. Uruchom npm.cmd run world:atlas."
-    }));
+  } catch (error) {
+    sendJson(res, makeWorldFileError("world-atlas.json", "world:atlas", error), worldFileErrorStatus(error));
   }
+}
+
+async function readValidatedWorldFile(file, label) {
+  const body = await readFile(file, "utf8");
+  const payload = JSON.parse(body);
+  validateWorldFileVersion(payload, label);
+  return body;
+}
+
+function validateWorldFileVersion(payload, label) {
+  if (String(payload?.appVersion || "") === APP_VERSION) return;
+  const error = new Error(`${label} ma niezgodna wersje aplikacji.`);
+  error.code = "world-file-version-mismatch";
+  error.fileVersion = String(payload?.appVersion || "");
+  throw error;
 }
 
 async function getWorldBuildStatus(extra = {}) {
@@ -363,10 +372,11 @@ async function getWorldBuildStatus(extra = {}) {
   ]);
   return {
     ok: true,
+    appVersion: APP_VERSION,
     gameDir: GAME_DIR,
     cache,
     atlas,
-    ready: cache.exists && atlas.exists,
+    ready: cache.ready && atlas.ready,
     busy: Boolean(worldBuildTask),
     runningStep: worldBuildTask?.step || null,
     ...extra
@@ -376,20 +386,57 @@ async function getWorldBuildStatus(extra = {}) {
 async function getLocalFileStatus(file) {
   try {
     const info = await stat(file);
+    const body = await readFile(file, "utf8");
+    const payload = JSON.parse(body);
+    const fileVersion = String(payload?.appVersion || "");
+    const ready = fileVersion === APP_VERSION;
     return {
       exists: true,
+      ready,
+      stale: !ready,
       file: path.relative(__dirname, file),
       bytes: info.size,
-      updatedAt: info.mtime.toISOString()
+      updatedAt: info.mtime.toISOString(),
+      appVersion: fileVersion || null,
+      expectedAppVersion: APP_VERSION
     };
-  } catch {
+  } catch (error) {
     return {
-      exists: false,
+      exists: existsSync(file),
+      ready: false,
+      stale: existsSync(file),
       file: path.relative(__dirname, file),
       bytes: 0,
-      updatedAt: null
+      updatedAt: null,
+      appVersion: null,
+      expectedAppVersion: APP_VERSION,
+      error: existsSync(file) ? String(error?.code || error?.message || error) : null
     };
   }
+}
+
+function makeWorldFileError(file, command, error) {
+  if (error?.code === "world-file-version-mismatch") {
+    return {
+      ok: false,
+      error: "world-file-version-mismatch",
+      file,
+      appVersion: error.fileVersion || null,
+      expectedAppVersion: APP_VERSION,
+      message: `${file} jest z wersji aplikacji ${error.fileVersion || "brak"}; wymagana wersja to ${APP_VERSION}. Uruchom npm.cmd run ${command}.`
+    };
+  }
+  return {
+    ok: false,
+    error: "world-file-missing",
+    file,
+    expectedAppVersion: APP_VERSION,
+    message: `${file} nie istnieje albo jest uszkodzony. Uruchom npm.cmd run ${command}.`
+  };
+}
+
+function worldFileErrorStatus(error) {
+  return error?.code === "world-file-version-mismatch" ? 409 : 404;
 }
 
 async function runWorldBuildStep(step) {

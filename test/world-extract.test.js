@@ -6,8 +6,10 @@ import { linkWorldRooms, parseAreaRooms, parseSkillSymbolsFromText } from "../sc
 const extractorSource = await readFile(new URL("../scripts/extract-world.mjs", import.meta.url), "utf8");
 
 test("world extraction defaults to the standard Otchlan 1.3 install directory", () => {
+  assert.match(extractorSource, /import packageJson from "\.\.\/package\.json" with \{ type: "json" \};/);
   assert.match(extractorSource, /const DEFAULT_OTCHLAN_DIR = "C:\\\\Program Files \(x86\)\\\\Otchlan 1\.3";/);
   assert.match(extractorSource, /const DEFAULT_GAME_DIR = process\.env\.OTCHLAN_DIR \|\| DEFAULT_OTCHLAN_DIR;/);
+  assert.match(extractorSource, /appVersion: packageJson\.version/);
 });
 
 test("extracts skill symbols from otchlan.exe text for effect name fallback", () => {
