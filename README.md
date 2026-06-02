@@ -6,6 +6,30 @@ Lokalna aplikacja webowa do grania w Otchlan 1.3 i prowadzenia mapy lokacji. Apl
 
 Projekt jest przeznaczony do lokalnego uruchamiania na Windowsie.
 
+## Najprostsze Uruchomienie
+
+Pobierz gotowa paczke z GitHub Releases:
+
+```text
+otchlan-mapper-1.0.0.zip
+```
+
+Po pobraniu:
+
+1. Rozpakuj ZIP w dowolnym katalogu, np. `C:\Gry\otchlan-mapper`.
+2. Uruchom `run.cmd`.
+3. Otworz `http://localhost:5173`, jesli przegladarka nie otworzy sie sama.
+4. W ustawieniach aplikacji przygotuj atlas swiata: najpierw `Ekstrahuj dane gry`, potem `Zbuduj atlas`.
+5. Kliknij start gry przy terminalu.
+
+Do zatrzymania serwera i czytnika pamieci uruchom:
+
+```text
+stop.cmd
+```
+
+Paczka zawiera juz zbudowany `bin\OtchlanMemoryReader.exe`, wiec nie trzeba instalowac .NET SDK ani budowac czytnika pamieci.
+
 ## Funkcje
 
 - terminal Otchlani w przegladarce,
@@ -28,7 +52,6 @@ Pelna lista funkcjonalnosci jest w [FEATURES.md](FEATURES.md).
 
 - Windows
 - Node.js 18+
-- .NET SDK 8+ do zbudowania szybkiego czytnika pamieci
 - [Otchlan 1.3](https://otchlan.pl)
 
 Wazne: `Otchlan Mapper` nie musi byc w katalogu gry. To sa dwa osobne miejsca:
@@ -42,9 +65,15 @@ Domyslna sciezka katalogu gry to:
 C:\Program Files (x86)\Otchlan 1.3
 ```
 
-Jesli gra jest w tym katalogu, nie trzeba ustawiac `OTCHLAN_DIR`. Jesli gra jest gdzie indziej, ustaw `OTCHLAN_DIR` w PowerShell przed ekstrakcja mapy i przed startem serwera.
+Jesli gra jest w tym katalogu, nie trzeba ustawiac `OTCHLAN_DIR`. Jesli gra jest gdzie indziej, ustaw `OTCHLAN_DIR` przed ekstrakcja mapy i przed startem serwera.
 
-## Instalacja
+## Uruchomienie Z Kodu Zrodlowego
+
+Ta sekcja jest dla developerow albo osob, ktore nie korzystaja z gotowej paczki release.
+
+Wymagania dodatkowe:
+
+- .NET SDK 8+ do zbudowania szybkiego czytnika pamieci.
 
 Pobierz projekt i otworz PowerShell w katalogu aplikacji `otchlan-mapper`, czyli w folderze z plikiem `package.json`. To nie jest katalog gry.
 
@@ -55,7 +84,7 @@ npm install
 npm.cmd run memory:build
 ```
 
-## Pierwsze Uruchomienie Dla Nietechnicznej Osoby
+## Pierwsze Uruchomienie Z Kodu Zrodlowego
 
 Przy pierwszym uruchomieniu trzeba przygotowac mape swiata z plikow gry. Komendy uruchamiaj w katalogu aplikacji `otchlan-mapper`, a skrypty same znajda gre w domyslnej lokalizacji `C:\Program Files (x86)\Otchlan 1.3`.
 
@@ -113,20 +142,6 @@ Po pierwszym przygotowaniu atlasu nie trzeba za kazdym razem ekstraktowac mapy. 
 ```powershell
 npm start
 ```
-
-Jesli korzystasz z gotowej paczki release z GitHuba, mozesz zamiast tego uruchomic:
-
-```text
-run.cmd
-```
-
-Zatrzymanie serwera i czytnika pamieci:
-
-```text
-stop.cmd
-```
-
-Paczka release zawiera juz zbudowany `bin\OtchlanMemoryReader.exe`, wiec nie wymaga instalowania .NET SDK ani uruchamiania `npm.cmd run memory:build`.
 
 Jesli po aktualizacji projektu zmienil sie czytnik pamieci, uruchom jednorazowo:
 
@@ -249,38 +264,6 @@ npm.cmd run check
 npm.cmd test
 npm.cmd run smoke
 ```
-
-## Gotowa Paczka Release
-
-Najprostszy sposob uruchomienia to pobranie gotowej paczki z GitHub Releases:
-
-```text
-otchlan-mapper-1.0.0.zip
-```
-
-Po pobraniu:
-
-1. Rozpakuj ZIP w dowolnym katalogu, np. `C:\Gry\otchlan-mapper`.
-2. Uruchom `run.cmd`.
-3. Otworz `http://localhost:5173`, jesli przegladarka nie otworzy sie sama.
-4. W ustawieniach aplikacji przygotuj atlas swiata: najpierw `Ekstrahuj dane gry`, potem `Zbuduj atlas`.
-5. Kliknij start gry przy terminalu.
-
-Paczka zawiera:
-
-- `run.cmd` do prostego uruchomienia,
-- `stop.cmd` do zatrzymania serwera i `OtchlanMemoryReader.exe`,
-- zbudowany self-contained `bin\OtchlanMemoryReader.exe`,
-- aplikacje webowa, serwer, skrypty i dokumentacje,
-- produkcyjne `node_modules`, zeby uzytkownik release nie musial od razu uruchamiac `npm install`.
-
-Paczka nie zawiera prywatnych ani lokalnie generowanych danych:
-
-- `user-layer.json`,
-- `world-cache.json`,
-- `world-atlas.json`,
-- `logs/`,
-- `server.log`.
 
 ## Logi
 

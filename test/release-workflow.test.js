@@ -28,10 +28,13 @@ test("GitHub Actions workflow builds and publishes Windows release", () => {
   assert.match(workflowSource, /gh release create \$tag/);
 });
 
-test("README documents tag-driven GitHub release", () => {
-  assert.match(readmeSource, /## Release 1\.0 Na GitHubie/);
-  assert.match(readmeSource, /git tag v1\.0\.0/);
-  assert.match(readmeSource, /\.github\/workflows\/release\.yml/);
+test("README documents user-facing release package", () => {
+  assert.match(readmeSource, /## Najprostsze Uruchomienie/);
+  assert.match(readmeSource, /otchlan-mapper-1\.0\.0\.zip/);
+  assert.match(readmeSource, /Uruchom `run\.cmd`/);
+  assert.match(readmeSource, /Ekstrahuj dane gry/);
+  assert.doesNotMatch(readmeSource, /git tag v1\.0\.0/);
+  assert.doesNotMatch(readmeSource, /\.github\/workflows\/release\.yml/);
   assert.match(readmeSource, /stop\.cmd/);
   assert.match(readmeSource, /bin\\OtchlanMemoryReader\.exe/);
 });
