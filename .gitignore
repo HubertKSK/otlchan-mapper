@@ -5,6 +5,7 @@
 *.tmp
 otchlan-map.json
 user-layer.json
+!user-layer-demo.json
 world-cache.json
 world-atlas.json
 node_modules/

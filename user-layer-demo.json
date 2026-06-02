@@ -1,0 +1,5640 @@
+{
+  "schema": "otchlan-user-layer",
+  "version": 1,
+  "exportedAt": "2026-06-02T14:23:03.842Z",
+  "globalNotes": "Latarnia - znaleźć soczewkę\nstaruszek - dokumenty własności\nNaszyjnik Ademina - rozbity transport na trakcie niedaleko mantaru",
+  "globalNotesPages": [
+    {
+      "id": "global-note-1",
+      "title": "Aktualne zadanie",
+      "body": "Latarnia - znaleźć soczewkę\nstaruszek - dokumenty własności\nNaszyjnik Ademina - rozbity transport na trakcie niedaleko mantaru",
+      "createdAt": "2026-06-01T08:13:57.759Z",
+      "updatedAt": "2026-06-02T14:23:03.754Z"
+    },
+    {
+      "id": "global-note-1780302293107-334b80d1f83de",
+      "title": "Przedmioty",
+      "body": "Jedwabne rękawiczki jest typu pancerz.\nPrzedmiot ten jest wart 341 złotych monet, waży 0.25 kg,\nzaś Ty możesz go używać od 2 poziomu.\nWpływa na klasę pancerza o 1.\nWpływa na mądrość o 1.\n\nLaska szamana jest typu laska.\nPrzedmiot ten jest wart 132 złotych monet, waży 1.60 kg,\nzaś Ty możesz go używać od 3 poziomu.\nWpływa na maksymalną energię mana o 7.\nWpływa na zadawane obrażenia o 4.\n\nNaszyjnik z czaszką jest typu artefakt.\nPrzedmiot ten jest wart 73 złotych monet, waży 0.40 kg,\nzaś Ty możesz go używać od 1 poziomu.\nWpływa na maksymalną energię mana o 5.\n\nLekki czerwony kaftan z aksamitu jest typu ubranie.\nPrzedmiot ten jest wart 302 złotych monet, waży 1.00 kg,\nzaś Ty możesz go używać od 0 poziomu.\nWpływa na klasę pancerza o 3.\n\nWełniane skarpetki (maks. mana +10, maks. mv +20, panc. +2, mąd. +1)\n\nalabastrowy pierscien +15max hp",
+      "createdAt": "2026-06-01T08:24:53.107Z",
+      "updatedAt": "2026-06-02T08:07:37.976Z"
+    },
+    {
+      "id": "global-note-1780302927681-fcc165fa429f58",
+      "title": "Receptury",
+      "body": "# Recepta na jasnozieloną miksturę\n-rosiczka\n-łuska karpia\n-woda morska\n-okruch bursztynu\n\n# Przepis na lepszą miksturę many\n-czerwony płatek róży\n-kieł orka\n-sok dzikiego wina\n-okruch bursztynu\n\n# Recepta na świecącą niebieską miksturę\n-kwiat lotosu\n-kieł wilkołaka\n-woda bagienna\n-grudka lessu\n",
+      "createdAt": "2026-06-01T08:35:27.681Z",
+      "updatedAt": "2026-06-01T12:49:37.222Z"
+    },
+    {
+      "id": "global-note-1780302998730-6ede5ada41552",
+      "title": "misc",
+      "body": "/prompt {k:15}<{k:12}#h/#i @h% {k:13}#m/#n {k:10}#v/#w {k:14}#gg {k:11}@x%>",
+      "createdAt": "2026-06-01T08:36:38.730Z",
+      "updatedAt": "2026-06-01T08:36:49.443Z"
+    }
+  ],
+  "activeGlobalNotesPageId": "global-note-1",
+  "rooms": [
+    {
+      "worldKey": "arena.are:278,351,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:278,352,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:278,353,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:279,350,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:279,351,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:279,352,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:279,353,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:279,354,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:280,350,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:280,351,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:280,352,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:280,353,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:280,354,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:281,350,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:281,351,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:281,352,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:281,353,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:281,354,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:282,350,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:282,351,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:282,352,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:282,353,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:282,354,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:283,350,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:283,351,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:283,352,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:283,353,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "arena.are:283,354,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cment2.are:269,319,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cment2.are:269,320,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cment2.are:269,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cment2.are:270,319,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cment2.are:270,320,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cment2.are:270,320,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cment2.are:270,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cment2.are:271,319,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cment2.are:271,320,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cment2.are:271,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": [
+        "3x zombie"
+      ]
+    },
+    {
+      "worldKey": "cment2.are:272,319,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cment2.are:272,320,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cment2.are:272,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cmentarz.are:281,344,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cmentarz.are:281,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cmentarz.are:281,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cmentarz.are:282,344,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cmentarz.are:282,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cmentarz.are:282,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cmentarz.are:283,344,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cmentarz.are:283,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cmentarz.are:283,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cmentarz.are:284,344,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cmentarz.are:284,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cmentarz.are:284,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cmentarz.are:284,347,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "cmentarz.are:284,348,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "gnomwio.are:287,325,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "gnomwio.are:287,326,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "gnomwio.are:287,327,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "gnomwio.are:287,328,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "gnomwio.are:287,329,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "gnomwio.are:288,325,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "gnomwio.are:288,329,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "gnomwio.are:289,325,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "gnomwio.are:289,329,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:285,348,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:286,338,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:286,339,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:286,340,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:286,341,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:286,342,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:286,343,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:286,344,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:286,345,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:286,346,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:286,347,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:286,348,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:287,337,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:287,341,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:287,342,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:287,344,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:287,346,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:287,347,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:287,348,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:288,337,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:288,338,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:288,339,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:288,340,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:288,341,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:288,342,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:288,343,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:288,344,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:288,345,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:288,346,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:288,347,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:289,338,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:289,341,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:290,337,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:290,341,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:291,337,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:291,338,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:291,339,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:291,340,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:291,341,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:292,337,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:292,341,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:293,337,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:294,337,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:294,338,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:294,339,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:294,340,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:294,341,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:294,342,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:294,343,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "kopalnia.are:295,341,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,282,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,283,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,284,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,285,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,286,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,287,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,288,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,289,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,290,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,291,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,292,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,293,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,294,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,295,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,296,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,297,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,298,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,299,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,300,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,301,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,302,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,303,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,304,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,305,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,306,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,307,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,308,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,309,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,310,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,311,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,312,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,313,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,314,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,315,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,316,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,318,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,319,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,320,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,322,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,324,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,325,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,326,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,327,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,328,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,329,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:275,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:276,293,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:276,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:276,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:276,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:277,293,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:277,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:277,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:277,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:278,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:278,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:279,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:279,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:280,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:280,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:281,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:281,329,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:281,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:282,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:283,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:284,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:285,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:286,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:286,336,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:286,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:287,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:287,336,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:287,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:287,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:288,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:288,336,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:288,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:288,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:289,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:289,336,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:289,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:289,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,318,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,319,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,320,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,322,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,324,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,325,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,326,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,327,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,328,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,329,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,331,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,332,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,333,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,334,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,335,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,336,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "las.are:290,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:291,329,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:291,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:291,331,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:292,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:292,331,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:293,329,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:293,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:293,331,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:294,329,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:294,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:294,331,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:295,329,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:295,331,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:296,331,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:297,331,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:298,331,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:299,329,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:299,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasegd.are:299,331,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:264,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:264,324,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:265,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:265,324,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:266,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:266,324,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:267,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:267,324,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:268,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:268,318,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:268,319,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:268,320,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:268,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:268,322,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:268,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:268,324,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:268,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:268,331,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:269,299,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:269,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:269,318,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:269,322,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:269,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:269,324,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:269,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:270,299,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:270,300,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:270,301,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:270,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:270,318,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:270,322,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:270,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:270,324,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:270,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:271,299,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:271,300,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:271,301,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:271,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:271,318,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:271,322,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:271,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:271,324,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:271,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:272,298,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:272,299,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:272,301,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:272,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:272,318,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:272,322,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:272,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:272,324,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:272,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:273,301,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:273,310,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:273,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:273,318,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:273,319,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:273,320,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:273,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:273,322,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:273,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:273,324,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:273,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:274,301,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:274,310,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:274,317,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:274,318,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:274,319,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:274,320,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:274,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:274,322,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:274,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:274,324,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:274,325,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:274,326,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:274,327,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:274,328,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:274,329,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasenm.are:274,330,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasmd.are:289,311,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasmd.are:290,308,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasmd.are:290,309,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasmd.are:290,310,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasmd.are:290,311,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasmd.are:290,312,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasmd.are:290,313,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasmd.are:290,314,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasmd.are:290,315,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasmd.are:290,316,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "lasmd.are:291,308,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:276,301,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:276,309,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:277,301,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:277,309,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:277,313,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:277,314,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:277,315,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:277,316,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:278,301,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:278,309,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:278,313,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:279,297,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:279,298,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:279,300,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:279,301,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:279,302,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:279,309,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:279,313,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:280,294,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:280,295,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:280,297,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:280,298,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:280,299,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:280,300,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:280,301,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:280,302,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:280,309,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:280,313,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,294,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,295,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,296,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,297,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,298,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,299,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,300,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,301,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,302,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,303,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,304,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,305,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,306,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,307,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,308,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,309,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,313,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,314,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:281,315,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:282,295,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:282,296,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:282,300,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:282,301,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:282,302,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:282,303,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:282,304,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:282,305,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:282,313,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:282,315,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:283,293,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:283,294,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:283,295,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:283,296,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:283,301,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:283,302,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:283,315,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:284,296,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:284,297,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:284,298,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:284,299,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:284,300,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:284,301,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:284,315,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:285,296,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:285,297,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:285,298,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:285,299,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:285,311,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:285,312,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:285,313,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:285,314,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:285,315,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:285,316,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:286,295,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:286,296,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:286,297,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:286,298,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:286,299,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:286,306,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:286,307,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:286,308,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:286,309,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:286,310,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:286,311,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:286,311,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:286,314,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:286,315,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:287,295,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:287,296,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:287,314,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:287,315,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:288,311,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:288,312,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:288,313,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:288,314,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "laspoln.are:288,315,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:264,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:265,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:266,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:267,344,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:267,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:268,344,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:268,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,340,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,343,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,344,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,347,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,348,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,349,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,350,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,351,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,352,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,353,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,354,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,356,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,357,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,358,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,359,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:269,360,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,340,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,344,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,345,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,345,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,345,15",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,347,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,351,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,352,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,353,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,354,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,356,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:270,360,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:271,340,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:271,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:271,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:271,343,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:271,344,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:271,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:271,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:271,347,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:271,352,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:271,353,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:271,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:271,356,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:271,360,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:272,332,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:272,333,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:272,334,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:272,335,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:272,340,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:272,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:272,343,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:272,344,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:272,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:272,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:272,346,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:272,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:272,360,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,332,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,333,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,333,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,334,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,334,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,335,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,336,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,340,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": [
+        "bank"
+      ]
+    },
+    {
+      "worldKey": "miasto.are:273,343,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,344,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,346,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,347,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,348,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,349,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,350,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,359,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:273,360,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,332,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,333,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,334,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,335,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,336,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,336,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,337,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,340,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,343,13",
+      "visited": true,
+      "notes": "",
+      "tags": [
+        "biuro"
+      ]
+    },
+    {
+      "worldKey": "miasto.are:274,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,346,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,347,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,348,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,350,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,356,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:274,360,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,331,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,332,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,333,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,334,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,335,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,336,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,340,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,343,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,344,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,347,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,348,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,349,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,350,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,351,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,352,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,353,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,354,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,356,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,357,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,358,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,359,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,360,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:275,361,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,335,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,336,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,340,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,343,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,349,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,353,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,354,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,356,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,357,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:276,360,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:277,335,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:277,336,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:277,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:277,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:277,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:277,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:277,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:277,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:277,353,13",
+      "visited": true,
+      "notes": "",
+      "tags": [
+        "trener"
+      ]
+    },
+    {
+      "worldKey": "miasto.are:277,354,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:277,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:277,356,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:277,357,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:277,358,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:277,360,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:278,334,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:278,335,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:278,336,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:278,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:278,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:278,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:278,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:278,343,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:278,344,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:278,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:278,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:278,356,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:278,360,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:279,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:279,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:279,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:279,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:279,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:279,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:279,347,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:279,348,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:279,349,13",
+      "visited": true,
+      "notes": "",
+      "tags": [
+        "trener"
+      ]
+    },
+    {
+      "worldKey": "miasto.are:279,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:279,358,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:279,359,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:279,360,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,340,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,343,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,344,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,347,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,348,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,349,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,356,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,357,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,358,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,359,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,359,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:280,360,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,340,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,340,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,341,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,349,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,356,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,357,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,358,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,358,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,359,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,359,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:281,360,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:282,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:282,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:282,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:282,340,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:282,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:282,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:282,343,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:282,349,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:282,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:282,356,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:282,357,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:282,358,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:282,358,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:282,359,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:282,359,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:282,360,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:283,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:283,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:283,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:283,340,13",
+      "visited": true,
+      "notes": "",
+      "tags": [
+        "broń"
+      ]
+    },
+    {
+      "worldKey": "miasto.are:283,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": [
+        "zbroja"
+      ]
+    },
+    {
+      "worldKey": "miasto.are:283,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:283,343,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:283,349,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:283,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:283,357,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:283,358,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:283,358,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:283,359,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:283,359,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:283,360,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,340,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,343,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,348,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,349,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,350,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,351,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,352,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,353,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,354,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,356,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,357,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,358,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,359,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,359,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:284,360,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:285,338,13",
+      "visited": true,
+      "notes": "Można wejść na górę - nie wiem po co :)",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:285,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:285,359,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:286,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:286,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:286,340,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:286,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:286,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "miasto.are:287,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:278,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:278,322,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:278,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:279,320,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:279,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:279,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:279,324,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:279,325,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:280,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:280,322,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:280,325,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:280,326,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:280,327,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:281,322,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:281,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:281,324,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:281,325,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:281,326,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:281,327,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:281,328,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:282,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:282,322,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:282,325,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:282,326,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:282,327,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:283,320,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:283,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:283,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:283,324,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:283,325,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:284,321,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:284,322,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrj.are:284,323,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrod.are:291,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrod.are:292,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrod.are:292,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrod.are:292,340,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrod.are:292,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrod.are:293,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrod.are:294,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrod.are:294,341,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrod.are:294,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "ogrod.are:294,343,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:278,332,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:278,333,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:279,332,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:280,332,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:280,333,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:280,334,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:280,335,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:281,332,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:281,332,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:281,332,15",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:281,333,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:281,333,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:281,334,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:281,334,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:281,335,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:281,335,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:281,335,15",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:282,331,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:282,332,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:282,332,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:282,332,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:282,333,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:282,333,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:282,333,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:282,334,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:282,334,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:282,335,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:282,335,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:283,331,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:283,332,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:283,332,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:283,333,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:283,333,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:283,334,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:283,334,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:283,335,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:283,335,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:283,336,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:284,331,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:284,332,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:284,332,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:284,332,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:284,333,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:284,334,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:284,334,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:284,335,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "rezydkup.are:284,335,14",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "statek.are:264,347,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:269,332,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:269,333,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:269,334,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:269,335,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:269,336,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:269,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:269,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:269,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:270,332,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:270,333,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:270,334,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:270,335,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:270,336,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:270,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:270,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:270,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:271,332,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:271,334,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:271,335,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:271,336,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:271,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:271,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:271,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:272,336,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:272,337,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:272,338,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "szkola.are:272,339,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "traktes.are:290,340,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "traktes.are:290,341,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "traktes.are:290,342,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "traktes.are:290,343,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "traktes.are:290,344,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "traktes.are:290,345,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "traktes.are:290,346,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "traktes.are:290,347,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "traktes.are:290,348,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "traktes.are:290,349,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "traktes.are:290,350,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "traktes.are:290,351,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "traktes.are:290,352,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "traktes.are:290,353,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "traktes.are:290,354,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "traktes.are:290,355,13",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,331,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,332,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,333,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,334,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,335,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,336,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,337,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,338,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,339,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,340,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,341,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,342,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,343,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,344,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,345,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,346,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,347,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:268,348,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:269,347,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:274,350,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:274,351,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:274,352,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:274,353,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:274,354,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:274,355,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:275,350,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:275,355,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:276,350,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:276,355,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:277,350,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:277,355,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:277,356,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:277,357,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:277,358,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:277,359,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:278,350,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:278,351,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:278,352,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:278,353,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:278,354,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:278,355,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:278,358,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:278,359,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:278,360,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:279,346,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:279,347,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:279,348,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:279,349,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:279,350,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:279,359,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:280,346,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:281,346,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:282,346,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:282,347,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:282,348,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:282,349,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    },
+    {
+      "worldKey": "underdes.are:283,346,12",
+      "visited": true,
+      "notes": "",
+      "tags": []
+    }
+  ],
+  "savedAt": "2026-06-02T14:23:03.844Z"
+}

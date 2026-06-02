@@ -14,6 +14,30 @@ test("page branding uses Otchlan Mapper with a sword icon", () => {
   assert.match(cssSource, /\.brand-icon\s*\{/);
 });
 
+test("documentation demo mode provides stable UI state without live server loops", () => {
+  assert.match(appSource, /const DOCUMENTATION_DEMO_MODE = new URLSearchParams\(window\.location\.search\)\.get\("demo"\) === "1";/);
+  assert.match(appSource, /if \(DOCUMENTATION_DEMO_MODE\) \{[\s\S]*initDocumentationDemo\(\);[\s\S]*\} else \{[\s\S]*connectEventStream\(\);[\s\S]*initServerAutosave\(\);/);
+  assert.match(appSource, /function initDocumentationDemo\(\) \{/);
+  assert.match(appSource, /function createDocumentationDemoProject\(\) \{/);
+  assert.match(appSource, /function createDocumentationDemoStats\(\) \{/);
+  assert.match(appSource, /function createDocumentationDemoMobs\(\) \{/);
+  assert.match(appSource, /function createDocumentationDemoTerminalText\(\) \{/);
+  assert.match(appSource, /term\.write\(createDocumentationDemoTerminalText\(\)\);/);
+  assert.match(appSource, /Ulica Murna i Boczniejsza krzyżują się tutaj/);
+  assert.match(appSource, /Skrzyżowanie/);
+  assert.match(appSource, /Wschodnia brama Mantaru/);
+  assert.match(appSource, /Opancerzony strażnik pilnuje tutaj bramy/);
+  assert.match(appSource, /\\x1b\[38;5;51m/);
+  assert.match(appSource, /fetchJson\("\/api\/user-layer-demo"\)/);
+  assert.match(appSource, /\.catch\(\(\) => fetchJson\("\/api\/user-layer"\)\)/);
+  assert.match(appSource, /const DOCUMENTATION_DEMO_FOCUS_WORLD_KEY = "miasto\.are:285,338,13";/);
+  assert.match(appSource, /project\.rooms\.find\(\(room\) => room\.worldKey === DOCUMENTATION_DEMO_FOCUS_WORLD_KEY\)/);
+  assert.doesNotMatch(appSource, /getRoomByWorldKey/);
+  assert.match(appSource, /if \(DOCUMENTATION_DEMO_MODE && mob\.visibleCardinal4\) return true;/);
+  assert.match(appSource, /if \(DOCUMENTATION_DEMO_MODE\) return;[\s\S]*sendQueuedGameInput\(data\);/);
+  assert.match(appSource, /if \(!DOCUMENTATION_DEMO_MODE\) \{[\s\S]*\/api\/game\/resize/);
+});
+
 test("game control lives in the terminal header as one dynamic button", () => {
   const terminalSection = htmlSource.match(/<section class="terminal-panel"[\s\S]*?<\/section>/)?.[0] || "";
   const menuPanel = htmlSource.match(/<div id="appMenuPanel"[\s\S]*?<\/div>\s*<\/div>/)?.[0] || "";

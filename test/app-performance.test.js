@@ -77,6 +77,8 @@ test("terminal footer renders process-memory character vitals", () => {
   assert.match(cssSource, /\.active-effects/);
   assert.match(cssSource, /\.game-time/);
   assert.match(cssSource, /\.active-effect\.condition-warning/);
+  assert.match(cssSource, /\.active-effect\.condition-hunger/);
+  assert.match(cssSource, /\.active-effect\.condition-thirst/);
   assert.match(cssSource, /\.stat-change/);
   assert.match(cssSource, /@keyframes stat-change-float/);
   assert.match(appSource, /function applyGameMemoryStats\(position = \{\}\) \{/);

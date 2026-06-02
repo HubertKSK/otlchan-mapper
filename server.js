@@ -21,6 +21,7 @@ const LOG_ROTATE_KEEP = Number(process.env.OTCHLAN_LOG_KEEP || 5);
 const WORLD_CACHE_FILE = path.join(__dirname, "world-cache.json");
 const WORLD_ATLAS_FILE = path.join(__dirname, "world-atlas.json");
 const USER_LAYER_FILE = path.join(__dirname, "user-layer.json");
+const USER_LAYER_DEMO_FILE = path.join(__dirname, "user-layer-demo.json");
 const DEBUG_ENABLED = process.argv.includes("--debug") || isTruthyEnv(process.env.OTCHLAN_DEBUG) || isTruthyEnv(process.env.DEBUG_TERMINAL);
 const TERMINAL_DEBUG_FILE = path.join(LOG_DIR, "terminal-output-debug.jsonl");
 const OTCHLAN_POSITION_READER = path.join(__dirname, "scripts", "read-otchlan-position.ps1");
@@ -161,6 +162,13 @@ async function handleRequest(req, res) {
 
   if (url.pathname === "/api/user-layer" && req.method === "GET") {
     await sendUserLayer(res);
+    return;
+  }
+
+  if (url.pathname === "/api/user-layer-demo" && req.method === "GET") {
+    await sendJsonFile(res, USER_LAYER_DEMO_FILE, {
+      message: "user-layer-demo.json nie istnieje jeszcze."
+    });
     return;
   }
 
@@ -458,15 +466,21 @@ async function runNodeScript(script, step) {
 }
 
 async function sendUserLayer(res) {
+  await sendJsonFile(res, USER_LAYER_FILE, {
+    message: "user-layer.json nie istnieje jeszcze. Zapisz mape na serwerze."
+  });
+}
+
+async function sendJsonFile(res, file, fallback) {
   try {
-    const body = await readFile(USER_LAYER_FILE, "utf8");
+    const body = await readFile(file, "utf8");
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
     res.end(body);
   } catch {
     res.writeHead(404, { "Content-Type": "application/json; charset=utf-8" });
     res.end(JSON.stringify({
       ok: false,
-      message: "user-layer.json nie istnieje jeszcze. Zapisz mape na serwerze."
+      ...fallback
     }));
   }
 }

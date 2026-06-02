@@ -12,10 +12,13 @@ test("server defaults to the standard Otchlan 1.3 install directory", () => {
 
 test("server exposes user-layer save and load endpoints", () => {
   assert.match(serverSource, /const USER_LAYER_FILE = path\.join\(__dirname, "user-layer\.json"\);/);
+  assert.match(serverSource, /const USER_LAYER_DEMO_FILE = path\.join\(__dirname, "user-layer-demo\.json"\);/);
   assert.match(serverSource, /url\.pathname === "\/api\/user-layer" && req\.method === "GET"/);
+  assert.match(serverSource, /url\.pathname === "\/api\/user-layer-demo" && req\.method === "GET"/);
   assert.match(serverSource, /url\.pathname === "\/api\/user-layer" && req\.method === "PUT"/);
   assert.match(serverSource, /url\.pathname === "\/api\/user-layer\/position" && req\.method === "PATCH"/);
   assert.match(serverSource, /async function sendUserLayer\(res\) \{/);
+  assert.match(serverSource, /async function sendJsonFile\(res, file, fallback\) \{/);
   assert.match(serverSource, /async function saveUserLayer\(payload\) \{/);
   assert.match(serverSource, /async function saveUserLayerPosition\(payload\) \{/);
 });

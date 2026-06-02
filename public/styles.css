@@ -1101,6 +1101,13 @@ body.stat-hidden-statuses.stat-hidden-clock.stat-hidden-date .active-effects {
   color: var(--gold);
 }
 
+.active-effect.condition-hunger,
+.active-effect.condition-thirst {
+  border-color: color-mix(in srgb, var(--gold) 64%, var(--terminal-ring));
+  background: color-mix(in srgb, var(--gold) 9%, transparent);
+  color: var(--gold);
+}
+
 .active-effect.condition-severe {
   border-color: color-mix(in srgb, #e17963 68%, var(--terminal-ring));
   color: #e17963;

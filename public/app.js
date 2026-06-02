@@ -30,6 +30,8 @@ const TERMINAL_SCROLLBACK_LINES = 200;
 const TERMINAL_PARSE_WINDOW_LINES = 100;
 const SERVER_AUTOSAVE_MS = 120000;
 const SERVER_SAVE_DEBOUNCE_MS = 250;
+const DOCUMENTATION_DEMO_MODE = new URLSearchParams(window.location.search).get("demo") === "1";
+const DOCUMENTATION_DEMO_FOCUS_WORLD_KEY = "miasto.are:285,338,13";
 const ACTIVE_TTL_MS = 3000;
 const MAP_ZOOM_MIN = 0.35;
 const MAP_ZOOM_MAX = 2.8;
@@ -170,19 +172,342 @@ applySavedNotesVisibility();
 applySavedStatVisibility();
 initXterm();
 initMapperActivation();
-connectEventStream();
-initWorldSetup();
 applySavedTheme();
-initDebugControls();
-initServerAutosave();
-centerMapOnPlayer();
-render();
+if (DOCUMENTATION_DEMO_MODE) {
+  initDocumentationDemo();
+} else {
+  connectEventStream();
+  initWorldSetup();
+  initDebugControls();
+  initServerAutosave();
+  centerMapOnPlayer();
+  render();
+}
 
 async function initWorldSetup() {
   const setupStatus = await refreshWorldSetupStatus();
   if (setupStatus?.cache?.exists) {
     await initWorldCache({ loadAtlas: setupStatus?.atlas?.exists !== false });
   }
+}
+
+async function initDocumentationDemo() {
+  document.body.classList.add("documentation-demo");
+  els.statusText.textContent = "Tryb prezentacyjny";
+  els.gameStatus.textContent = "demo";
+  els.gameStatus.classList.add("running");
+
+  const loadedFromUserLayer = await loadDocumentationDemoUserLayer();
+  if (!loadedFromUserLayer) {
+    project = createDocumentationDemoProject();
+  }
+
+  const focusRoom = project.rooms.find((room) => room.worldKey === DOCUMENTATION_DEMO_FOCUS_WORLD_KEY)
+    || project.rooms.find((room) => room.worldKey)
+    || project.rooms[0];
+  playerRoomId = focusRoom?.id || project.playerRoomId || project.currentRoomId;
+  selectedRoomId = playerRoomId;
+  playerPositionKnown = true;
+  followPlayer = true;
+  mapDebugAll = false;
+  debugMapZ = null;
+  project.playerRoomId = playerRoomId;
+  project.selectedRoomId = selectedRoomId;
+  project.currentRoomId = playerRoomId;
+  project.followPlayer = followPlayer;
+  lastGameStats = createDocumentationDemoStats();
+  lastStatDeltaValues = collectStatDeltaValues(lastGameStats);
+  currentGameMobs = createDocumentationDemoMobs();
+  currentGameMobAreaFile = "miasto.are";
+  currentGameMobSignature = "documentation-demo";
+  currentGameMobVisibilityKey = "documentation-demo";
+  worldRoomsByKey = new Map(project.rooms.map((room) => [room.worldKey, room]));
+  atlasRoomsByKey = new Map(project.rooms.map((room) => [room.worldKey, room]));
+
+  term.clear();
+  term.write(createDocumentationDemoTerminalText());
+  renderCharacterVitals();
+  centerMapOnPlayer();
+  render();
+}
+
+function createDocumentationDemoTerminalText() {
+  const reset = "\x1b[0m";
+  const title = "\x1b[1;32m";
+  const exits = "\x1b[38;5;141m";
+  const command = "\x1b[37m";
+  const promptHp = "\x1b[38;5;203m";
+  const promptMana = "\x1b[38;5;250m";
+  const promptMv = "\x1b[38;5;118m";
+  const promptGold = "\x1b[38;5;221m";
+  const promptXp = "\x1b[38;5;51m";
+  const npc = "\x1b[31m";
+  const prompt = (mv, cmd = "") => `${promptHp}<118/118 100%${reset} ${promptMana}187/187${reset} ${promptMv}${mv}/147${reset} ${promptGold}629g${reset} ${promptXp}48%${reset}>${command}${cmd}${reset}`;
+  return [
+    "a na południe ścianę.",
+    "",
+    prompt(141, "e"),
+    `${title}Ulica Murna${reset}`,
+    `${exits}Wyjścia: north south east west${reset}`,
+    "Ulica Murna i Boczniejsza krzyżują się tutaj. Murna dalej biegnie wzdłuż",
+    "murów, na północ, a Boczniejsza znika gdzieś na zachodzie. Na wschód widać",
+    "kupę śmieci i wyrwę w murze. Na południe jest jakiś ślepy zaułek.",
+    "",
+    prompt(141, "n"),
+    `${title}Ulica Murna${reset}`,
+    `${exits}Wyjścia: north south${reset}`,
+    "Ta ulica jest znana z tego, że biegnie wzdłuż wschodnich murów miasta.",
+    "Na zachodzie ciągnie się rząd kamienic.",
+    "",
+    prompt(140, "n"),
+    `${title}Ulica Murna${reset}`,
+    `${exits}Wyjścia: north south${reset}`,
+    "Ta ulica jest znana z tego, że biegnie wzdłuż wschodnich murów miasta.",
+    "Na zachodzie ciągnie się rząd kamienic.",
+    "",
+    prompt(140, "n"),
+    `${title}Ulica Murna${reset}`,
+    `${exits}Wyjścia: west north south${reset}`,
+    "Ta ulica biegnie wzdłuż muru wschodniego i ciągnie się na południe.",
+    "Na zachód jest inna ulica, ale nie tak ładna jak ta. Eleganckie latarnie",
+    "ciągną się wzdłuż niej, a kostka brukowa jest rzeźbiona w jakieś fantastyczne",
+    "wzory.",
+    "",
+    prompt(140, "n"),
+    `${title}Skrzyżowanie${reset}`,
+    `${exits}Wyjścia: east west north south${reset}`,
+    "Stoisz na skrzyżowaniu ulic, będącym jednocześnie dużym placem. Na zachód",
+    "przechodzi on w niewielki targ, za którym stoi świątynia. Na południe",
+    "niewielka uliczka biegnie wzdłuż muru. Na północ plac kończy się przy rzece,",
+    "za którą stoi jakaś rezydencja.",
+    "",
+    prompt(139, "e"),
+    `${title}Wschodnia brama Mantaru${reset}`,
+    `${exits}Wyjścia: east west${reset}`,
+    "Stoisz przy wschodniej bramie dużego miasta. Brama jest dość masywna - stalowe",
+    "pasy łączone nitami wzmacniają dodatkowo drewniane skrzydła. Mury miasta",
+    "ciągną się dalej na północ i południe. Nad bramą dostrzegasz wyryty napis.",
+    `  ${npc}Zamiatacz macha tutaj miotłą.${reset}`,
+    `  ${npc}Opancerzony strażnik pilnuje tutaj bramy.${reset}`,
+    `  ${npc}Opancerzony strażnik pilnuje tutaj bramy.${reset}`,
+    "",
+    prompt(139)
+  ].join("\r\n");
+}
+
+async function loadDocumentationDemoUserLayer() {
+  try {
+    await initWorldSetup();
+    const payload = await fetchJson("/api/user-layer-demo")
+      .catch(() => fetchJson("/api/user-layer"));
+    applyUserLayerImport(payload);
+    if (els.worldSetupWelcome) els.worldSetupWelcome.hidden = true;
+    return project.rooms.some((room) => room.worldKey);
+  } catch (error) {
+    console.warn("[demo:warn] user-layer demo load failed", error);
+    if (els.worldSetupWelcome) els.worldSetupWelcome.hidden = true;
+    if (els.worldCacheStatus) {
+      els.worldCacheStatus.textContent = "demo";
+      els.worldCacheStatus.dataset.state = "ready";
+    }
+    if (els.worldAtlasStatus) {
+      els.worldAtlasStatus.textContent = "demo";
+      els.worldAtlasStatus.dataset.state = "ready";
+    }
+    return false;
+  }
+}
+
+function createDocumentationDemoProject() {
+  const now = new Date().toISOString();
+  const rooms = [
+    documentationDemoRoom("miasto.are:284,337,13", "Ul. Nadbrzeżna", "miasto.are", 284, 337, 13, ["s", "w"], {
+      w: "miasto.are:283,337,13",
+      s: "miasto.are:284,338,13",
+      d: "underdes.are:284,337,12"
+    }, "Ta niewielka ulica biegnie wzdłuż rzeczki, stąd jej nazwa. Rzeczka jest koloru raczej podejrzanego i lepiej się w niej nie taplać.", [], ""),
+    documentationDemoRoom("las.are:286,337,13", "Łąka", "las.are", 286, 337, 13, ["n", "s", "e"], {
+      e: "las.are:287,337,13",
+      n: "las.are:286,336,13",
+      s: "miasto.are:286,338,13"
+    }, "Stoisz na krańcu niezbyt szerokiego pasa łąki, ograniczonego od północy rzeką, zaś od południa traktem. Tuż obok jest wschodnia brama miasta.", [], ""),
+    documentationDemoRoom("miasto.are:283,338,13", "Plac targowy", "miasto.are", 283, 338, 13, ["n", "s", "e", "w"], {
+      e: "miasto.are:284,338,13",
+      w: "miasto.are:282,338,13",
+      n: "miasto.are:283,337,13",
+      s: "miasto.are:283,339,13"
+    }, "Niesamowity tłok! Ludzie pchają się na Ciebie i próbują sprzedać co mają; rzędy straganów ciągną się z obu stron placu.", ["handel"], ""),
+    documentationDemoRoom("miasto.are:284,338,13", "Skrzyżowanie", "miasto.are", 284, 338, 13, ["n", "s", "e", "w"], {
+      e: "miasto.are:285,338,13",
+      w: "miasto.are:283,338,13",
+      n: "miasto.are:284,337,13",
+      s: "miasto.are:284,339,13"
+    }, "Stoisz na skrzyżowaniu ulic, będącym jednocześnie dużym placem. Na zachód przechodzi on w niewielki targ, za którym stoi świątynia.", ["punkt-orientacyjny"], ""),
+    documentationDemoRoom("miasto.are:285,338,13", "Wschodnia brama Mantaru", "miasto.are", 285, 338, 13, ["e", "w"], {
+      e: "miasto.are:286,338,13",
+      w: "miasto.are:284,338,13",
+      u: "miasto.are:285,338,14"
+    }, "Stoisz przy wschodniej bramie dużego miasta. Brama jest dość masywna - stalowe pasy łączone nitami wzmacniają dodatkowo drewniane skrzydła. Mury miasta ciągną się dalej na północ i południe.", ["brama", "mantar"], "Dobre miejsce kontrolne do testowania synchronizacji pozycji."),
+    documentationDemoRoom("miasto.are:286,338,13", "Droga", "miasto.are", 286, 338, 13, ["n", "s", "e", "w"], {
+      e: "las.are:287,338,13",
+      w: "miasto.are:285,338,13",
+      n: "las.are:286,337,13",
+      s: "miasto.are:286,339,13"
+    }, "Stoisz na szerokiej i bardzo zakurzonej drodze. Na zachód widzisz miasto, a na wschód droga ciągnie się dalej ku widocznemu skrzyżowaniu.", [], ""),
+    documentationDemoRoom("las.are:287,338,13", "Droga", "las.are", 287, 338, 13, ["n", "e", "w"], {
+      e: "las.are:288,338,13",
+      w: "miasto.are:286,338,13",
+      n: "las.are:287,337,13"
+    }, "Stoisz na szerokiej i bardzo zakurzonej drodze. Na zachód trochę dalej rozciąga się miasto Mantar, a na wschód droga ciągnie się dalej ku skrzyżowaniu.", [], ""),
+    documentationDemoRoom("miasto.are:284,339,13", "Ulica Murna", "miasto.are", 284, 339, 13, ["n", "s", "w"], {
+      w: "miasto.are:283,339,13",
+      n: "miasto.are:284,338,13",
+      s: "miasto.are:284,340,13"
+    }, "Ta ulica biegnie wzdłuż muru wschodniego i ciągnie się na południe. Eleganckie latarnie ciągną się wzdłuż niej.", [], ""),
+    documentationDemoRoom("miasto.are:286,339,13", "Dróżka", "miasto.are", 286, 339, 13, ["n", "s"], {
+      n: "miasto.are:286,338,13",
+      s: "miasto.are:286,340,13"
+    }, "Wędrujesz wąską dróżką biegnącą wzdłuż muru. Mur jest porośnięty winoroślą, która pnie się aż po jego krawędź.", [], ""),
+    documentationDemoRoom("miasto.are:285,338,14", "Nad bramą", "miasto.are", 285, 338, 14, ["d"], {
+      d: "miasto.are:285,338,13"
+    }, "Wdrapałeś się nad bramę i trochę głupio wyglądasz tak wisząc...", ["poziom-z"], "")
+  ];
+  const demoProject = {
+    version: 1,
+    currentRoomId: "miasto.are:285,338,13",
+    playerRoomId: "miasto.are:285,338,13",
+    selectedRoomId: "miasto.are:285,338,13",
+    nextRoomNumber: 20,
+    areas: [{ id: "miasto.are", name: "Mantar" }, { id: "las.are", name: "Okolice Mantaru" }],
+    rooms,
+    exits: [],
+    sessions: [{ id: "s-demo", startedAt: now }],
+    globalNotes: "",
+    globalNotesPages: [
+      {
+        id: "global-note-1",
+        title: "Aktualne zadanie",
+        body: "Wschodnia brama Mantaru - sprawdzić napis nad bramą\nPlac targowy - wrócić po zakupy przed wyjściem z miasta",
+        createdAt: now,
+        updatedAt: now
+      },
+      {
+        id: "global-note-2",
+        title: "Przedmioty",
+        body: "Latarnia, mapa okolic Mantaru, monety na zapas",
+        createdAt: now,
+        updatedAt: now
+      }
+    ],
+    activeGlobalNotesPageId: "global-note-1",
+    notes: []
+  };
+  for (const [from, direction, to] of [
+    ["miasto.are:284,338,13", "n", "miasto.are:284,337,13"],
+    ["miasto.are:284,338,13", "w", "miasto.are:283,338,13"],
+    ["miasto.are:284,338,13", "e", "miasto.are:285,338,13"],
+    ["miasto.are:284,338,13", "s", "miasto.are:284,339,13"],
+    ["miasto.are:285,338,13", "e", "miasto.are:286,338,13"],
+    ["miasto.are:286,338,13", "n", "las.are:286,337,13"],
+    ["miasto.are:286,338,13", "e", "las.are:287,338,13"],
+    ["miasto.are:286,338,13", "s", "miasto.are:286,339,13"],
+    ["miasto.are:285,338,13", "u", "miasto.are:285,338,14"]
+  ]) {
+    connectRooms(demoProject, from, to, direction);
+  }
+  return demoProject;
+}
+
+function documentationDemoRoom(worldKey, title, areaFile, x, y, z, visibleExits, links, description, tags = [], notes = "") {
+  const now = new Date().toISOString();
+  const coord = { x, y, z };
+  const room = {
+    id: worldKey,
+    area: areaFile,
+    areaFile,
+    coord,
+    worldKey,
+    key: worldKey,
+    x,
+    y,
+    z,
+    title,
+    description,
+    descriptionHash: "",
+    exitsSeen: visibleExits,
+    visibleExits,
+    specialExitsSeen: [],
+    blockedExitsSeen: [],
+    tags,
+    notes,
+    confidence: "demo",
+    links,
+    createdAt: now,
+    updatedAt: now
+  };
+  return room;
+}
+
+function createDocumentationDemoStats() {
+  return {
+    vitals: {
+      hp: 113,
+      hpMax: 118,
+      mana: 149,
+      manaMax: 187,
+      mv: 126,
+      mvMax: 147
+    },
+    economy: {
+      gold: 629,
+      goldBank: 3239,
+      level: 7,
+      exp: 4820,
+      minExp: 4200,
+      expLimit: 5600
+    },
+    time: {
+      hour: 20,
+      minute: 12,
+      day: 22
+    },
+    effects: [
+      { number: 12, name: "Laska blyskawic", duration: 24, count: 1 }
+    ],
+    conditions: [
+      { key: "hunger", name: "glod", level: "state" }
+    ],
+    environment: {
+      canObserveMobs: true
+    }
+  };
+}
+
+function createDocumentationDemoMobs() {
+  return [
+    demoMob(964, "Kapłan", 281, 338, 13, -4, 0, 4, "w", "miasto.are"),
+    demoMob(244, "Zamiatacz", 285, 338, 13, 0, 0, 0, "here", "miasto.are"),
+    demoMob(245, "Opancerzony strażnik", 285, 338, 13, 0, 0, 0, "here", "miasto.are"),
+    demoMob(246, "Opancerzony strażnik", 285, 338, 13, 0, 0, 0, "here", "miasto.are")
+  ];
+}
+
+function demoMob(id, name, x, y, z, dx, dy, distance, direction, areaFile) {
+  return {
+    id,
+    name,
+    x,
+    y,
+    z,
+    dx,
+    dy,
+    distance,
+    direction,
+    visibleCardinal4: true,
+    source: "demo",
+    areaFile,
+    worldKey: `${areaFile}:${x},${y},${z}`
+  };
 }
 
 async function refreshWorldSetupStatus() {
@@ -302,6 +627,7 @@ function initXterm() {
   }
   term.onData((data) => {
     claimMapperActivation("terminal-input");
+    if (DOCUMENTATION_DEMO_MODE) return;
     sendQueuedGameInput(data);
   });
 }
@@ -321,8 +647,10 @@ function fitTerminalToPanel() {
   if (term.cols !== TERMINAL_COLS || term.rows !== TERMINAL_ROWS) {
     term.resize(TERMINAL_COLS, TERMINAL_ROWS);
   }
-  postJson("/api/game/resize", { cols: TERMINAL_COLS, rows: TERMINAL_ROWS })
-    .catch((error) => console.warn("[terminal:warn] fixed terminal resize failed", error));
+  if (!DOCUMENTATION_DEMO_MODE) {
+    postJson("/api/game/resize", { cols: TERMINAL_COLS, rows: TERMINAL_ROWS })
+      .catch((error) => console.warn("[terminal:warn] fixed terminal resize failed", error));
+  }
   fitAtlasTerminalPreview();
 }
 
@@ -2080,6 +2408,7 @@ function getRenderableMobs(z) {
   const visibleMobWorldKeys = getPlayerVisibleMobWorldKeys();
   return currentGameMobs.filter((mob) => {
     if (Number(mob.z) !== Number(z)) return false;
+    if (DOCUMENTATION_DEMO_MODE && mob.visibleCardinal4) return true;
     return mapDebugAll || visibleMobWorldKeys.has(mob.worldKey);
   });
 }
