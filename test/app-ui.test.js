@@ -145,6 +145,7 @@ test("app menu is structured as settings with map mob visibility toggle", () => 
   assert.match(htmlSource, /class="settings-section" aria-label="Mapa"/);
   assert.match(htmlSource, /id="toggleMobsBtn"[\s\S]*Moby na mapie/);
   assert.match(htmlSource, /class="settings-section" aria-label="Postac"/);
+  assert.match(htmlSource, /class="settings-section" aria-label="Atlas swiata"/);
   assert.match(htmlSource, /class="settings-section" aria-label="Dane"/);
   assert.match(htmlSource, /class="settings-section debug-only" aria-label="Debug"/);
   assert.match(appSource, /const MOBS_VISIBLE_KEY = "otchlan-automapper-mobs-visible";/);
@@ -155,6 +156,26 @@ test("app menu is structured as settings with map mob visibility toggle", () => 
   assert.match(appSource, /return mobsVisible && canObserveGameMobs\(\);/);
   assert.match(cssSource, /\.settings-panel/);
   assert.match(cssSource, /\.settings-section/);
+});
+
+test("world atlas setup can be managed from settings and onboarding", () => {
+  assert.match(htmlSource, /id="worldSetupWelcome"/);
+  assert.match(htmlSource, /id="worldCacheStatus"/);
+  assert.match(htmlSource, /id="worldAtlasStatus"/);
+  assert.match(htmlSource, /id="extractWorldBtn"/);
+  assert.match(htmlSource, /id="buildWorldAtlasBtn"/);
+  assert.match(htmlSource, /id="welcomeExtractWorldBtn"/);
+  assert.match(htmlSource, /id="welcomeBuildAtlasBtn"/);
+  assert.match(appSource, /worldSetupWelcome: document\.querySelector\("#worldSetupWelcome"\)/);
+  assert.match(appSource, /async function initWorldSetup\(\) \{/);
+  assert.match(appSource, /await fetchJson\("\/api\/world\/status"\)/);
+  assert.match(appSource, /function updateWorldSetupStatus\(status = \{\}\) \{/);
+  assert.match(appSource, /els\.worldSetupWelcome\.hidden = cacheReady && atlasReady;/);
+  assert.match(appSource, /runWorldSetupStep\("extract"\)/);
+  assert.match(appSource, /runWorldSetupStep\("atlas"\)/);
+  assert.match(appSource, /postJson\(step === "extract" \? "\/api\/world\/extract" : "\/api\/world\/atlas", \{\}\)/);
+  assert.match(cssSource, /\.world-setup-welcome/);
+  assert.match(cssSource, /\.world-file-status/);
 });
 
 test("character stat widgets can be toggled from settings", () => {

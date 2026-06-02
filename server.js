@@ -43,6 +43,7 @@ let memoryReaderBuffer = "";
 let lastGamePosition = null;
 let lastGamePositionLogSignature = "";
 let lastGamePositionLogAt = 0;
+let worldBuildTask = null;
 let terminalSize = {
   cols: DEFAULT_TERMINAL_COLS,
   rows: TERMINAL_ROWS
@@ -139,6 +140,21 @@ async function handleRequest(req, res) {
 
   if (url.pathname === "/api/world-atlas") {
     await sendWorldAtlas(res);
+    return;
+  }
+
+  if (url.pathname === "/api/world/status") {
+    sendJson(res, await getWorldBuildStatus());
+    return;
+  }
+
+  if (url.pathname === "/api/world/extract" && req.method === "POST") {
+    sendJson(res, await runWorldBuildStep("extract"));
+    return;
+  }
+
+  if (url.pathname === "/api/world/atlas" && req.method === "POST") {
+    sendJson(res, await runWorldBuildStep("atlas"));
     return;
   }
 
@@ -327,6 +343,117 @@ async function sendWorldAtlas(res) {
       message: "world-atlas.json nie istnieje. Uruchom npm.cmd run world:atlas."
     }));
   }
+}
+
+async function getWorldBuildStatus(extra = {}) {
+  const [cache, atlas] = await Promise.all([
+    getLocalFileStatus(WORLD_CACHE_FILE),
+    getLocalFileStatus(WORLD_ATLAS_FILE)
+  ]);
+  return {
+    ok: true,
+    gameDir: GAME_DIR,
+    cache,
+    atlas,
+    ready: cache.exists && atlas.exists,
+    busy: Boolean(worldBuildTask),
+    runningStep: worldBuildTask?.step || null,
+    ...extra
+  };
+}
+
+async function getLocalFileStatus(file) {
+  try {
+    const info = await stat(file);
+    return {
+      exists: true,
+      file: path.relative(__dirname, file),
+      bytes: info.size,
+      updatedAt: info.mtime.toISOString()
+    };
+  } catch {
+    return {
+      exists: false,
+      file: path.relative(__dirname, file),
+      bytes: 0,
+      updatedAt: null
+    };
+  }
+}
+
+async function runWorldBuildStep(step) {
+  if (worldBuildTask) {
+    return {
+      ok: false,
+      error: "world-build-busy",
+      message: `Trwa juz operacja: ${worldBuildTask.step}.`
+    };
+  }
+  const scripts = {
+    extract: path.join(__dirname, "scripts", "extract-world.mjs"),
+    atlas: path.join(__dirname, "scripts", "build-world-atlas.mjs")
+  };
+  const script = scripts[step];
+  if (!script) {
+    return { ok: false, error: "unknown-world-build-step", message: "Nieznany krok przygotowania atlasu." };
+  }
+  worldBuildTask = { step, startedAt: new Date().toISOString() };
+  try {
+    const result = await runNodeScript(script, step);
+    worldBuildTask = null;
+    const status = await getWorldBuildStatus({ lastRun: result });
+    return status;
+  } finally {
+    worldBuildTask = null;
+  }
+}
+
+async function runNodeScript(script, step) {
+  return await new Promise((resolve, reject) => {
+    const child = spawnProcess(process.execPath, [script], {
+      cwd: __dirname,
+      env: process.env,
+      windowsHide: true
+    });
+    const startedAt = new Date().toISOString();
+    let stdout = "";
+    let stderr = "";
+    const appendOutput = (target, chunk) => {
+      const next = target + chunk.toString("utf8");
+      return next.length > 12000 ? next.slice(-12000) : next;
+    };
+    child.stdout?.on("data", (chunk) => { stdout = appendOutput(stdout, chunk); });
+    child.stderr?.on("data", (chunk) => { stderr = appendOutput(stderr, chunk); });
+    child.on("error", (error) => reject(error));
+    child.on("close", (code) => {
+      const finishedAt = new Date().toISOString();
+      const record = {
+        event: "world-build-step-finished",
+        step,
+        code,
+        startedAt,
+        finishedAt,
+        stdout: stdout.trim().slice(-3000),
+        stderr: stderr.trim().slice(-3000)
+      };
+      writeServerLog(record).catch((error) => console.error("[server:error] failed to write world build log", error));
+      if (code === 0) {
+        resolve({
+          ok: true,
+          step,
+          code,
+          startedAt,
+          finishedAt,
+          stdout: stdout.trim().slice(-3000),
+          stderr: stderr.trim().slice(-3000)
+        });
+        return;
+      }
+      const error = new Error(`Krok ${step} zakonczyl sie kodem ${code}.`);
+      error.payload = { ok: false, step, code, stdout, stderr };
+      reject(error);
+    });
+  });
 }
 
 async function sendUserLayer(res) {

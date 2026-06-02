@@ -20,6 +20,18 @@ test("server exposes user-layer save and load endpoints", () => {
   assert.match(serverSource, /async function saveUserLayerPosition\(payload\) \{/);
 });
 
+test("server exposes world extraction and atlas build endpoints", () => {
+  assert.match(serverSource, /const WORLD_CACHE_FILE = path\.join\(__dirname, "world-cache\.json"\);/);
+  assert.match(serverSource, /const WORLD_ATLAS_FILE = path\.join\(__dirname, "world-atlas\.json"\);/);
+  assert.match(serverSource, /url\.pathname === "\/api\/world\/status"/);
+  assert.match(serverSource, /url\.pathname === "\/api\/world\/extract" && req\.method === "POST"/);
+  assert.match(serverSource, /url\.pathname === "\/api\/world\/atlas" && req\.method === "POST"/);
+  assert.match(serverSource, /async function getWorldBuildStatus/);
+  assert.match(serverSource, /async function runWorldBuildStep\(step\)/);
+  assert.match(serverSource, /spawnProcess\(process\.execPath, \[script\]/);
+  assert.match(serverSource, /world-build-step-finished/);
+});
+
 test("server writes root error log and returns json server errors", () => {
   assert.match(serverSource, /const SERVER_LOG_FILE = path\.join\(__dirname, "server\.log"\);/);
   assert.match(serverSource, /const LOG_SCHEMA = "otchlan-log-v1";/);

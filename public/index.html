@@ -204,6 +204,19 @@
                       </button>
                     </div>
                   </section>
+                  <section class="settings-section" aria-label="Atlas swiata">
+                    <strong>Atlas swiata</strong>
+                    <div class="world-file-status" aria-label="Status plikow atlasu">
+                      <span>world-cache.json</span>
+                      <strong id="worldCacheStatus">sprawdzam</strong>
+                      <span>world-atlas.json</span>
+                      <strong id="worldAtlasStatus">sprawdzam</strong>
+                    </div>
+                    <div class="data-actions" aria-label="Przygotowanie atlasu swiata">
+                      <button id="extractWorldBtn" type="button">Ekstrahuj dane gry</button>
+                      <button id="buildWorldAtlasBtn" type="button">Zbuduj atlas</button>
+                    </div>
+                  </section>
                   <section class="settings-section" aria-label="Dane">
                     <strong>Dane</strong>
                     <div class="data-actions" aria-label="Import i eksport backupu">
@@ -222,6 +235,14 @@
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+        <div id="worldSetupWelcome" class="world-setup-welcome" hidden>
+          <strong>Przygotuj atlas swiata</strong>
+          <p>Mapper potrzebuje dwoch lokalnych plikow: najpierw `world-cache.json` z ekstrakcji danych gry, potem `world-atlas.json` z budowy atlasu.</p>
+          <div class="world-setup-actions">
+            <button id="welcomeExtractWorldBtn" type="button">Ekstrahuj dane gry</button>
+            <button id="welcomeBuildAtlasBtn" type="button">Zbuduj atlas</button>
           </div>
         </div>
         <div class="map-stage">

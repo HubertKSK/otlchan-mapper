@@ -82,6 +82,13 @@ const els = {
   toggleMobsBtn: document.querySelector("#toggleMobsBtn"),
   toggleNotesBtn: document.querySelector("#toggleNotesBtn"),
   statVisibilityButtons: document.querySelectorAll("[data-stat-toggle]"),
+  worldSetupWelcome: document.querySelector("#worldSetupWelcome"),
+  worldCacheStatus: document.querySelector("#worldCacheStatus"),
+  worldAtlasStatus: document.querySelector("#worldAtlasStatus"),
+  extractWorldBtn: document.querySelector("#extractWorldBtn"),
+  buildWorldAtlasBtn: document.querySelector("#buildWorldAtlasBtn"),
+  welcomeExtractWorldBtn: document.querySelector("#welcomeExtractWorldBtn"),
+  welcomeBuildAtlasBtn: document.querySelector("#welcomeBuildAtlasBtn"),
   debugRecordBtn: document.querySelector("#debugRecordBtn"),
   debugSettingsSection: document.querySelector(".settings-section.debug-only"),
   resetConfirmModal: document.querySelector("#resetConfirmModal"),
@@ -124,6 +131,7 @@ let gameInputSendQueue = Promise.resolve();
 let mapperLogSeq = 0;
 let worldCache = null;
 let worldAtlas = null;
+let worldSetupStatus = null;
 let lastGameStats = null;
 let lastStatDeltaValues = null;
 let currentGameMobs = [];
@@ -163,14 +171,84 @@ applySavedStatVisibility();
 initXterm();
 initMapperActivation();
 connectEventStream();
-initWorldCache();
+initWorldSetup();
 applySavedTheme();
 initDebugControls();
 initServerAutosave();
 centerMapOnPlayer();
 render();
 
-async function initWorldCache() {
+async function initWorldSetup() {
+  const setupStatus = await refreshWorldSetupStatus();
+  if (setupStatus?.cache?.exists) {
+    await initWorldCache({ loadAtlas: setupStatus?.atlas?.exists !== false });
+  }
+}
+
+async function refreshWorldSetupStatus() {
+  try {
+    const status = await fetchJson("/api/world/status");
+    updateWorldSetupStatus(status);
+    return status;
+  } catch (error) {
+    logMapper("world-status-load-failed", { message: String(error?.message || error) }, "warn");
+    return null;
+  }
+}
+
+function updateWorldSetupStatus(status = {}) {
+  worldSetupStatus = status;
+  const cacheReady = Boolean(status.cache?.exists);
+  const atlasReady = Boolean(status.atlas?.exists);
+  const busy = Boolean(status.busy);
+  if (els.worldCacheStatus) {
+    els.worldCacheStatus.textContent = cacheReady ? "gotowy" : "brak";
+    els.worldCacheStatus.dataset.state = cacheReady ? "ready" : "missing";
+  }
+  if (els.worldAtlasStatus) {
+    els.worldAtlasStatus.textContent = atlasReady ? "gotowy" : "brak";
+    els.worldAtlasStatus.dataset.state = atlasReady ? "ready" : "missing";
+  }
+  if (els.worldSetupWelcome) {
+    els.worldSetupWelcome.hidden = cacheReady && atlasReady;
+  }
+  const extractButtons = [els.extractWorldBtn, els.welcomeExtractWorldBtn].filter(Boolean);
+  const atlasButtons = [els.buildWorldAtlasBtn, els.welcomeBuildAtlasBtn].filter(Boolean);
+  for (const button of extractButtons) {
+    button.disabled = busy;
+    button.textContent = busy && status.runningStep === "extract" ? "Ekstrahuje..." : "Ekstrahuj dane gry";
+  }
+  for (const button of atlasButtons) {
+    button.disabled = busy || !cacheReady;
+    button.textContent = busy && status.runningStep === "atlas" ? "Buduje..." : "Zbuduj atlas";
+  }
+}
+
+async function runWorldSetupStep(step) {
+  const actionLabel = step === "extract" ? "Ekstrakcja danych gry" : "Budowa atlasu";
+  try {
+    updateWorldSetupStatus({
+      ...(worldSetupStatus || {}),
+      busy: true,
+      runningStep: step
+    });
+    const status = await postJson(step === "extract" ? "/api/world/extract" : "/api/world/atlas", {});
+    updateWorldSetupStatus(status);
+    showToast(`${actionLabel} zakonczona.`, "success");
+    if (status.cache?.exists) {
+      await initWorldCache({ loadAtlas: status.atlas?.exists !== false });
+      repairProjectRoomsFromWorldData();
+      applyPendingGameMemoryPosition();
+      render();
+    }
+  } catch (error) {
+    await refreshWorldSetupStatus();
+    showToast(`${actionLabel} nie powiodla sie.`, "error");
+    logMapper("world-setup-step-failed", { step, message: String(error?.message || error) }, "warn");
+  }
+}
+
+async function initWorldCache(options = {}) {
   try {
     const payload = await fetchJson("/api/world-cache");
     if (!Array.isArray(payload.rooms)) {
@@ -179,7 +257,7 @@ async function initWorldCache() {
     }
     worldCache = payload;
     worldRoomsByKey = new Map(worldCache.rooms.map((room) => [room.key, room]));
-    await initWorldAtlas();
+    if (options.loadAtlas !== false) await initWorldAtlas();
     repairProjectRoomsFromWorldData();
     await loadProjectFromServer({ silentMissing: true });
     applyPendingGameMemoryPosition();
@@ -377,6 +455,10 @@ function bindEvents() {
     setNotesVisibility(!notesVisible);
     showToast(notesVisible ? "Notes wlaczony." : "Notes ukryty.", "success");
   });
+  els.extractWorldBtn?.addEventListener("click", () => runWorldSetupStep("extract"));
+  els.welcomeExtractWorldBtn?.addEventListener("click", () => runWorldSetupStep("extract"));
+  els.buildWorldAtlasBtn?.addEventListener("click", () => runWorldSetupStep("atlas"));
+  els.welcomeBuildAtlasBtn?.addEventListener("click", () => runWorldSetupStep("atlas"));
   els.statVisibilityButtons.forEach((button) => {
     button.addEventListener("click", () => {
       const key = button.dataset.statToggle;

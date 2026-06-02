@@ -364,6 +364,45 @@ textarea:focus-visible,
   gap: 8px;
 }
 
+.world-file-status {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 10px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel-soft);
+}
+
+.world-file-status span {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.world-file-status strong {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 7px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.world-file-status strong[data-state="ready"] {
+  border-color: color-mix(in srgb, var(--accent-2) 56%, var(--line));
+  color: var(--accent);
+}
+
+.world-file-status strong[data-state="missing"] {
+  border-color: color-mix(in srgb, var(--danger) 54%, var(--line));
+  color: var(--danger);
+}
+
 .menu-panel button,
 .menu-panel .file-btn {
   width: 100%;
@@ -542,6 +581,41 @@ textarea:focus-visible,
 
 body.notes-hidden .layout[data-workspace="game"] .location-panel {
   grid-column: 2 / 4;
+}
+
+.world-setup-welcome {
+  display: grid;
+  gap: 9px;
+  margin: 0 12px 12px;
+  border: 1px solid color-mix(in srgb, var(--gold) 54%, var(--line));
+  border-radius: 8px;
+  padding: 12px;
+  background: color-mix(in srgb, var(--gold) 10%, var(--panel));
+}
+
+.world-setup-welcome[hidden] {
+  display: none;
+}
+
+.world-setup-welcome strong {
+  font-family: var(--font-heading);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.world-setup-welcome p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.world-setup-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 @media (min-width: 1680px) {
