@@ -2,6 +2,24 @@
 
 Ten plik opisuje funkcje aplikacji z perspektywy uzytkownika. README zostaje przewodnikiem instalacji i uruchomienia, a tutaj jest pelniejsza lista tego, co aplikacja potrafi.
 
+## Prezentacja Interfejsu
+
+### Glowny Widok
+
+![Glowny widok Otchlan Mapper](docs/screenshots/main-interface.png)
+
+### Mapa I Warstwa Mobow
+
+![Mapa z pozycja gracza i mobami](docs/screenshots/map-view.png)
+
+### Statystyki Postaci
+
+![Panel statystyk postaci](docs/screenshots/character-stats.png)
+
+### Ustawienia Aplikacji
+
+![Panel ustawien aplikacji](docs/screenshots/settings-panel.png)
+
 ## Terminal I Gra
 
 - Uruchamianie i zatrzymywanie Otchlani z poziomu interfejsu.
@@ -118,4 +136,3 @@ Ten plik opisuje funkcje aplikacji z perspektywy uzytkownika. README zostaje prz
 - `npm.cmd run verify` uruchamia kontrole skladni, build czytnika pamieci, testy i smoke test.
 - Testy obejmuja UI, parsery, atlas, serwer, zapis warstwy uzytkownika, odczyt pamieci i zachowania mappera.
 - Testy statyczne pilnuja waznych decyzji produktowych, np. braku recznego save/load serwera w ustawieniach.
-
