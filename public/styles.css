@@ -1323,30 +1323,20 @@ body.stat-hidden-statuses.stat-hidden-clock.stat-hidden-date .active-effects {
 
 .player-location-marker {
   pointer-events: none;
-  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.34));
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.24));
 }
 
-.player-location-marker-shadow {
-  fill: rgb(0 0 0 / 0.3);
+.player-location-marker-wash {
+  fill: color-mix(in srgb, var(--water) 8%, transparent);
+  stroke: none;
 }
 
-.player-location-marker-ring {
-  fill: color-mix(in srgb, var(--water) 72%, white);
-  stroke: color-mix(in srgb, var(--panel) 72%, var(--ink));
-  stroke-width: 2.1;
-}
-
-.player-location-marker-core {
-  fill: color-mix(in srgb, white 88%, var(--water));
-  stroke: color-mix(in srgb, var(--water) 78%, black);
-  stroke-width: 1;
-}
-
-.player-location-marker-halo {
+.player-location-marker-frame {
   fill: none;
-  stroke: color-mix(in srgb, var(--water) 68%, transparent);
-  stroke-width: 1.2;
-  stroke-dasharray: 2.5 2.5;
+  stroke: color-mix(in srgb, var(--water) 78%, white);
+  stroke-width: 1.6;
+  stroke-dasharray: 5 4;
+  stroke-linejoin: round;
 }
 
 .mob-location-marker {

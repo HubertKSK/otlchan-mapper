@@ -2507,39 +2507,37 @@ function isMapItemInRenderWindow(item, window) {
 }
 
 function createPlayerLocationMarker(point, cell, extraClass = "") {
-  const centerX = point.x + cell / 2;
-  const centerY = point.y + cell - 13;
-  const radius = Math.max(6, cell * 0.105);
+  const { x: centerX, y: centerY } = getPlayerMarkerCenter(point, cell);
+  const inset = 6;
+  const size = cell - inset * 2;
   const marker = svg("g", {
     class: `player-location-marker ${extraClass}`.trim(),
     transform: `translate(${centerX}, ${centerY})`
   });
-  marker.append(svg("ellipse", {
-    cx: 0,
-    cy: radius * 0.62,
-    rx: radius * 0.95,
-    ry: radius * 0.34,
-    class: "player-location-marker-shadow"
+  marker.append(svg("rect", {
+    x: -size / 2,
+    y: -size / 2,
+    width: size,
+    height: size,
+    rx: 4,
+    class: "player-location-marker-wash"
   }));
-  marker.append(svg("circle", {
-    cx: 0,
-    cy: 0,
-    r: radius,
-    class: "player-location-marker-ring"
-  }));
-  marker.append(svg("circle", {
-    cx: 0,
-    cy: 0,
-    r: radius * 0.45,
-    class: "player-location-marker-core"
-  }));
-  marker.append(svg("circle", {
-    cx: 0,
-    cy: 0,
-    r: radius * 1.38,
-    class: "player-location-marker-halo"
+  marker.append(svg("rect", {
+    x: -size / 2,
+    y: -size / 2,
+    width: size,
+    height: size,
+    rx: 4,
+    class: "player-location-marker-frame"
   }));
   return marker;
+}
+
+function getPlayerMarkerCenter(point, cell) {
+  return {
+    x: point.x + cell / 2,
+    y: point.y + cell / 2
+  };
 }
 
 function renderPlayerMarkerLayer(coords, cell, z) {
@@ -2558,8 +2556,7 @@ function renderPlayerMarkerLayer(coords, cell, z) {
     els.mapPlayerLayer.replaceChildren(marker);
   }
 
-  const targetX = point.x + cell / 2;
-  const targetY = point.y + cell - 13;
+  const { x: targetX, y: targetY } = getPlayerMarkerCenter(point, cell);
   const pending = pendingPlayerTravelAnimation;
   if (!pending || pending.toRoomId !== playerRoomId) {
     activePlayerTravelAnimationId = "";
@@ -2598,10 +2595,12 @@ function renderPlayerMarkerLayer(coords, cell, z) {
   activePlayerTravelAnimationId = pending.id;
 
   const currentTranslate = readSvgTranslate(marker);
-  const fromX = currentTranslate?.x ?? fromPoint.x + cell / 2;
-  const fromY = currentTranslate?.y ?? fromPoint.y + cell - 13;
-  const toX = toPoint.x + cell / 2;
-  const toY = toPoint.y + cell - 13;
+  const fromCenter = getPlayerMarkerCenter(fromPoint, cell);
+  const toCenter = getPlayerMarkerCenter(toPoint, cell);
+  const fromX = currentTranslate?.x ?? fromCenter.x;
+  const fromY = currentTranslate?.y ?? fromCenter.y;
+  const toX = toCenter.x;
+  const toY = toCenter.y;
   const animationId = ++playerTravelAnimationId;
   els.mapPlayerLayer.classList.add("player-marker-animating");
   animateSvgMarkerTravel(marker, fromX, fromY, toX, toY, PLAYER_TRAVEL_ANIMATION_MS, {

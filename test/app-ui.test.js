@@ -252,6 +252,12 @@ test("player movement animation moves the player marker instead of a room rectan
   assert.match(htmlSource, /id="mapSvg"[\s\S]*id="mapPlayerLayer"[\s\S]*id="mapLevelTransitionOverlay"/);
   assert.match(appSource, /mapPlayerLayer: document\.querySelector\("#mapPlayerLayer"\)/);
   assert.match(appSource, /function createPlayerLocationMarker\(point, cell, extraClass = ""\)/);
+  assert.match(appSource, /function getPlayerMarkerCenter\(point, cell\) \{/);
+  assert.match(appSource, /class: "player-location-marker-frame"/);
+  assert.match(appSource, /const inset = 6;/);
+  assert.match(appSource, /y: point\.y \+ cell \/ 2/);
+  assert.match(appSource, /const \{ x: targetX, y: targetY \} = getPlayerMarkerCenter\(point, cell\);/);
+  assert.doesNotMatch(appSource, /point\.y \+ cell - 13/);
   assert.match(appSource, /function renderPlayerMarkerLayer\(coords, cell, z\) \{/);
   assert.match(appSource, /function animateSvgMarkerTravel\(marker, fromX, fromY, toX, toY, duration, options = \{\}\)/);
   assert.match(appSource, /marker\.setAttribute\("transform", `translate\(\$\{x\}, \$\{y\}\)`\)/);
@@ -267,6 +273,9 @@ test("player movement animation moves the player marker instead of a room rectan
   assert.match(appSource, /els\.mapPlayerLayer\.classList\.add\("player-marker-animating"\)/);
   assert.match(appSource, /els\.mapPlayerLayer\?\.setAttribute\("viewBox"/);
   assert.match(cssSource, /\.map-player-layer/);
+  assert.match(cssSource, /\.player-location-marker-frame\s*\{[\s\S]*stroke-dasharray: 5 4;/);
+  assert.match(cssSource, /\.player-location-marker-frame\s*\{[\s\S]*stroke-width: 1\.6;/);
+  assert.doesNotMatch(cssSource, /\.player-location-marker-ring/);
   assert.doesNotMatch(cssSource, /\.player-marker-animating \.room-node\.current \.player-location-marker/);
   assert.doesNotMatch(appSource, /class: "player-travel-marker player-travel-marker-moving"/);
   assert.doesNotMatch(cssSource, /player-travel-marker-pulse/);
