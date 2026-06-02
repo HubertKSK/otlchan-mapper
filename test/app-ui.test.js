@@ -170,13 +170,16 @@ test("map view follows player movement with animated viewBox panning", () => {
 
 test("map renders process-memory mobs as a separate marker layer", () => {
   assert.match(appSource, /let currentGameMobs = \[\];/);
+  assert.match(appSource, /let currentGameMobVisibilityKey = "";/);
   assert.match(appSource, /function updateGameMobs\(position = \{\}\) \{/);
+  assert.match(appSource, /const visibilityKey = canObserveGameMobs\(\) \? "observable" : "hidden";/);
   assert.match(appSource, /function normalizeClientGameMobs\(mobs = \[\], areaFile = ""\) \{/);
   assert.match(appSource, /const worldKey = `\$\{areaFile\}:\$\{x\},\$\{y\},\$\{z\}`;/);
   assert.match(appSource, /const mobsChanged = updateGameMobs\(position\);/);
   assert.match(appSource, /if \(positionChanged \|\| layerChanged\) saveProject/);
   assert.match(appSource, /drawMobMarkers\(coords, worldRenderIds, cell, z\);/);
   assert.match(appSource, /function getRenderableMobs\(z\) \{/);
+  assert.match(appSource, /if \(!canObserveGameMobs\(\)\) return \[\];/);
   assert.match(appSource, /function getPlayerVisibleMobWorldKeys\(\) \{/);
   assert.match(appSource, /for \(const direction of \["n", "e", "w", "s"\]\)/);
   assert.match(appSource, /for \(let distance = 0; distance < 4; distance \+= 1\)/);
@@ -186,6 +189,20 @@ test("map renders process-memory mobs as a separate marker layer", () => {
   assert.match(appSource, /formatMobMarkerTitle\(mobs\)/);
   assert.match(cssSource, /\.mob-location-marker/);
   assert.match(cssSource, /\.mob-location-marker-count/);
+});
+
+test("mob layer respects darkness when player cannot look around", () => {
+  assert.match(appSource, /position\.environment/);
+  assert.match(appSource, /environment: position\.environment \|\| \{\}/);
+  assert.match(appSource, /environment: nextStats\.environment/);
+  assert.match(appSource, /function canObserveGameMobs\(\) \{/);
+  assert.match(appSource, /return environment\.canObserveMobs !== false;/);
+  assert.match(appSource, /activeConditions\.push\(\{ key: "darkness", name: "ciemność", level: "state" \}\);/);
+  assert.match(appSource, /className: `active-effect condition-\$\{condition\.level \|\| "state"\} condition-\$\{condition\.key \|\| "custom"\}`/);
+  assert.match(appSource, /function formatConditionStatusTitle\(condition = \{\}\) \{/);
+  assert.match(appSource, /if \(condition\.key === "darkness"\) return "Ograniczona widocznosc: moby na mapie sa ukryte\.";/);
+  assert.match(appSource, /darkness: "CIEMNOŚĆ"/);
+  assert.match(cssSource, /\.active-effect\.condition-darkness/);
 });
 
 test("debug map discovery does not rename the map header", () => {

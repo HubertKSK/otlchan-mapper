@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 
 const serverSource = await readFile(new URL("../server.js", import.meta.url), "utf8");
 const readerSource = await readFile(new URL("../scripts/read-otchlan-position.ps1", import.meta.url), "utf8");
+const nativeReaderSource = await readFile(new URL("../src/OtchlanMemoryReader/Program.cs", import.meta.url), "utf8");
 
 test("server publishes Otchlan position from process memory", () => {
   assert.match(serverSource, /const OTCHLAN_POSITION_READER = path\.join\(__dirname, "scripts", "read-otchlan-position\.ps1"\);/);
@@ -18,9 +19,11 @@ test("server publishes Otchlan position from process memory", () => {
   assert.match(serverSource, /event: "game-position-memory"/);
   assert.match(serverSource, /source: "process-memory"/);
   assert.match(serverSource, /const hasVitals = payload\.vitals && typeof payload\.vitals === "object"/);
+  assert.match(serverSource, /const hasEnvironment = payload\.environment && typeof payload\.environment === "object"/);
   assert.match(serverSource, /vitals: hasVitals \? normalizeGameVitals\(payload\.vitals\) : previousPosition\.vitals/);
   assert.match(serverSource, /economy: hasEconomy \? normalizeGameEconomy\(payload\.economy\) : previousPosition\.economy/);
   assert.match(serverSource, /time: hasTime \? normalizeGameTime\(payload\.time\) : previousPosition\.time/);
+  assert.match(serverSource, /environment: hasEnvironment \? normalizeGameEnvironment\(payload\.environment\) : previousPosition\.environment/);
   assert.match(serverSource, /effects: hasEffects \? normalizeGameEffects\(payload\.effects\) : previousPosition\.effects/);
   assert.match(serverSource, /conditions: hasConditions \? normalizeGameConditions\(payload\.conditions\) : previousPosition\.conditions/);
   assert.match(serverSource, /mobs: hasMobs \? normalizeGameMobs\(payload\.mobs\) : previousPosition\.mobs/);
@@ -30,6 +33,8 @@ test("server publishes Otchlan position from process memory", () => {
   assert.match(serverSource, /const mobCount = mobs\.length/);
   assert.match(serverSource, /level: finiteNumber\(economy\.level\)/);
   assert.match(serverSource, /function normalizeGameTime\(time = \{\}\) \{/);
+  assert.match(serverSource, /function normalizeGameEnvironment\(environment = \{\}\) \{/);
+  assert.match(serverSource, /canObserveMobs: environment\.canObserveMobs !== false/);
 });
 
 test("position reader extracts G1 location and area file offsets", () => {
@@ -51,6 +56,7 @@ test("position reader extracts G1 location and area file offsets", () => {
   assert.match(readerSource, /\$DZIEN_OFFSET = 1056/);
   assert.match(readerSource, /\$LICZG_OFFSET = 234/);
   assert.match(readerSource, /\$LICZS_OFFSET = 238/);
+  assert.match(readerSource, /\$LIGHT_OFFSET = 296/);
   assert.match(readerSource, /\$HUNGER_WARNING_THRESHOLD = 3000/);
   assert.match(readerSource, /\$MINEXP_OFFSET = 5062/);
   assert.match(readerSource, /\$EXPLIMIT_OFFSET = 5066/);
@@ -66,6 +72,8 @@ test("position reader extracts G1 location and area file offsets", () => {
   assert.match(readerSource, /\$level = \[int\]\$buffer\[\$LEVEL_OFFSET\]/);
   assert.match(readerSource, /\$timeRaw = \[int\]\[BitConverter\]::ToUInt16\(\$buffer, \$CZAS_OFFSET\)/);
   assert.match(readerSource, /\$timeHour = \[int\]\(\[Math\]::Floor\(\$timeRaw \/ 180\) % 24\)/);
+  assert.match(readerSource, /\$isNight = Test-IsNightHour \$timeHour/);
+  assert.match(readerSource, /\$canObserveMobs = \$light -gt 0 -or -not \$isNight/);
   assert.match(readerSource, /\$journeyDay = \[BitConverter\]::ToInt32\(\$buffer, \$DZIEN_OFFSET\)/);
   assert.match(readerSource, /ToDouble\(\$buffer, \$HP_OFFSET\)/);
   assert.match(readerSource, /\$MONEY_OBJECT_VALUES\.ContainsKey\(\$objectNumber\)/);
@@ -79,6 +87,8 @@ test("position reader extracts G1 location and area file offsets", () => {
   assert.match(readerSource, /expLimit = \$expLimit/);
   assert.match(readerSource, /time = @\{/);
   assert.match(readerSource, /day = \$journeyDay/);
+  assert.match(readerSource, /environment = @\{/);
+  assert.match(readerSource, /canObserveMobs = \$canObserveMobs/);
   assert.match(readerSource, /effects = \$effects/);
   assert.match(readerSource, /conditions = \$conditions/);
   assert.match(readerSource, /mobs = \$mobs/);
@@ -86,4 +96,15 @@ test("position reader extracts G1 location and area file offsets", () => {
   assert.match(readerSource, /function Get-QuestMobNamesById/);
   assert.match(readerSource, /function Get-CurrentMobs/);
   assert.match(readerSource, /\$visibleCardinal4 = \$z -eq \$playerZ -and \$direction -and \$distance -gt 0 -and \$distance -le \$MOB_VISIBLE_RANGE/);
+});
+
+test("native memory reader exposes light and mob observability", () => {
+  assert.match(nativeReaderSource, /const int LightOffset = 296;/);
+  assert.match(nativeReaderSource, /var light = ReadInt32\(buffer, LightOffset\);/);
+  assert.match(nativeReaderSource, /var isNight = IsNightHour\(timeHour\);/);
+  assert.match(nativeReaderSource, /var canObserveMobs = light > 0 \|\| !isNight;/);
+  assert.match(nativeReaderSource, /Environment = new EnvironmentInfo\(light, light > 0, isNight, canObserveMobs\)/);
+  assert.match(nativeReaderSource, /conditions\.Add\(new ConditionInfo\("darkness", "ciemność", 0, "state"\)\);/);
+  assert.match(nativeReaderSource, /static bool IsNightHour\(int hour\)/);
+  assert.match(nativeReaderSource, /record EnvironmentInfo/);
 });

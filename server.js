@@ -807,13 +807,14 @@ function handleGamePositionLine(line) {
   const hasVitals = payload.vitals && typeof payload.vitals === "object";
   const hasEconomy = payload.economy && typeof payload.economy === "object";
   const hasTime = payload.time && typeof payload.time === "object";
+  const hasEnvironment = payload.environment && typeof payload.environment === "object";
   const hasEffects = Array.isArray(payload.effects);
   const hasConditions = Array.isArray(payload.conditions);
   const hasMobs = Array.isArray(payload.mobs);
   lastGamePosition = {
     source: "process-memory",
     at: payload.at || new Date().toISOString(),
-    kind: String(payload.kind || (hasVitals || hasEconomy || hasTime || hasEffects || hasConditions || hasMobs ? "telemetry" : "position")),
+    kind: String(payload.kind || (hasVitals || hasEconomy || hasTime || hasEnvironment || hasEffects || hasConditions || hasMobs ? "telemetry" : "position")),
     pid: Number(payload.pid || gameState.pid || 0),
     areaFile: String(payload.areaFile || ""),
     coord: {
@@ -825,6 +826,7 @@ function handleGamePositionLine(line) {
     vitals: hasVitals ? normalizeGameVitals(payload.vitals) : previousPosition.vitals,
     economy: hasEconomy ? normalizeGameEconomy(payload.economy) : previousPosition.economy,
     time: hasTime ? normalizeGameTime(payload.time) : previousPosition.time,
+    environment: hasEnvironment ? normalizeGameEnvironment(payload.environment) : previousPosition.environment,
     effects: hasEffects ? normalizeGameEffects(payload.effects) : previousPosition.effects,
     conditions: hasConditions ? normalizeGameConditions(payload.conditions) : previousPosition.conditions,
     mobs: hasMobs ? normalizeGameMobs(payload.mobs) : previousPosition.mobs
@@ -883,6 +885,18 @@ function normalizeGameTime(time = {}) {
     hour: hour >= 0 && hour < 24 ? hour : 0,
     minute: minute >= 0 && minute < 60 ? minute : 0,
     day: finiteNumber(time.day)
+  };
+}
+
+function normalizeGameEnvironment(environment = {}) {
+  const light = finiteNumber(environment.light);
+  const hasLight = Boolean(environment.hasLight) || light > 0;
+  const isNight = Boolean(environment.isNight);
+  return {
+    light,
+    hasLight,
+    isNight,
+    canObserveMobs: environment.canObserveMobs !== false && (Boolean(environment.canObserveMobs) || hasLight || !isNight)
   };
 }
 

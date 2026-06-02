@@ -56,6 +56,7 @@ $CZAS_OFFSET = 1050
 $DZIEN_OFFSET = 1056
 $LICZG_OFFSET = 234
 $LICZS_OFFSET = 238
+$LIGHT_OFFSET = 296
 $HUNGER_WARNING_THRESHOLD = 3000
 $HUNGER_SEVERE_THRESHOLD = 6000
 $CZARKI_OFFSET = 4462
@@ -84,6 +85,11 @@ $lastMobPollAt = [DateTime]::MinValue
 $lastMobs = @()
 $lastFullSnapshotAt = [DateTime]::MinValue
 $lastWorldKey = ""
+
+function Test-IsNightHour {
+  param([int]$Hour)
+  return $Hour -ge 20 -or $Hour -lt 6
+}
 
 function Get-GameDataPath {
   $gameDir = $env:OTCHLAN_DIR
@@ -345,6 +351,9 @@ try {
       $timeHour = [int]([Math]::Floor($timeRaw / 180) % 24)
       $timeMinute = [int]([Math]::Floor(($timeRaw % 180) / 3))
       $journeyDay = [BitConverter]::ToInt32($buffer, $DZIEN_OFFSET)
+      $light = [BitConverter]::ToInt32($buffer, $LIGHT_OFFSET)
+      $isNight = Test-IsNightHour $timeHour
+      $canObserveMobs = $light -gt 0 -or -not $isNight
       $hunger = [BitConverter]::ToInt32($buffer, $LICZG_OFFSET)
       $thirst = [BitConverter]::ToInt32($buffer, $LICZS_OFFSET)
       $gold = 0
@@ -411,9 +420,18 @@ try {
           level = if ($thirst -ge $HUNGER_SEVERE_THRESHOLD) { "severe" } else { "warning" }
         }
       }
+      if (-not $canObserveMobs) {
+        $conditions += @{
+          key = "darkness"
+          name = "ciemność"
+          value = 0
+          level = "state"
+        }
+      }
       foreach ($condition in $conditions) {
         $snapshotKey += "|condition:$($condition.key),$($condition.level),$($condition.value)"
       }
+      $snapshotKey += "|environment:$light,$([int]$isNight),$([int]$canObserveMobs)"
       $mobs = Get-CurrentMobsCached $handle $worldKey $x $y $z
       foreach ($mob in $mobs) {
         $snapshotKey += "|mob:$($mob.id),$($mob.x),$($mob.y),$($mob.z)"
@@ -449,6 +467,12 @@ try {
             hour = $timeHour
             minute = $timeMinute
             day = $journeyDay
+          }
+          environment = @{
+            light = $light
+            hasLight = $light -gt 0
+            isNight = $isNight
+            canObserveMobs = $canObserveMobs
           }
           effects = $effects
           conditions = $conditions

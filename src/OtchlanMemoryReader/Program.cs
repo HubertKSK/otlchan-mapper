@@ -42,6 +42,7 @@ const int CzasOffset = 1050;
 const int DzienOffset = 1056;
 const int LiczgOffset = 234;
 const int LiczsOffset = 238;
+const int LightOffset = 296;
 const int HungerWarningThreshold = 3000;
 const int HungerSevereThreshold = 6000;
 const int CzarkiOffset = 4462;
@@ -193,6 +194,11 @@ static TelemetryPayload BuildTelemetryPayload(
   var expLimit = ReadInt32(buffer, ExpLimitOffset);
   var goldBank = ReadInt32(buffer, GoldBankOffset);
   var timeRaw = ReadUInt16(buffer, CzasOffset);
+  var timeHour = (int)Math.Floor(timeRaw / 180.0) % 24;
+  var timeMinute = (int)Math.Floor(timeRaw % 180 / 3.0);
+  var light = ReadInt32(buffer, LightOffset);
+  var isNight = IsNightHour(timeHour);
+  var canObserveMobs = light > 0 || !isNight;
   var hunger = ReadInt32(buffer, LiczgOffset);
   var thirst = ReadInt32(buffer, LiczsOffset);
 
@@ -209,7 +215,7 @@ static TelemetryPayload BuildTelemetryPayload(
 
   var skills = ReadSkills(buffer, encoding);
   var effects = ReadEffects(buffer, skills);
-  var conditions = ReadConditions(hunger, thirst);
+  var conditions = ReadConditions(hunger, thirst, canObserveMobs);
   var elapsedMobMs = (now - lastMobPollAt).TotalMilliseconds;
   if (elapsedMobMs >= mobPollMs)
   {
@@ -229,7 +235,8 @@ static TelemetryPayload BuildTelemetryPayload(
     Kind = "telemetry",
     Vitals = new Vitals(ReadInt32(buffer, HpsOffset), ReadInt32(buffer, ManasOffset), ReadInt32(buffer, MvsOffset), hp, mana, mv),
     Economy = new Economy(level, exp, minExp, expLimit, gold, goldBank),
-    Time = new GameTime(timeRaw, (int)Math.Floor(timeRaw / 180.0) % 24, (int)Math.Floor(timeRaw % 180 / 3.0), ReadInt32(buffer, DzienOffset)),
+    Time = new GameTime(timeRaw, timeHour, timeMinute, ReadInt32(buffer, DzienOffset)),
+    Environment = new EnvironmentInfo(light, light > 0, isNight, canObserveMobs),
     Effects = effects,
     Conditions = conditions,
     Mobs = lastMobs
@@ -269,7 +276,7 @@ static List<EffectInfo> ReadEffects(byte[] buffer, Dictionary<int, SkillInfo> sk
   return effects;
 }
 
-static List<ConditionInfo> ReadConditions(int hunger, int thirst)
+static List<ConditionInfo> ReadConditions(int hunger, int thirst, bool canObserveMobs)
 {
   var conditions = new List<ConditionInfo>();
   if (hunger >= HungerWarningThreshold)
@@ -282,7 +289,16 @@ static List<ConditionInfo> ReadConditions(int hunger, int thirst)
     var severe = thirst >= HungerSevereThreshold;
     conditions.Add(new ConditionInfo("thirst", severe ? "straszliwie spragniony" : "spragniony", thirst, severe ? "severe" : "warning"));
   }
+  if (!canObserveMobs)
+  {
+    conditions.Add(new ConditionInfo("darkness", "ciemność", 0, "state"));
+  }
   return conditions;
+}
+
+static bool IsNightHour(int hour)
+{
+  return hour >= 20 || hour < 6;
 }
 
 static List<MobInfo> ReadMobs(
@@ -429,6 +445,15 @@ static string BuildSnapshotKey(TelemetryPayload telemetry)
   {
     builder.Append("|condition:").Append(condition.Key).Append(',').Append(condition.Level).Append(',').Append(condition.Value);
   }
+  if (telemetry.Environment is not null)
+  {
+    builder.Append("|environment:")
+      .Append(telemetry.Environment.Light)
+      .Append(',')
+      .Append(telemetry.Environment.IsNight ? 1 : 0)
+      .Append(',')
+      .Append(telemetry.Environment.CanObserveMobs ? 1 : 0);
+  }
   foreach (var mob in telemetry.Mobs ?? [])
   {
     builder.Append("|mob:").Append(mob.Id).Append(',').Append(mob.X).Append(',').Append(mob.Y).Append(',').Append(mob.Z);
@@ -546,6 +571,7 @@ record TelemetryPayload : PositionPayload
   [JsonPropertyName("vitals")] public Vitals? Vitals { get; init; }
   [JsonPropertyName("economy")] public Economy? Economy { get; init; }
   [JsonPropertyName("time")] public GameTime? Time { get; init; }
+  [JsonPropertyName("environment")] public EnvironmentInfo? Environment { get; init; }
   [JsonPropertyName("effects")] public List<EffectInfo>? Effects { get; init; }
   [JsonPropertyName("conditions")] public List<ConditionInfo>? Conditions { get; init; }
   [JsonPropertyName("mobs")] public List<MobInfo>? Mobs { get; init; }
@@ -572,6 +598,12 @@ record GameTime(
   [property: JsonPropertyName("hour")] int Hour,
   [property: JsonPropertyName("minute")] int Minute,
   [property: JsonPropertyName("day")] int Day);
+
+record EnvironmentInfo(
+  [property: JsonPropertyName("light")] int Light,
+  [property: JsonPropertyName("hasLight")] bool HasLight,
+  [property: JsonPropertyName("isNight")] bool IsNight,
+  [property: JsonPropertyName("canObserveMobs")] bool CanObserveMobs);
 
 record SkillInfo(string Name, int Known, int Spell);
 

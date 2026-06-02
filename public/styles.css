@@ -918,6 +918,13 @@ textarea:focus-visible,
   color: #e17963;
 }
 
+.active-effect.condition-darkness {
+  border-color: color-mix(in srgb, #8fa6ff 72%, var(--terminal-ring));
+  background: color-mix(in srgb, #23305f 34%, transparent);
+  color: color-mix(in srgb, #d8e0ff 88%, white);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.03), 0 0 10px rgb(72 88 168 / 0.18);
+}
+
 .map-title-row {
   display: flex;
   align-items: center;

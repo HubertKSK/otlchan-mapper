@@ -108,6 +108,7 @@ let lastStatDeltaValues = null;
 let currentGameMobs = [];
 let currentGameMobAreaFile = "";
 let currentGameMobSignature = "";
+let currentGameMobVisibilityKey = "";
 let playerTravelAnimationId = 0;
 let activePlayerTravelAnimationId = "";
 let mapViewAnimationId = 0;
@@ -772,16 +773,22 @@ function updateGameMobs(position = {}) {
   if (!Array.isArray(position.mobs)) return false;
   const areaFile = String(position.areaFile || "");
   const mobs = normalizeClientGameMobs(position.mobs, areaFile);
+  const visibilityKey = canObserveGameMobs() ? "observable" : "hidden";
   const visibleMobWorldKeys = getPlayerVisibleMobWorldKeys();
-  const signatureMobs = mapDebugAll ? mobs : mobs.filter((mob) => visibleMobWorldKeys.has(mob.worldKey));
+  const signatureMobs = canObserveGameMobs()
+    ? mapDebugAll ? mobs : mobs.filter((mob) => visibleMobWorldKeys.has(mob.worldKey))
+    : [];
   const signature = signatureMobs
     .map((mob) => `${mob.id}:${mob.worldKey}:${mob.name}`)
     .sort()
     .join("|");
-  const changed = signature !== currentGameMobSignature || areaFile !== currentGameMobAreaFile;
+  const changed = signature !== currentGameMobSignature
+    || areaFile !== currentGameMobAreaFile
+    || visibilityKey !== currentGameMobVisibilityKey;
   currentGameMobs = mobs;
   currentGameMobAreaFile = areaFile;
   currentGameMobSignature = signature;
+  currentGameMobVisibilityKey = visibilityKey;
   return changed;
 }
 
@@ -790,6 +797,7 @@ function hasGameMemoryStatsPayload(position = {}) {
     position.vitals ||
     position.economy ||
     position.time ||
+    position.environment ||
     Array.isArray(position.effects) ||
     Array.isArray(position.conditions)
   );
@@ -843,6 +851,7 @@ function applyGameMemoryStats(position = {}) {
     vitals: position.vitals || {},
     economy: position.economy || {},
     time: position.time || {},
+    environment: position.environment || {},
     effects: Array.isArray(position.effects) ? position.effects : [],
     conditions: Array.isArray(position.conditions) ? position.conditions : []
   };
@@ -851,6 +860,7 @@ function applyGameMemoryStats(position = {}) {
     vitals: nextStats.vitals,
     economy: nextStats.economy,
     time: nextStats.time,
+    environment: nextStats.environment,
     effects: nextStats.effects,
     conditions: nextStats.conditions
   };
@@ -923,6 +933,9 @@ function renderActiveEffects(effects = [], conditions = []) {
   if (!els.activeEffectsList) return;
   const activeEffects = effects.filter((effect) => Number(effect?.number || 0) || Number(effect?.duration || 0));
   const activeConditions = conditions.filter((condition) => String(condition?.key || condition?.name || "").trim());
+  if (!canObserveGameMobs() && !activeConditions.some((condition) => condition.key === "darkness")) {
+    activeConditions.push({ key: "darkness", name: "ciemność", level: "state" });
+  }
   const statusItems = [
     ...activeEffects.map((effect) => ({
       className: "active-effect",
@@ -930,9 +943,9 @@ function renderActiveEffects(effects = [], conditions = []) {
       title: `Numer ${formatInteger(effect.number)}`
     })),
     ...activeConditions.map((condition) => ({
-      className: `active-effect condition-${condition.level || "state"}`,
+      className: `active-effect condition-${condition.level || "state"} condition-${condition.key || "custom"}`,
       text: formatConditionStatusName(condition),
-      title: condition.value ? `Wartosc ${formatInteger(condition.value)}` : ""
+      title: formatConditionStatusTitle(condition)
     }))
   ];
   if (!statusItems.length) {
@@ -957,10 +970,16 @@ function formatEffectStatusName(effect = {}) {
 function formatConditionStatusName(condition = {}) {
   const conditionLabels = {
     hunger: condition.level === "severe" ? "STRASZLIWIE GŁODNY" : "GŁODNY",
-    thirst: condition.level === "severe" ? "STRASZLIWIE SPRAGNIONY" : "SPRAGNIONY"
+    thirst: condition.level === "severe" ? "STRASZLIWIE SPRAGNIONY" : "SPRAGNIONY",
+    darkness: "CIEMNOŚĆ"
   };
   const name = conditionLabels[condition.key] || String(condition.name || "").trim() || "STATUS";
   return name.toLocaleUpperCase("pl-PL");
+}
+
+function formatConditionStatusTitle(condition = {}) {
+  if (condition.key === "darkness") return "Ograniczona widocznosc: moby na mapie sa ukryte.";
+  return condition.value ? `Wartosc ${formatInteger(condition.value)}` : "";
 }
 
 function renderVitalMeter(key, value, max) {
@@ -1838,11 +1857,18 @@ function drawMobMarkers(coords, worldRenderIds, cell, z) {
 }
 
 function getRenderableMobs(z) {
+  if (!canObserveGameMobs()) return [];
   const visibleMobWorldKeys = getPlayerVisibleMobWorldKeys();
   return currentGameMobs.filter((mob) => {
     if (Number(mob.z) !== Number(z)) return false;
     return mapDebugAll || visibleMobWorldKeys.has(mob.worldKey);
   });
+}
+
+function canObserveGameMobs() {
+  const environment = lastGameStats?.environment;
+  if (!environment || !Object.prototype.hasOwnProperty.call(environment, "canObserveMobs")) return true;
+  return environment.canObserveMobs !== false;
 }
 
 function getPlayerVisibleMobWorldKeys() {
