@@ -24,7 +24,8 @@ const USER_LAYER_FILE = path.join(__dirname, "user-layer.json");
 const DEBUG_ENABLED = process.argv.includes("--debug") || isTruthyEnv(process.env.OTCHLAN_DEBUG) || isTruthyEnv(process.env.DEBUG_TERMINAL);
 const TERMINAL_DEBUG_FILE = path.join(LOG_DIR, "terminal-output-debug.jsonl");
 const OTCHLAN_POSITION_READER = path.join(__dirname, "scripts", "read-otchlan-position.ps1");
-const OTCHLAN_NATIVE_POSITION_READER = path.join(__dirname, "src", "OtchlanMemoryReader", "bin", "Release", "net8.0", "OtchlanMemoryReader.exe");
+const OTCHLAN_RELEASE_POSITION_READER = path.join(__dirname, "bin", "OtchlanMemoryReader.exe");
+const OTCHLAN_DEV_POSITION_READER = path.join(__dirname, "src", "OtchlanMemoryReader", "bin", "Release", "net8.0", "OtchlanMemoryReader.exe");
 const OTCHLAN_POSITION_POLL_MS = Number(process.env.OTCHLAN_POSITION_POLL_MS || 100);
 const OTCHLAN_MOB_POLL_MS = Number(process.env.OTCHLAN_MOB_POLL_MS || 1000);
 const GAME_POSITION_LOG_INTERVAL_MS = Number(process.env.OTCHLAN_POSITION_LOG_INTERVAL_MS || 5000);
@@ -832,12 +833,13 @@ function stopGame() {
 function startGamePositionReader(pid) {
   stopGamePositionReader();
   if (!pid) return;
-  const nativeReaderAvailable = existsSync(OTCHLAN_NATIVE_POSITION_READER);
+  const nativeReaderPath = getNativePositionReaderPath();
+  const nativeReaderAvailable = Boolean(nativeReaderPath);
   const powershellReaderAvailable = existsSync(OTCHLAN_POSITION_READER);
   if (!nativeReaderAvailable && !powershellReaderAvailable) return;
   memoryReaderBuffer = "";
   const readerKind = nativeReaderAvailable ? "native-dotnet" : "powershell";
-  const readerCommand = nativeReaderAvailable ? OTCHLAN_NATIVE_POSITION_READER : "powershell.exe";
+  const readerCommand = nativeReaderAvailable ? nativeReaderPath : "powershell.exe";
   const readerArgs = nativeReaderAvailable
     ? [
         "-GamePid",
@@ -904,6 +906,13 @@ function startGamePositionReader(pid) {
     memoryReaderProcess = null;
     memoryReaderBuffer = "";
   });
+}
+
+function getNativePositionReaderPath() {
+  for (const candidate of [OTCHLAN_RELEASE_POSITION_READER, OTCHLAN_DEV_POSITION_READER]) {
+    if (existsSync(candidate)) return candidate;
+  }
+  return "";
 }
 
 function stopGamePositionReader() {

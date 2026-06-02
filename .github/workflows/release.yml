@@ -1,0 +1,132 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows-release:
+    name: Build Windows release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify source
+        run: npm run check && npm test
+
+      - name: Read package version
+        id: package
+        shell: pwsh
+        run: |
+          $pkg = Get-Content package.json | ConvertFrom-Json
+          "version=$($pkg.version)" >> $env:GITHUB_OUTPUT
+          "archive=otchlan-mapper-$($pkg.version)" >> $env:GITHUB_OUTPUT
+
+      - name: Publish memory reader
+        shell: pwsh
+        run: |
+          dotnet publish src/OtchlanMemoryReader/OtchlanMemoryReader.csproj `
+            -c Release `
+            -r win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:PublishTrimmed=false `
+            -o "dist/${{ steps.package.outputs.archive }}/bin"
+
+      - name: Copy release files
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $root = Resolve-Path "."
+          $target = "dist/${{ steps.package.outputs.archive }}"
+          $items = @(
+            "public",
+            "scripts",
+            "src",
+            "server.js",
+            "package.json",
+            "package-lock.json",
+            "README.md",
+            "FEATURES.md",
+            "LICENSE",
+            "run.cmd",
+            "stop.cmd"
+          )
+          foreach ($item in $items) {
+            Copy-Item -LiteralPath $item -Destination $target -Recurse -Force
+          }
+          Remove-Item -LiteralPath "$target/src/OtchlanMemoryReader/bin" -Recurse -Force -ErrorAction SilentlyContinue
+          Remove-Item -LiteralPath "$target/src/OtchlanMemoryReader/obj" -Recurse -Force -ErrorAction SilentlyContinue
+
+      - name: Install production dependencies in package
+        shell: pwsh
+        working-directory: dist/${{ steps.package.outputs.archive }}
+        run: npm ci --omit=dev
+
+      - name: Remove local generated data
+        shell: pwsh
+        run: |
+          $target = "dist/${{ steps.package.outputs.archive }}"
+          $generated = @(
+            "user-layer.json",
+            "user-layer.json.tmp",
+            "world-cache.json",
+            "world-atlas.json",
+            "server.log",
+            "logs"
+          )
+          foreach ($item in $generated) {
+            Remove-Item -LiteralPath "$target/$item" -Recurse -Force -ErrorAction SilentlyContinue
+          }
+
+      - name: Create zip and checksum
+        shell: pwsh
+        run: |
+          $archive = "${{ steps.package.outputs.archive }}"
+          $zip = "dist/$archive.zip"
+          Compress-Archive -Path "dist/$archive/*" -DestinationPath $zip -Force
+          $hash = (Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant()
+          "$hash  $archive.zip" | Set-Content -Encoding ascii "dist/$archive.sha256"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.archive }}
+          path: |
+            dist/${{ steps.package.outputs.archive }}.zip
+            dist/${{ steps.package.outputs.archive }}.sha256
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $archive = "${{ steps.package.outputs.archive }}"
+          gh release create $tag `
+            "dist/$archive.zip" `
+            "dist/$archive.sha256" `
+            --title "Otchlan Mapper $tag" `
+            --notes "Gotowa paczka Windows. Rozpakuj ZIP, uruchom run.cmd, a potem przygotuj atlas swiata w ustawieniach aplikacji."

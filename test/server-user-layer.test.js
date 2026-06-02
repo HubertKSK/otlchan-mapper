@@ -32,6 +32,13 @@ test("server exposes world extraction and atlas build endpoints", () => {
   assert.match(serverSource, /world-build-step-finished/);
 });
 
+test("server prefers packaged memory reader before development build output", () => {
+  assert.match(serverSource, /const OTCHLAN_RELEASE_POSITION_READER = path\.join\(__dirname, "bin", "OtchlanMemoryReader\.exe"\);/);
+  assert.match(serverSource, /const OTCHLAN_DEV_POSITION_READER = path\.join\(__dirname, "src", "OtchlanMemoryReader", "bin", "Release", "net8\.0", "OtchlanMemoryReader\.exe"\);/);
+  assert.match(serverSource, /function getNativePositionReaderPath\(\) \{/);
+  assert.match(serverSource, /for \(const candidate of \[OTCHLAN_RELEASE_POSITION_READER, OTCHLAN_DEV_POSITION_READER\]\)/);
+});
+
 test("server writes root error log and returns json server errors", () => {
   assert.match(serverSource, /const SERVER_LOG_FILE = path\.join\(__dirname, "server\.log"\);/);
   assert.match(serverSource, /const LOG_SCHEMA = "otchlan-log-v1";/);

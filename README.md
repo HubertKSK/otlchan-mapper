@@ -114,6 +114,20 @@ Po pierwszym przygotowaniu atlasu nie trzeba za kazdym razem ekstraktowac mapy. 
 npm start
 ```
 
+Jesli korzystasz z gotowej paczki release z GitHuba, mozesz zamiast tego uruchomic:
+
+```text
+run.cmd
+```
+
+Zatrzymanie serwera i czytnika pamieci:
+
+```text
+stop.cmd
+```
+
+Paczka release zawiera juz zbudowany `bin\OtchlanMemoryReader.exe`, wiec nie wymaga instalowania .NET SDK ani uruchamiania `npm.cmd run memory:build`.
+
 Jesli po aktualizacji projektu zmienil sie czytnik pamieci, uruchom jednorazowo:
 
 ```powershell
@@ -235,6 +249,40 @@ npm.cmd run check
 npm.cmd test
 npm.cmd run smoke
 ```
+
+## Release 1.0 Na GitHubie
+
+Gotowa paczka Windows jest budowana przez GitHub Actions. Release tworzy sie po wypchnieciu taga:
+
+```powershell
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+Workflow `.github/workflows/release.yml` buduje paczke i publikuje ja jako asset GitHub Release:
+
+```text
+otchlan-mapper-1.0.0.zip
+otchlan-mapper-1.0.0.sha256
+```
+
+Paczka release zawiera:
+
+- `run.cmd` do prostego uruchomienia,
+- `stop.cmd` do zatrzymania serwera i `OtchlanMemoryReader.exe`,
+- zbudowany self-contained `bin\OtchlanMemoryReader.exe`,
+- aplikacje webowa, serwer, skrypty i dokumentacje,
+- produkcyjne `node_modules`, zeby uzytkownik release nie musial od razu uruchamiac `npm install`.
+
+Paczka release nie zawiera prywatnych ani lokalnie generowanych danych:
+
+- `user-layer.json`,
+- `world-cache.json`,
+- `world-atlas.json`,
+- `logs/`,
+- `server.log`.
+
+Workflow mozna tez uruchomic recznie z zakladki Actions, ale oficjalny release najlepiej robic tagiem `vX.Y.Z`.
 
 ## Logi
 

@@ -8,7 +8,8 @@ const nativeReaderSource = await readFile(new URL("../src/OtchlanMemoryReader/Pr
 
 test("server publishes Otchlan position from process memory", () => {
   assert.match(serverSource, /const OTCHLAN_POSITION_READER = path\.join\(__dirname, "scripts", "read-otchlan-position\.ps1"\);/);
-  assert.match(serverSource, /const OTCHLAN_NATIVE_POSITION_READER = path\.join\(__dirname, "src", "OtchlanMemoryReader"/);
+  assert.match(serverSource, /const OTCHLAN_RELEASE_POSITION_READER = path\.join\(__dirname, "bin", "OtchlanMemoryReader\.exe"\);/);
+  assert.match(serverSource, /const OTCHLAN_DEV_POSITION_READER = path\.join\(__dirname, "src", "OtchlanMemoryReader"/);
   assert.match(serverSource, /const OTCHLAN_POSITION_POLL_MS = Number\(process\.env\.OTCHLAN_POSITION_POLL_MS \|\| 100\);/);
   assert.match(serverSource, /const OTCHLAN_MOB_POLL_MS = Number\(process\.env\.OTCHLAN_MOB_POLL_MS \|\| 1000\);/);
   assert.match(serverSource, /startGamePositionReader\(gameProcess\.pid\);/);

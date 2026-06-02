@@ -1,11 +1,12 @@
 {
   "name": "otchlan-mapper",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "license": "MIT",
   "type": "module",
   "scripts": {
     "start": "node server.js",
+    "stop": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/stop-server.ps1",
     "check": "node scripts/check-syntax.mjs",
     "smoke": "node scripts/smoke-server.mjs",
     "test": "node --test",

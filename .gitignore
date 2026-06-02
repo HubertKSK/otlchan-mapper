@@ -8,6 +8,7 @@ user-layer.json
 world-cache.json
 world-atlas.json
 node_modules/
+dist/
 bin/
 obj/
 codex.md
