@@ -250,23 +250,23 @@ npm.cmd test
 npm.cmd run smoke
 ```
 
-## Release 1.0 Na GitHubie
+## Gotowa Paczka Release
 
-Gotowa paczka Windows jest budowana przez GitHub Actions. Release tworzy sie po wypchnieciu taga:
-
-```powershell
-git tag v1.0.0
-git push origin v1.0.0
-```
-
-Workflow `.github/workflows/release.yml` buduje paczke i publikuje ja jako asset GitHub Release:
+Najprostszy sposob uruchomienia to pobranie gotowej paczki z GitHub Releases:
 
 ```text
 otchlan-mapper-1.0.0.zip
-otchlan-mapper-1.0.0.sha256
 ```
 
-Paczka release zawiera:
+Po pobraniu:
+
+1. Rozpakuj ZIP w dowolnym katalogu, np. `C:\Gry\otchlan-mapper`.
+2. Uruchom `run.cmd`.
+3. Otworz `http://localhost:5173`, jesli przegladarka nie otworzy sie sama.
+4. W ustawieniach aplikacji przygotuj atlas swiata: najpierw `Ekstrahuj dane gry`, potem `Zbuduj atlas`.
+5. Kliknij start gry przy terminalu.
+
+Paczka zawiera:
 
 - `run.cmd` do prostego uruchomienia,
 - `stop.cmd` do zatrzymania serwera i `OtchlanMemoryReader.exe`,
@@ -274,15 +274,13 @@ Paczka release zawiera:
 - aplikacje webowa, serwer, skrypty i dokumentacje,
 - produkcyjne `node_modules`, zeby uzytkownik release nie musial od razu uruchamiac `npm install`.
 
-Paczka release nie zawiera prywatnych ani lokalnie generowanych danych:
+Paczka nie zawiera prywatnych ani lokalnie generowanych danych:
 
 - `user-layer.json`,
 - `world-cache.json`,
 - `world-atlas.json`,
 - `logs/`,
 - `server.log`.
-
-Workflow mozna tez uruchomic recznie z zakladki Actions, ale oficjalny release najlepiej robic tagiem `vX.Y.Z`.
 
 ## Logi
 
