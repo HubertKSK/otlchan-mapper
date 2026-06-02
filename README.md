@@ -22,6 +22,8 @@ Projekt jest przeznaczony do lokalnego uruchamiania na Windowsie.
 - logi aplikacji, bledow serwera i opcjonalny debug outputu terminala,
 - narzedzia do wygenerowania cache/atlasu swiata z lokalnej instalacji gry.
 
+Pelna lista funkcjonalnosci jest w [FEATURES.md](FEATURES.md).
+
 ## Wymagania
 
 - Windows
@@ -176,7 +178,7 @@ Opcjonalne zmienne srodowiskowe:
 5. Kliknij przycisk startu gry przy terminalu.
 6. Graj normalnie w terminalu w aplikacji.
 7. Mapper odczytuje aktualna pozycje i statystyki z pamieci gry, odkrywa odwiedzone pokoje i zapisuje warstwe uzytkownika.
-8. W menu aplikacji mozesz zapisac/wczytac mape z serwera oraz importowac/eksportowac backup.
+8. W menu aplikacji mozesz importowac/eksportowac backup, zmieniac ustawienia UI i utworzyc nowa mape po potwierdzeniu.
 
 Mapper nie przechwytuje juz komend uzytkownika jako zrodla prawdy o ruchu i nie synchronizuje pozycji z tekstu terminala. Terminal sluzy do gry i diagnostyki, a pozycja pochodzi z procesu `otchlan.exe`.
 
