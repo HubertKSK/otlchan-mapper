@@ -6,25 +6,33 @@ Ten plik opisuje funkcje aplikacji z perspektywy użytkownika. README zostaje pr
 
 ### Główny widok
 
-![Główny widok Otchlan Mapper](docs/screenshots/main-interface.png)
+<p>
+  <img src="docs/screenshots/main-interface.png" alt="Główny widok Otchlan Mapper" width="100%">
+</p>
 
 Terminal gry, mapa, informacje o aktualnej lokacji, notatki oraz panel statystyk są dostępne w jednym widoku.
 
 ### Mapa i warstwa mobów
 
-![Mapa z pozycją gracza i mobami](docs/screenshots/map-view.png)
+<p>
+  <img src="docs/screenshots/map-view.png" alt="Mapa z pozycją gracza i mobami" width="100%">
+</p>
 
 Mapa pokazuje aktualną pozycję gracza, odkryte lokacje, przejścia, poziom `z` oraz widoczne moby.
 
 ### Statystyki postaci
 
-![Panel statystyk postaci](docs/screenshots/character-stats.png)
+<p>
+  <img src="docs/screenshots/character-stats.png" alt="Panel statystyk postaci" width="100%">
+</p>
 
 Panel pod terminalem pokazuje HP, manę, MV, złoto, poziom postaci, czas gry oraz aktywne statusy.
 
 ### Ustawienia aplikacji
 
-![Panel ustawień aplikacji](docs/screenshots/settings-panel.png)
+<p>
+  <img src="docs/screenshots/settings-panel.png" alt="Panel ustawień aplikacji" width="420">
+</p>
 
 Ustawienia pozwalają ukrywać elementy interfejsu i zarządzać atlasem oraz backupami.
 
