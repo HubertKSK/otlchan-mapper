@@ -290,6 +290,34 @@ test("map view follows player movement with animated viewBox panning", () => {
   assert.match(appSource, /setSvgViewBox\(\{[\s\S]*x: from\.x \+ \(to\.x - from\.x\) \* eased/);
 });
 
+test("position-only movement updates the map without rebuilding the SVG", () => {
+  assert.match(appSource, /let lastRenderedMapCoords = new Map\(\);/);
+  assert.match(appSource, /"data-room-id": item\.id/);
+  assert.match(appSource, /function renderPositionOnlyMapUpdate\(previousPlayerRoomId, previousSelectedRoomId, reason = "position-only"\) \{/);
+  assert.match(appSource, /if \(mapDebugAll\) return false;/);
+  assert.match(appSource, /if \(!lastRenderedMapCoords\.has\(playerRoomId\)\) return false;/);
+  assert.match(appSource, /updateRoomNodeState\(previousPlayerRoomId\);/);
+  assert.match(appSource, /renderPlayerMarkerLayer\(lastRenderedMapCoords, lastRenderedMapCell, z\);/);
+  assert.match(appSource, /renderPositionOnlyMapUpdate\(previousPlayerRoomId, previousSelectedRoomId, "memory-position"\)/);
+});
+
+test("UI performance profiler is opt-in through the perf query flag", () => {
+  assert.match(appSource, /const UI_PERF_MODE = new URLSearchParams\(window\.location\.search\)\.get\("perf"\) === "1";/);
+  assert.match(appSource, /function initUiPerfProbe\(\) \{/);
+  assert.match(appSource, /if \(!UI_PERF_MODE\) return;/);
+  assert.match(appSource, /window\.__otchlanPerf = probe;/);
+  assert.match(appSource, /renderMapReasons: \{\}/);
+  assert.match(appSource, /positionOnlyReasons: \{\}/);
+  assert.match(appSource, /mobOnlyReasons: \{\}/);
+  assert.match(appSource, /renderMapByReason: summarizePerfRecordsByReason\(probe\.renderMapRecords\)/);
+  assert.match(appSource, /node\.id = "uiPerfReport";/);
+  assert.match(appSource, /node\.textContent = JSON\.stringify\(probe\.report\(\)\);/);
+  assert.match(appSource, /function recordUiRenderMapDuration\(startedAt, reason = "unknown"\) \{/);
+  assert.match(appSource, /function recordUiPositionOnlyUpdate\(reason = "unknown"\) \{/);
+  assert.match(appSource, /function recordUiMobOnlyUpdate\(reason = "unknown"\) \{/);
+  assert.match(appSource, /recordUiRenderMapDuration\(renderStartedAt, reason\);/);
+});
+
 test("map renders process-memory mobs as a separate marker layer", () => {
   assert.match(appSource, /let currentGameMobs = \[\];/);
   assert.match(appSource, /let currentGameMobVisibilityKey = "";/);
@@ -299,7 +327,13 @@ test("map renders process-memory mobs as a separate marker layer", () => {
   assert.match(appSource, /const worldKey = `\$\{areaFile\}:\$\{x\},\$\{y\},\$\{z\}`;/);
   assert.match(appSource, /const mobsChanged = updateGameMobs\(position\);/);
   assert.match(appSource, /if \(positionChanged \|\| layerChanged\) saveProject/);
+  assert.match(appSource, /if \(mobsChanged && !renderMobOnlyMapUpdate\("memory-same-room-mobs"\)\)/);
   assert.match(appSource, /drawMobMarkers\(coords, worldRenderIds, cell, z\);/);
+  assert.match(appSource, /function getMobMarkerLayer\(\) \{/);
+  assert.match(appSource, /class: "mob-marker-layer"/);
+  assert.match(appSource, /function renderMobOnlyMapUpdate\(reason = "mob-only"\) \{/);
+  assert.match(appSource, /drawMobMarkers\(lastRenderedMapCoords, lastRenderedWorldRenderIds, lastRenderedMapCell, z\);/);
+  assert.match(appSource, /recordUiMobOnlyUpdate\(reason\);/);
   assert.match(appSource, /function getRenderableMobs\(z\) \{/);
   assert.match(appSource, /if \(!canRenderGameMobs\(\)\) return \[\];/);
   assert.match(appSource, /function getPlayerVisibleMobWorldKeys\(\) \{/);

@@ -31,6 +31,7 @@ const TERMINAL_PARSE_WINDOW_LINES = 100;
 const SERVER_AUTOSAVE_MS = 120000;
 const SERVER_SAVE_DEBOUNCE_MS = 250;
 const DOCUMENTATION_DEMO_MODE = new URLSearchParams(window.location.search).get("demo") === "1";
+const UI_PERF_MODE = new URLSearchParams(window.location.search).get("perf") === "1";
 const DOCUMENTATION_DEMO_FOCUS_WORLD_KEY = "miasto.are:285,338,13";
 const ACTIVE_TTL_MS = 3000;
 const MAP_ZOOM_MIN = 0.35;
@@ -107,6 +108,10 @@ let mapView = { x: 41, y: 41, z: 0, area: "" };
 let mapDrag = null;
 let suppressNextMapClick = false;
 let mapHitTargets = [];
+let lastRenderedMapCoords = new Map();
+let lastRenderedWorldRenderIds = new Map();
+let lastRenderedMapCell = 82;
+let lastRenderedMapZ = null;
 let selectedRoomId = project.selectedRoomId || project.currentRoomId;
 let selectedRoomPreview = null;
 let selectedWorldPreview = null;
@@ -150,8 +155,10 @@ let mapLevelTransitionTimer = null;
 let mapViewportRenderFrame = null;
 let worldRoomsByKey = new Map();
 let atlasRoomsByKey = new Map();
+let uiPerf = null;
 
 ensureProjectState();
+initUiPerfProbe();
 const term = new Terminal({
   cols: TERMINAL_COLS,
   rows: TERMINAL_ROWS,
@@ -732,24 +739,24 @@ function bindEvents() {
   });
   document.querySelector("#zoomInBtn").addEventListener("click", () => {
     zoom = clampMapZoom(zoom * 1.2);
-    renderMap();
+    renderMap("ui-zoom-in");
   });
   document.querySelector("#zoomOutBtn").addEventListener("click", () => {
     zoom = clampMapZoom(zoom / 1.2);
-    renderMap();
+    renderMap("ui-zoom-out");
   });
   els.mapDebugBtn.addEventListener("click", () => {
     mapDebugAll = !mapDebugAll;
     if (!mapDebugAll) selectedWorldPreview = null;
     debugMapZ = getRenderMapZ(getPlayerRoom(), getSelectedRoom());
     renderMapScopeState();
-    renderMap();
+    renderMap("ui-debug-toggle");
   });
   els.mapZDownBtn.addEventListener("click", () => shiftDebugMapZ(-1));
   els.mapZUpBtn.addEventListener("click", () => shiftDebugMapZ(1));
   els.centerMapBtn.addEventListener("click", () => {
     centerMapOnPlayer();
-    renderMap();
+    renderMap("ui-center-player");
   });
   els.followPlayerBtn.addEventListener("click", () => {
     followPlayer = !followPlayer;
@@ -762,7 +769,7 @@ function bindEvents() {
     }
     project.followPlayer = followPlayer;
     saveProject();
-    render();
+    render("ui-follow-toggle");
   });
   initMapDragging();
   document.querySelector("#startGameBtn").addEventListener("click", async () => {
@@ -1144,7 +1151,7 @@ function setWorkspaceMode(mode, options = {}) {
   window.requestAnimationFrame(() => {
     window.requestAnimationFrame(() => {
       centerMapOnFocus();
-      renderMap();
+      renderMap("ui-workspace-change");
     });
   });
 }
@@ -1189,7 +1196,9 @@ function applyGameMemoryPosition(position = {}) {
   const previousRoom = getPlayerRoom();
   if (playerPositionKnown && previousRoom?.worldKey === worldKey) {
     pendingGameMemoryPosition = null;
-    if (mobsChanged) renderMap();
+    if (mobsChanged && !renderMobOnlyMapUpdate("memory-same-room-mobs")) {
+      renderMap("memory-same-room-mobs");
+    }
     return;
   }
 
@@ -1235,7 +1244,22 @@ function applyGameMemoryPosition(position = {}) {
       source: position.source || "process-memory"
     });
     if (positionChanged || layerChanged) saveProject({ immediateServerSave: true, positionOnly: !layerChanged });
-    render();
+    const memoryRenderReason = [
+      layerChanged ? "layer" : "",
+      mobsChanged ? "mobs" : "",
+      positionChanged ? "position" : ""
+    ].filter(Boolean).join("+") || "memory";
+    if (!layerChanged && positionChanged && renderPositionOnlyMapUpdate(previousPlayerRoomId, previousSelectedRoomId, "memory-position")) {
+      const mobsUpdated = !mobsChanged || renderMobOnlyMapUpdate("memory-position-mobs");
+      if (!mobsUpdated) {
+        render(`memory-${memoryRenderReason}`);
+        return;
+      }
+      renderFollowState();
+      renderInspector();
+    } else {
+      render(`memory-${memoryRenderReason}`);
+    }
   }
 }
 
@@ -1750,7 +1774,7 @@ function setMobsVisibility(visible, options = {}) {
   }
   currentGameMobSignature = "";
   currentGameMobVisibilityKey = "";
-  if (options.render !== false) renderMap();
+  if (options.render !== false) renderMap("ui-mobs-visibility");
 }
 
 function applySavedNotesVisibility() {
@@ -1882,7 +1906,7 @@ function autosaveCurrentRoom() {
   room.updatedAt = new Date().toISOString();
   ensureArea(room.area);
   saveProject();
-  renderMap();
+  renderMap("ui-room-edit");
 }
 
 function autosaveGlobalNotes() {
@@ -2111,10 +2135,10 @@ function shouldShowWaitingForPlayerPosition() {
   return followPlayer && !playerPositionKnown && !selectedRoomPreview && !selectedWorldPreview;
 }
 
-function render() {
+function render(reason = "render") {
   renderFollowState();
   renderInspector();
-  renderMap();
+  renderMap(reason);
 }
 
 function renderInspector() {
@@ -2240,7 +2264,180 @@ function renderMapZControls(z) {
   els.mapZUpBtn.title = canGoUp ? "Pokaz ten sam obszar poziom wyzej" : "Nie ma wyzszego poziomu";
 }
 
-function renderMap() {
+function initUiPerfProbe() {
+  if (!UI_PERF_MODE) return;
+  const probe = {
+    startedAt: performance.now(),
+    frames: [],
+    renderMapMs: [],
+    renderMapRecords: [],
+    renderMapReasons: {},
+    positionOnlyReasons: {},
+    mobOnlyReasons: {},
+    mutations: {
+      mapViewBox: 0,
+      playerViewBox: 0,
+      playerTransform: 0,
+      mapChildList: 0,
+      playerChildList: 0
+    },
+    longTasks: [],
+    report() {
+      return buildUiPerfReport(probe);
+    },
+    reset() {
+      probe.startedAt = performance.now();
+      probe.frames.length = 0;
+      probe.renderMapMs.length = 0;
+      probe.renderMapRecords.length = 0;
+      probe.longTasks.length = 0;
+      probe.renderMapReasons = {};
+      probe.positionOnlyReasons = {};
+      probe.mobOnlyReasons = {};
+      probe.mutations = {
+        mapViewBox: 0,
+        playerViewBox: 0,
+        playerTransform: 0,
+        mapChildList: 0,
+        playerChildList: 0
+      };
+      return probe.report();
+    }
+  };
+  uiPerf = probe;
+  window.__otchlanPerf = probe;
+  publishUiPerfReport(probe);
+  window.setInterval(() => publishUiPerfReport(probe), 1000);
+  startUiFrameProbe(probe);
+  startUiMutationProbe(probe);
+  startUiLongTaskProbe(probe);
+  console.info("[otchlan-perf] UI profiler active. Use window.__otchlanPerf.report().");
+}
+
+function publishUiPerfReport(probe) {
+  let node = document.querySelector("#uiPerfReport");
+  if (!node) {
+    node = document.createElement("script");
+    node.id = "uiPerfReport";
+    node.type = "application/json";
+    node.hidden = true;
+    document.body.append(node);
+  }
+  node.textContent = JSON.stringify(probe.report());
+}
+
+function startUiFrameProbe(probe) {
+  let last = performance.now();
+  const step = (now) => {
+    probe.frames.push(now - last);
+    last = now;
+    if (probe.frames.length > 1200) probe.frames.splice(0, probe.frames.length - 1200);
+    window.requestAnimationFrame(step);
+  };
+  window.requestAnimationFrame(step);
+}
+
+function startUiMutationProbe(probe) {
+  if (!window.MutationObserver) return;
+  const observer = new MutationObserver((records) => {
+    for (const record of records) {
+      if (record.type === "childList") {
+        if (record.target === els.mapSvg || els.mapSvg?.contains(record.target)) probe.mutations.mapChildList += 1;
+        if (record.target === els.mapPlayerLayer || els.mapPlayerLayer?.contains(record.target)) probe.mutations.playerChildList += 1;
+        continue;
+      }
+      if (record.type !== "attributes") continue;
+      if (record.target === els.mapSvg && record.attributeName === "viewBox") probe.mutations.mapViewBox += 1;
+      if (record.target === els.mapPlayerLayer && record.attributeName === "viewBox") probe.mutations.playerViewBox += 1;
+      if (els.mapPlayerLayer?.contains(record.target) && record.attributeName === "transform") probe.mutations.playerTransform += 1;
+    }
+  });
+  if (els.mapSvg) observer.observe(els.mapSvg, { attributes: true, childList: true, subtree: true, attributeFilter: ["viewBox", "transform"] });
+  if (els.mapPlayerLayer) observer.observe(els.mapPlayerLayer, { attributes: true, childList: true, subtree: true, attributeFilter: ["viewBox", "transform"] });
+}
+
+function startUiLongTaskProbe(probe) {
+  if (!window.PerformanceObserver) return;
+  try {
+    const observer = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) probe.longTasks.push(entry.duration);
+      if (probe.longTasks.length > 200) probe.longTasks.splice(0, probe.longTasks.length - 200);
+    });
+    observer.observe({ entryTypes: ["longtask"] });
+  } catch {
+    // Long task API is optional and missing in some embedded browsers.
+  }
+}
+
+function recordUiRenderMapDuration(startedAt, reason = "unknown") {
+  if (!uiPerf) return;
+  const duration = performance.now() - startedAt;
+  uiPerf.renderMapMs.push(duration);
+  uiPerf.renderMapRecords.push({ reason, duration });
+  uiPerf.renderMapReasons[reason] = (uiPerf.renderMapReasons[reason] || 0) + 1;
+  if (uiPerf.renderMapMs.length > 400) uiPerf.renderMapMs.splice(0, uiPerf.renderMapMs.length - 400);
+  if (uiPerf.renderMapRecords.length > 400) uiPerf.renderMapRecords.splice(0, uiPerf.renderMapRecords.length - 400);
+}
+
+function recordUiPositionOnlyUpdate(reason = "unknown") {
+  if (!uiPerf) return;
+  uiPerf.positionOnlyReasons[reason] = (uiPerf.positionOnlyReasons[reason] || 0) + 1;
+}
+
+function recordUiMobOnlyUpdate(reason = "unknown") {
+  if (!uiPerf) return;
+  uiPerf.mobOnlyReasons[reason] = (uiPerf.mobOnlyReasons[reason] || 0) + 1;
+}
+
+function buildUiPerfReport(probe) {
+  const frames = probe.frames.slice(1);
+  return {
+    seconds: Number(((performance.now() - probe.startedAt) / 1000).toFixed(1)),
+    frames: summarizePerfValues(frames, [16.7, 33.4, 50]),
+    renderMap: summarizePerfValues(probe.renderMapMs, [4, 8, 16]),
+    renderMapReasons: { ...probe.renderMapReasons },
+    renderMapByReason: summarizePerfRecordsByReason(probe.renderMapRecords),
+    positionOnlyReasons: { ...probe.positionOnlyReasons },
+    mobOnlyReasons: { ...probe.mobOnlyReasons },
+    longTasks: {
+      count: probe.longTasks.length,
+      maxMs: Number(Math.max(0, ...probe.longTasks).toFixed(2))
+    },
+    mutations: { ...probe.mutations },
+    nodes: {
+      map: els.mapSvg?.querySelectorAll("*").length || 0,
+      player: els.mapPlayerLayer?.querySelectorAll("*").length || 0
+    }
+  };
+}
+
+function summarizePerfRecordsByReason(records) {
+  const grouped = {};
+  for (const record of records) {
+    if (!grouped[record.reason]) grouped[record.reason] = [];
+    grouped[record.reason].push(record.duration);
+  }
+  return Object.fromEntries(Object.entries(grouped)
+    .map(([reason, values]) => [reason, summarizePerfValues(values, [4, 8, 16])])
+    .sort(([left], [right]) => left.localeCompare(right)));
+}
+
+function summarizePerfValues(values, thresholds) {
+  const sorted = values.slice().sort((left, right) => left - right);
+  const percentile = (value) => sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * value))] || 0;
+  return {
+    count: sorted.length,
+    avgMs: Number((sorted.reduce((sum, value) => sum + value, 0) / Math.max(1, sorted.length)).toFixed(2)),
+    p50Ms: Number(percentile(0.5).toFixed(2)),
+    p95Ms: Number(percentile(0.95).toFixed(2)),
+    p99Ms: Number(percentile(0.99).toFixed(2)),
+    maxMs: Number((sorted[sorted.length - 1] || 0).toFixed(2)),
+    over: Object.fromEntries(thresholds.map((threshold) => [String(threshold), sorted.filter((value) => value > threshold).length]))
+  };
+}
+
+function renderMap(reason = "renderMap") {
+  const renderStartedAt = uiPerf ? performance.now() : 0;
   const playerRoom = getPlayerRoom();
   const room = playerRoom || getSelectedRoom();
   const atlasWorkspaceActive = false;
@@ -2341,7 +2538,10 @@ function renderMap() {
     const point = coords.get(item.id);
     const selectedForPreview = selectedRoomPreview?.id === item.id;
     const selectedForProject = !selectedRoomPreview && item.id === selectedRoomId;
-    const group = svg("g", { class: `room-node ${playerPositionKnown && item.id === playerRoomId ? "current" : ""} ${selectedForPreview || selectedForProject ? "selected" : ""}` });
+    const group = svg("g", {
+      class: `room-node ${playerPositionKnown && item.id === playerRoomId ? "current" : ""} ${selectedForPreview || selectedForProject ? "selected" : ""}`,
+      "data-room-id": item.id
+    });
     group.append(drawRoomHitTarget(point, cell));
     group.append(svg("rect", { x: point.x, y: point.y, width: cell, height: cell }));
     drawRoomLabel(group, item, point, cell);
@@ -2365,10 +2565,16 @@ function renderMap() {
     const blocked = new Set(getRenderBlockedDirections(item));
     for (const dir of blocked) drawBlockedBorder(item.id, dir, coords, cell);
   }
+  lastRenderedMapCoords = coords;
+  lastRenderedWorldRenderIds = worldRenderIds;
+  lastRenderedMapCell = cell;
+  lastRenderedMapZ = Number(z);
   renderPlayerMarkerLayer(coords, cell, z);
+  recordUiRenderMapDuration(renderStartedAt, reason);
 }
 
 function drawMobMarkers(coords, worldRenderIds, cell, z) {
+  const layer = getMobMarkerLayer();
   const visibleMobs = getRenderableMobs(z)
     .map((mob) => {
       const roomId = worldRenderIds.get(mob.worldKey);
@@ -2411,8 +2617,35 @@ function drawMobMarkers(coords, worldRenderIds, cell, z) {
       }, String(Math.min(count, 9))));
     }
     group.append(svg("title", {}, formatMobMarkerTitle(mobs)));
-    els.mapSvg.append(group);
+    layer.append(group);
   }
+}
+
+function getMobMarkerLayer() {
+  let layer = els.mapSvg.querySelector(".mob-marker-layer");
+  if (layer) {
+    layer.replaceChildren();
+    return layer;
+  }
+  layer = svg("g", { class: "mob-marker-layer" });
+  const blockedBorder = els.mapSvg.querySelector(".blocked-border");
+  if (blockedBorder) {
+    els.mapSvg.insertBefore(layer, blockedBorder);
+  } else {
+    els.mapSvg.append(layer);
+  }
+  return layer;
+}
+
+function renderMobOnlyMapUpdate(reason = "mob-only") {
+  if (!lastRenderedMapCoords.size || !lastRenderedWorldRenderIds.size) return false;
+  const playerRoom = getPlayerRoom();
+  const selectedRoom = getSelectedRoom();
+  const z = getRenderMapZ(playerRoom, selectedRoom);
+  if (Number(z) !== Number(lastRenderedMapZ)) return false;
+  drawMobMarkers(lastRenderedMapCoords, lastRenderedWorldRenderIds, lastRenderedMapCell, z);
+  recordUiMobOnlyUpdate(reason);
+  return true;
 }
 
 function getRenderableMobs(z) {
@@ -2433,6 +2666,38 @@ function canObserveGameMobs() {
   const environment = lastGameStats?.environment;
   if (!environment || !Object.prototype.hasOwnProperty.call(environment, "canObserveMobs")) return true;
   return environment.canObserveMobs !== false;
+}
+
+function renderPositionOnlyMapUpdate(previousPlayerRoomId, previousSelectedRoomId, reason = "position-only") {
+  if (mapDebugAll) return false;
+  const playerRoom = getPlayerRoom();
+  const selectedRoom = getSelectedRoom();
+  const z = getRenderMapZ(playerRoom, selectedRoom);
+  if (Number(z) !== Number(lastRenderedMapZ)) return false;
+  if (!lastRenderedMapCoords.has(playerRoomId)) return false;
+  updateRoomNodeState(previousPlayerRoomId);
+  updateRoomNodeState(playerRoomId);
+  updateRoomNodeState(previousSelectedRoomId);
+  updateRoomNodeState(selectedRoomId);
+  applyMapViewBox({ animate: true });
+  renderPlayerMarkerLayer(lastRenderedMapCoords, lastRenderedMapCell, z);
+  recordUiPositionOnlyUpdate(reason);
+  return true;
+}
+
+function updateRoomNodeState(roomId) {
+  if (!roomId) return;
+  const node = els.mapSvg?.querySelector(`[data-room-id="${cssEscape(roomId)}"]`);
+  if (!node) return;
+  node.classList.toggle("current", playerPositionKnown && roomId === playerRoomId);
+  const selectedForPreview = selectedRoomPreview?.id === roomId;
+  const selectedForProject = !selectedRoomPreview && roomId === selectedRoomId;
+  node.classList.toggle("selected", selectedForPreview || selectedForProject);
+}
+
+function cssEscape(value) {
+  if (window.CSS?.escape) return window.CSS.escape(String(value));
+  return String(value).replace(/["\\]/g, "\\$&");
 }
 
 function getPlayerVisibleMobWorldKeys() {
@@ -2484,7 +2749,7 @@ function scheduleDebugMapViewportRender() {
   if (mapViewportRenderFrame) return;
   mapViewportRenderFrame = window.requestAnimationFrame(() => {
     mapViewportRenderFrame = null;
-    renderMap();
+    renderMap("ui-debug-viewport");
   });
 }
 
@@ -3017,7 +3282,7 @@ function shiftDebugMapZ(delta) {
     z: debugMapZ,
     area: mapDebugAll ? "__debug_all__" : "atlas"
   };
-  renderMap();
+  renderMap("ui-z-shift");
 }
 
 function getAvailableDebugZLevels() {

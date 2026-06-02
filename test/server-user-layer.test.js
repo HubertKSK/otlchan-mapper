@@ -71,6 +71,10 @@ test("server writes root error log and returns json server errors", () => {
   assert.match(serverSource, /renameWithWindowsRetry\(file, first\)/);
 });
 
+test("server disables browser cache for local static files", () => {
+  assert.match(serverSource, /"Cache-Control": "no-store"/);
+});
+
 test("server validates and atomically writes user-layer payloads", () => {
   assert.match(serverSource, /payload\?\.schema !== "otchlan-user-layer"/);
   assert.match(serverSource, /invalid-user-layer/);

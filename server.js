@@ -282,7 +282,10 @@ async function handleRequest(req, res) {
   try {
     const body = await readFile(filePath);
     const ext = path.extname(filePath).toLowerCase();
-    res.writeHead(200, { "Content-Type": mimeTypes[ext] || "application/octet-stream" });
+    res.writeHead(200, {
+      "Content-Type": mimeTypes[ext] || "application/octet-stream",
+      "Cache-Control": "no-store"
+    });
     res.end(body);
   } catch {
     res.writeHead(404);
