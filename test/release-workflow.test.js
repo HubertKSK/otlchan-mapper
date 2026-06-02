@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const workflowSource = await readFile(new URL("../.github/workflows/release.yml", import.meta.url), "utf8");
+const ciWorkflowSource = await readFile(new URL("../.github/workflows/ci.yml", import.meta.url), "utf8");
 const packageSource = await readFile(new URL("../package.json", import.meta.url), "utf8");
 const readmeSource = await readFile(new URL("../README.md", import.meta.url), "utf8");
 
@@ -26,6 +27,16 @@ test("GitHub Actions workflow builds and publishes Windows release", () => {
   assert.match(workflowSource, /"stop\.cmd"/);
   assert.match(workflowSource, /Compress-Archive/);
   assert.match(workflowSource, /gh release create \$tag/);
+});
+
+test("GitHub Actions CI runs the full local verification suite", () => {
+  assert.match(ciWorkflowSource, /name: CI/);
+  assert.match(ciWorkflowSource, /pull_request:/);
+  assert.match(ciWorkflowSource, /runs-on: windows-latest/);
+  assert.match(ciWorkflowSource, /actions\/setup-node@v4/);
+  assert.match(ciWorkflowSource, /actions\/setup-dotnet@v4/);
+  assert.match(ciWorkflowSource, /npm ci/);
+  assert.match(ciWorkflowSource, /npm run verify/);
 });
 
 test("README documents user-facing release package", () => {
