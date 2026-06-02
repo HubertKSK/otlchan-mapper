@@ -28,6 +28,7 @@ $G1_ADDRESS = [IntPtr]0x47f570
 $BUFFER_SIZE = 8192
 $LOKAC_OFFSET = 312
 $PLIKAREA_OFFSET = 1084
+$LEVEL_OFFSET = 310
 $UMI_OFFSET = 1102
 $UMI_SLOTS = 80
 $UMI_RECORD_SIZE = 42
@@ -39,6 +40,8 @@ $MANA_OFFSET = 210
 $MV_OFFSET = 218
 $EXPE_OFFSET = 226
 $GOLDBANK_OFFSET = 230
+$CZAS_OFFSET = 1050
+$DZIEN_OFFSET = 1056
 $LICZG_OFFSET = 234
 $LICZS_OFFSET = 238
 $HUNGER_WARNING_THRESHOLD = 3000
@@ -92,10 +95,15 @@ try {
       $hpMax = [BitConverter]::ToInt32($buffer, $HPS_OFFSET)
       $manaMax = [BitConverter]::ToInt32($buffer, $MANAS_OFFSET)
       $mvMax = [BitConverter]::ToInt32($buffer, $MVS_OFFSET)
+      $level = [int]$buffer[$LEVEL_OFFSET]
       $exp = [BitConverter]::ToInt32($buffer, $EXPE_OFFSET)
       $minExp = [BitConverter]::ToInt32($buffer, $MINEXP_OFFSET)
       $expLimit = [BitConverter]::ToInt32($buffer, $EXPLIMIT_OFFSET)
       $goldBank = [BitConverter]::ToInt32($buffer, $GOLDBANK_OFFSET)
+      $timeRaw = [int][BitConverter]::ToUInt16($buffer, $CZAS_OFFSET)
+      $timeHour = [int]([Math]::Floor($timeRaw / 180) % 24)
+      $timeMinute = [int]([Math]::Floor(($timeRaw % 180) / 3))
+      $journeyDay = [BitConverter]::ToInt32($buffer, $DZIEN_OFFSET)
       $hunger = [BitConverter]::ToInt32($buffer, $LICZG_OFFSET)
       $thirst = [BitConverter]::ToInt32($buffer, $LICZS_OFFSET)
       $gold = 0
@@ -141,7 +149,7 @@ try {
           }
         }
       }
-      $snapshotKey = "$worldKey|$([Math]::Round($hp, 2))|$([Math]::Round($mana, 2))|$([Math]::Round($mv, 2))|$exp|$gold|$goldBank"
+      $snapshotKey = "$worldKey|$([Math]::Round($hp, 2))|$([Math]::Round($mana, 2))|$([Math]::Round($mv, 2))|$level|$exp|$gold|$goldBank|$timeRaw|$journeyDay"
       foreach ($effect in $effects) {
         $snapshotKey += "|effect:$($effect.number),$($effect.duration),$($effect.count)"
       }
@@ -184,11 +192,18 @@ try {
             mvMax = $mvMax
           }
           economy = @{
+            level = $level
             exp = $exp
             minExp = $minExp
             expLimit = $expLimit
             gold = $gold
             goldBank = $goldBank
+          }
+          time = @{
+            raw = $timeRaw
+            hour = $timeHour
+            minute = $timeMinute
+            day = $journeyDay
           }
           effects = $effects
           conditions = $conditions

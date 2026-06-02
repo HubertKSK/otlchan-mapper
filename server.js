@@ -794,6 +794,7 @@ function handleGamePositionLine(line) {
     worldKey: String(payload.worldKey || ""),
     vitals: normalizeGameVitals(payload.vitals),
     economy: normalizeGameEconomy(payload.economy),
+    time: normalizeGameTime(payload.time),
     effects: normalizeGameEffects(payload.effects),
     conditions: normalizeGameConditions(payload.conditions)
   };
@@ -818,11 +819,24 @@ function normalizeGameVitals(vitals = {}) {
 
 function normalizeGameEconomy(economy = {}) {
   return {
+    level: finiteNumber(economy.level),
     exp: finiteNumber(economy.exp),
     minExp: finiteNumber(economy.minExp),
     expLimit: finiteNumber(economy.expLimit),
     gold: finiteNumber(economy.gold),
     goldBank: finiteNumber(economy.goldBank)
+  };
+}
+
+function normalizeGameTime(time = {}) {
+  const raw = finiteNumber(time.raw);
+  const hour = finiteNumber(time.hour);
+  const minute = finiteNumber(time.minute);
+  return {
+    raw,
+    hour: hour >= 0 && hour < 24 ? hour : 0,
+    minute: minute >= 0 && minute < 60 ? minute : 0,
+    day: finiteNumber(time.day)
   };
 }
 

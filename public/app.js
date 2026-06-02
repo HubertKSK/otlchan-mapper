@@ -54,8 +54,10 @@ const els = {
   mvBar: document.querySelector("#mvBar"),
   goldValue: document.querySelector("#goldValue"),
   goldBankValue: document.querySelector("#goldBankValue"),
-  expValue: document.querySelector("#expValue"),
+  levelValue: document.querySelector("#levelValue"),
   expBar: document.querySelector("#expBar"),
+  gameTimeValue: document.querySelector("#gameTimeValue"),
+  journeyDayValue: document.querySelector("#journeyDayValue"),
   activeEffectsList: document.querySelector("#activeEffectsList"),
   workspaceButtons: document.querySelectorAll("[data-workspace-target]"),
   menuBtn: document.querySelector("#menuBtn"),
@@ -754,6 +756,7 @@ function applyGameMemoryStats(position = {}) {
   const nextStats = {
     vitals: position.vitals || {},
     economy: position.economy || {},
+    time: position.time || {},
     effects: Array.isArray(position.effects) ? position.effects : [],
     conditions: Array.isArray(position.conditions) ? position.conditions : []
   };
@@ -761,6 +764,7 @@ function applyGameMemoryStats(position = {}) {
   lastGameStats = {
     vitals: nextStats.vitals,
     economy: nextStats.economy,
+    time: nextStats.time,
     effects: nextStats.effects,
     conditions: nextStats.conditions
   };
@@ -776,8 +780,7 @@ function collectStatDeltaValues(stats = {}) {
     mana: Math.round(finiteNumber(vitals.mana)),
     mv: Math.round(finiteNumber(vitals.mv)),
     gold: Math.round(finiteNumber(economy.gold)),
-    goldBank: Math.round(finiteNumber(economy.goldBank)),
-    exp: Math.round(finiteNumber(economy.exp))
+    goldBank: Math.round(finiteNumber(economy.goldBank))
   };
 }
 
@@ -788,7 +791,6 @@ function showCharacterStatChanges(previous, current) {
   showStatChange(els.mvValue, current.mv - previous.mv, "MV");
   showStatChange(els.goldValue, current.gold - previous.gold);
   showStatChange(els.goldBankValue, current.goldBank - previous.goldBank);
-  showStatChange(els.expValue, current.exp - previous.exp, "EXP");
 }
 
 function showStatChange(target, delta, label = "") {
@@ -805,13 +807,30 @@ function showStatChange(target, delta, label = "") {
 function renderCharacterVitals() {
   const vitals = lastGameStats?.vitals || {};
   const economy = lastGameStats?.economy || {};
+  const time = lastGameStats?.time || {};
   renderVitalMeter("hp", vitals.hp, vitals.hpMax);
   renderVitalMeter("mana", vitals.mana, vitals.manaMax);
   renderVitalMeter("mv", vitals.mv, vitals.mvMax);
   if (els.goldValue) els.goldValue.textContent = formatInteger(economy.gold);
   if (els.goldBankValue) els.goldBankValue.textContent = formatInteger(economy.goldBank);
+  if (els.levelValue) els.levelValue.textContent = economy.level > 0 ? formatInteger(economy.level) : "--";
+  renderGameTime(time);
   renderExpMeter(economy);
   renderActiveEffects(lastGameStats?.effects || [], lastGameStats?.conditions || []);
+}
+
+function renderGameTime(time = {}) {
+  const hour = Number(time.hour);
+  const minute = Number(time.minute);
+  const day = Number(time.day);
+  if (els.gameTimeValue) {
+    els.gameTimeValue.textContent = Number.isFinite(hour) && Number.isFinite(minute)
+      ? `${padTimePart(hour)}:${padTimePart(roundGameMinuteToHalfHour(minute))}`
+      : "--";
+  }
+  if (els.journeyDayValue) {
+    els.journeyDayValue.textContent = Number.isFinite(day) && day > 0 ? formatInteger(day) : "--";
+  }
 }
 
 function renderActiveEffects(effects = [], conditions = []) {
@@ -878,11 +897,6 @@ function renderExpMeter(economy = {}) {
   const exp = finiteNumber(economy.exp);
   const minExp = finiteNumber(economy.minExp);
   const expLimit = finiteNumber(economy.expLimit);
-  if (els.expValue) {
-    els.expValue.textContent = expLimit > 0
-      ? `${formatInteger(exp)}/${formatInteger(expLimit)}`
-      : "--/--";
-  }
   if (els.expBar) {
     const span = Math.max(0, expLimit - minExp);
     const gained = Math.max(0, exp - minExp);
@@ -909,6 +923,14 @@ function formatInteger(value) {
   if (!hasFiniteNumber(value)) return "--";
   const number = Number(value);
   return Math.round(number).toLocaleString("pl-PL");
+}
+
+function padTimePart(value) {
+  return String(Math.max(0, Math.floor(finiteNumber(value)))).padStart(2, "0");
+}
+
+function roundGameMinuteToHalfHour(value) {
+  return Math.floor(finiteNumber(value) / 30) * 30;
 }
 
 function inferAdjacentWorldDirection(fromWorldRoom, toWorldRoom) {

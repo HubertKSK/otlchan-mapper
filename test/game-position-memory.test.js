@@ -14,8 +14,11 @@ test("server publishes Otchlan position from process memory", () => {
   assert.match(serverSource, /source: "process-memory"/);
   assert.match(serverSource, /vitals: normalizeGameVitals\(payload\.vitals\)/);
   assert.match(serverSource, /economy: normalizeGameEconomy\(payload\.economy\)/);
+  assert.match(serverSource, /time: normalizeGameTime\(payload\.time\)/);
   assert.match(serverSource, /effects: normalizeGameEffects\(payload\.effects\)/);
   assert.match(serverSource, /conditions: normalizeGameConditions\(payload\.conditions\)/);
+  assert.match(serverSource, /level: finiteNumber\(economy\.level\)/);
+  assert.match(serverSource, /function normalizeGameTime\(time = \{\}\) \{/);
 });
 
 test("position reader extracts G1 location and area file offsets", () => {
@@ -23,11 +26,14 @@ test("position reader extracts G1 location and area file offsets", () => {
   assert.match(readerSource, /\$BUFFER_SIZE = 8192/);
   assert.match(readerSource, /\$LOKAC_OFFSET = 312/);
   assert.match(readerSource, /\$PLIKAREA_OFFSET = 1084/);
+  assert.match(readerSource, /\$LEVEL_OFFSET = 310/);
   assert.match(readerSource, /\$UMI_OFFSET = 1102/);
   assert.match(readerSource, /\$HP_OFFSET = 202/);
   assert.match(readerSource, /\$MANA_OFFSET = 210/);
   assert.match(readerSource, /\$MV_OFFSET = 218/);
   assert.match(readerSource, /\$EXPE_OFFSET = 226/);
+  assert.match(readerSource, /\$CZAS_OFFSET = 1050/);
+  assert.match(readerSource, /\$DZIEN_OFFSET = 1056/);
   assert.match(readerSource, /\$LICZG_OFFSET = 234/);
   assert.match(readerSource, /\$LICZS_OFFSET = 238/);
   assert.match(readerSource, /\$HUNGER_WARNING_THRESHOLD = 3000/);
@@ -42,6 +48,10 @@ test("position reader extracts G1 location and area file offsets", () => {
   assert.match(readerSource, /495 = 50000/);
   assert.match(readerSource, /ReadProcessMemory/);
   assert.match(readerSource, /ToInt16\(\$buffer, \$LOKAC_OFFSET\)/);
+  assert.match(readerSource, /\$level = \[int\]\$buffer\[\$LEVEL_OFFSET\]/);
+  assert.match(readerSource, /\$timeRaw = \[int\]\[BitConverter\]::ToUInt16\(\$buffer, \$CZAS_OFFSET\)/);
+  assert.match(readerSource, /\$timeHour = \[int\]\(\[Math\]::Floor\(\$timeRaw \/ 180\) % 24\)/);
+  assert.match(readerSource, /\$journeyDay = \[BitConverter\]::ToInt32\(\$buffer, \$DZIEN_OFFSET\)/);
   assert.match(readerSource, /ToDouble\(\$buffer, \$HP_OFFSET\)/);
   assert.match(readerSource, /\$MONEY_OBJECT_VALUES\.ContainsKey\(\$objectNumber\)/);
   assert.match(readerSource, /\$gold \+= \$quantity \* \$MONEY_OBJECT_VALUES\[\$objectNumber\]/);
@@ -49,8 +59,11 @@ test("position reader extracts G1 location and area file offsets", () => {
   assert.match(readerSource, /worldKey = \$worldKey/);
   assert.match(readerSource, /vitals = @\{/);
   assert.match(readerSource, /economy = @\{/);
+  assert.match(readerSource, /level = \$level/);
   assert.match(readerSource, /minExp = \$minExp/);
   assert.match(readerSource, /expLimit = \$expLimit/);
+  assert.match(readerSource, /time = @\{/);
+  assert.match(readerSource, /day = \$journeyDay/);
   assert.match(readerSource, /effects = \$effects/);
   assert.match(readerSource, /conditions = \$conditions/);
 });

@@ -80,13 +80,21 @@
           </div>
           <div class="resource-pill resource-exp" title="Doswiadczenie do nastepnego poziomu">
             <div class="resource-line">
-              <span>Exp</span>
-              <strong id="expValue">--/--</strong>
+              <span>Poziom</span>
+              <strong id="levelValue">--</strong>
             </div>
             <div class="vital-track resource-track" aria-hidden="true"><span id="expBar"></span></div>
           </div>
           <div class="active-effects" aria-label="Aktywne czary i statusy">
-            <span>Statusy</span>
+            <div class="active-effects-head">
+              <span>Statusy</span>
+              <div class="game-time" title="Czas gry i dzien podrozy">
+                <span>Czas</span>
+                <strong id="gameTimeValue">--:--</strong>
+                <span>Dzien</span>
+                <strong id="journeyDayValue">--</strong>
+              </div>
+            </div>
             <div id="activeEffectsList" class="active-effects-list">
               <strong>--</strong>
             </div>
