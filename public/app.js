@@ -1063,7 +1063,7 @@ function initMapDragging() {
     mapDrag.lastX = event.clientX;
     mapDrag.lastY = event.clientY;
     applyMapViewBox();
-    scheduleDebugMapViewportRender();
+    scheduleMapViewportRender();
   });
 
   els.mapSvg.addEventListener("pointerup", finishMapDrag);
@@ -1152,7 +1152,7 @@ function zoomMapWithWheel(event) {
   mapView.x = mapX - pointerX * nextViewBox.width + nextViewBox.width / 2;
   mapView.y = mapY - pointerY * nextViewBox.height + nextViewBox.height / 2;
   applyMapViewBox();
-  scheduleDebugMapViewportRender();
+  scheduleMapViewportRender();
 }
 
 function clampMapZoom(value) {
@@ -1911,7 +1911,7 @@ function setTerminalFontSize(fontSize, options = {}) {
   if (options.persist !== false) {
     localStorage.setItem(TERMINAL_FONT_SIZE_KEY, String(nextFontSize));
   }
-  scheduleTerminalFit();
+  refreshTerminalLayoutAfterFontSizeChange();
   return nextFontSize;
 }
 
@@ -1919,6 +1919,20 @@ function normalizeTerminalFontSize(fontSize) {
   const value = Number(fontSize);
   if (!Number.isFinite(value)) return TERMINAL_DEFAULT_FONT_SIZE;
   return Math.max(TERMINAL_MIN_FONT_SIZE, Math.min(TERMINAL_MAX_FONT_SIZE, Math.round(value)));
+}
+
+function refreshTerminalLayoutAfterFontSizeChange() {
+  terminalStagePinnedToBottom = true;
+  term.refresh(0, Math.max(0, term.rows - 1));
+  scheduleTerminalFit();
+  window.requestAnimationFrame(() => {
+    term.refresh(0, Math.max(0, term.rows - 1));
+    fitTerminalToPanel();
+    window.requestAnimationFrame(() => {
+      fitTerminalToPanel();
+      scrollTerminalToBottom();
+    });
+  });
 }
 
 function applySavedStatVisibility() {
@@ -2569,36 +2583,6 @@ function renderMap(reason = "renderMap") {
   const atlasWorkspaceActive = false;
   const z = getRenderMapZ(playerRoom, room);
   const cell = 82;
-  const debugRenderWindow = mapDebugAll ? getMapGridRenderWindow(cell, 3) : null;
-  const canCullDebugSourceRooms = Boolean(worldAtlas);
-  const showAtlasPreviewRooms = mapDebugAll;
-  const normalRooms = project.rooms
-    .filter((item) => Number(item.z) === Number(z))
-    .map((item) => getProjectAtlasRoom(item));
-  const debugWorldBaseRooms = showAtlasPreviewRooms
-    ? getDebugWorldBaseRooms(z, canCullDebugSourceRooms ? debugRenderWindow : null)
-    : [];
-  const debugProjectRooms = mapDebugAll
-    ? project.rooms
-        .filter((item) => item.z === z)
-        .map((item) => getProjectAtlasRoom(item))
-        .filter((item) => !canCullDebugSourceRooms || !debugRenderWindow || isGridPointInRenderWindow({ x: item.x, y: item.y }, debugRenderWindow))
-    : [];
-  const allMapItems = mapDebugAll
-    ? buildDebugMapItems([...debugWorldBaseRooms, ...debugProjectRooms], { preserveCoords: Boolean(worldAtlas) })
-    : normalRooms.map((item) => ({ room: item, mapX: item.x, mapY: item.y, groupLabel: "" }));
-  const mapItems = debugRenderWindow
-    ? allMapItems.filter((item) => isMapItemInRenderWindow(item, debugRenderWindow))
-    : allMapItems;
-  const rooms = mapItems.map((item) => item.room);
-  const corridorItems = getRenderAtlasCorridors(z, rooms, debugRenderWindow);
-  const pad = 4;
-  const xs = [...mapItems.map((item) => item.mapX), ...corridorItems.flatMap((item) => item.points.map((point) => point.x))];
-  const ys = [...mapItems.map((item) => item.mapY), ...corridorItems.flatMap((item) => item.points.map((point) => point.y))];
-  const minX = Math.min(...xs, -2) - pad;
-  const maxX = Math.max(...xs, 2) + pad;
-  const minY = Math.min(...ys, -2) - pad;
-  const maxY = Math.max(...ys, 2) + pad;
   const viewArea = mapDebugAll ? "__debug_all__" : "atlas";
   const previousMapLevel = lastRenderedMapLevel;
   const mapLevelChanged = Boolean(previousMapLevel && Number(previousMapLevel.z) !== Number(z));
@@ -2611,6 +2595,40 @@ function renderMap(reason = "renderMap") {
       area: viewArea
     };
   }
+  const viewportRenderWindow = getMapGridRenderWindow(cell, 3);
+  const debugRenderWindow = mapDebugAll ? viewportRenderWindow : null;
+  const normalRenderWindow = mapDebugAll ? null : viewportRenderWindow;
+  const canCullDebugSourceRooms = Boolean(worldAtlas);
+  const showAtlasPreviewRooms = mapDebugAll;
+  const normalRooms = project.rooms
+    .filter((item) => Number(item.z) === Number(z))
+    .map((item) => getProjectAtlasRoom(item))
+    .filter((item) => !normalRenderWindow || shouldRenderNormalMapRoom(item, normalRenderWindow));
+  const debugWorldBaseRooms = showAtlasPreviewRooms
+    ? getDebugWorldBaseRooms(z, canCullDebugSourceRooms ? debugRenderWindow : null)
+    : [];
+  const debugProjectRooms = mapDebugAll
+    ? project.rooms
+        .filter((item) => item.z === z)
+        .map((item) => getProjectAtlasRoom(item))
+        .filter((item) => !canCullDebugSourceRooms || !debugRenderWindow || isGridPointInRenderWindow({ x: item.x, y: item.y }, debugRenderWindow))
+    : [];
+  const allMapItems = mapDebugAll
+    ? buildDebugMapItems([...debugWorldBaseRooms, ...debugProjectRooms], { preserveCoords: Boolean(worldAtlas) })
+    : normalRooms.map((item) => ({ room: item, mapX: item.x, mapY: item.y, groupLabel: "" }));
+  const activeRenderWindow = debugRenderWindow || normalRenderWindow;
+  const mapItems = activeRenderWindow
+    ? allMapItems.filter((item) => isMapItemInRenderWindow(item, activeRenderWindow) || shouldAlwaysRenderMapRoom(item.room))
+    : allMapItems;
+  const rooms = mapItems.map((item) => item.room);
+  const corridorItems = getRenderAtlasCorridors(z, rooms, activeRenderWindow);
+  const pad = 4;
+  const xs = [...mapItems.map((item) => item.mapX), ...corridorItems.flatMap((item) => item.points.map((point) => point.x))];
+  const ys = [...mapItems.map((item) => item.mapY), ...corridorItems.flatMap((item) => item.points.map((point) => point.y))];
+  const minX = Math.min(...xs, -2) - pad;
+  const maxX = Math.max(...xs, 2) + pad;
+  const minY = Math.min(...ys, -2) - pad;
+  const maxY = Math.max(...ys, 2) + pad;
   els.mapTitle.textContent = "Mapa";
   els.mapCount.textContent = `Poziom ${z}`;
   renderMapScopeState();
@@ -2807,6 +2825,7 @@ function renderPositionOnlyMapUpdate(previousPlayerRoomId, previousSelectedRoomI
   updateRoomNodeState(selectedRoomId);
   applyMapViewBox({ animate: true });
   renderPlayerMarkerLayer(lastRenderedMapCoords, lastRenderedMapCell, z);
+  scheduleMapViewportRender();
   recordUiPositionOnlyUpdate(reason);
   return true;
 }
@@ -2870,12 +2889,11 @@ function formatMobMarkerTitle(mobs = []) {
     .join("\n");
 }
 
-function scheduleDebugMapViewportRender() {
-  if (!mapDebugAll) return;
+function scheduleMapViewportRender() {
   if (mapViewportRenderFrame) return;
   mapViewportRenderFrame = window.requestAnimationFrame(() => {
     mapViewportRenderFrame = null;
-    renderMap("ui-debug-viewport");
+    renderMap(mapDebugAll ? "ui-debug-viewport" : "ui-map-viewport");
   });
 }
 
@@ -2895,6 +2913,20 @@ function isMapItemInRenderWindow(item, window) {
     && Number(item.mapX) <= window.maxX
     && Number(item.mapY) >= window.minY
     && Number(item.mapY) <= window.maxY;
+}
+
+function shouldRenderNormalMapRoom(room, window) {
+  if (!window) return true;
+  if (shouldAlwaysRenderMapRoom(room)) return true;
+  return isGridPointInRenderWindow({ x: room.x, y: room.y }, window);
+}
+
+function shouldAlwaysRenderMapRoom(room) {
+  if (!room) return false;
+  return room.id === playerRoomId
+    || room.id === selectedRoomId
+    || room.id === selectedRoomPreview?.id
+    || room.worldKey === selectedWorldPreview?.worldKey;
 }
 
 function createPlayerLocationMarker(point, cell, extraClass = "") {

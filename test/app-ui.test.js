@@ -136,6 +136,8 @@ test("server request failures show a bottom-right error toast", () => {
 });
 
 test("location description visibility can be toggled from the app menu", () => {
+  assert.match(htmlSource, /class="layout-column terminal-column"[\s\S]*class="terminal-panel"[\s\S]*class="location-panel"/);
+  assert.match(htmlSource, /class="layout-column map-column"[\s\S]*class="map-panel"[\s\S]*class="global-notes-panel"/);
   assert.match(htmlSource, /id="toggleDescriptionBtn"/);
   assert.match(htmlSource, /id="toggleRoomTagsBtn"[\s\S]*Tagi pola/);
   assert.match(htmlSource, /id="toggleRoomNotesBtn"[\s\S]*Notatki pola/);
@@ -166,7 +168,18 @@ test("location description visibility can be toggled from the app menu", () => {
   assert.match(cssSource, /\.room-tags-hidden \.room-tags-field/);
   assert.match(cssSource, /\.room-notes-hidden \.room-notes-field/);
   assert.match(cssSource, /\.location-fields-hidden \.location-panel/);
-  assert.match(cssSource, /body\.location-fields-hidden \.layout\[data-workspace="game"\] \.global-notes-panel\s*\{[\s\S]*grid-column: 2 \/ 4;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.terminal-column\s*\{[\s\S]*grid-column: 1;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.map-column\s*\{[\s\S]*grid-column: 2;/);
+  assert.match(cssSource, /--app-max-width: 2560px;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\]\s*\{[\s\S]*align-items: stretch;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.layout-column\s*\{[\s\S]*height: 100%;[\s\S]*align-content: stretch;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.terminal-column\s*\{[\s\S]*grid-template-rows: auto minmax\(0, 1fr\);/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.map-column\s*\{[\s\S]*grid-template-rows: minmax\(320px, 1fr\) minmax\(180px, 0\.34fr\);/);
+  assert.match(cssSource, /@media \(min-width: 1680px\) \{[\s\S]*\.layout\[data-workspace="game"\]\s*\{[\s\S]*grid-template-rows: minmax\(0, 1fr\);/);
+  assert.match(cssSource, /@media \(min-width: 1680px\) \{[\s\S]*\.topbar,\s*[\s\S]*\.layout\s*\{[\s\S]*width: min\(100%, var\(--app-max-width\)\);[\s\S]*margin-inline: auto;/);
+  assert.match(cssSource, /\.layout\[data-workspace="atlas"\] \.layout-column\s*\{[\s\S]*display: contents;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.map-column > \.map-panel,\s*[\s\S]*\.layout\[data-workspace="game"\] \.map-column > \.global-notes-panel\s*\{[\s\S]*grid-column: 1;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.location-panel\s*\{[\s\S]*align-self: start;/);
   assert.match(cssSource, /\.toggle-switch::after/);
 });
 
@@ -179,7 +192,7 @@ test("global notes panel visibility can be toggled from settings", () => {
   assert.match(appSource, /document\.body\.classList\.toggle\("notes-hidden", !notesVisible\)/);
   assert.match(appSource, /setNotesVisibility\(!notesVisible\)/);
   assert.match(cssSource, /\.notes-hidden \.global-notes-panel\s*\{[\s\S]*display: none;/);
-  assert.match(cssSource, /body\.notes-hidden \.layout\[data-workspace="game"\] \.location-panel\s*\{[\s\S]*grid-column: 2 \/ 4;/);
+  assert.match(cssSource, /\.notes-hidden \.global-notes-panel\s*\{[\s\S]*display: none;/);
 });
 
 test("terminal font size can be changed from settings", () => {
@@ -200,6 +213,9 @@ test("terminal font size can be changed from settings", () => {
   assert.match(appSource, /terminalFontSizeDownBtn\.disabled = nextFontSize <= TERMINAL_MIN_FONT_SIZE/);
   assert.match(appSource, /terminalFontSizeUpBtn\.disabled = nextFontSize >= TERMINAL_MAX_FONT_SIZE/);
   assert.match(appSource, /localStorage\.setItem\(TERMINAL_FONT_SIZE_KEY, String\(nextFontSize\)\)/);
+  assert.match(appSource, /function refreshTerminalLayoutAfterFontSizeChange\(\) \{/);
+  assert.match(appSource, /term\.refresh\(0, Math\.max\(0, term\.rows - 1\)\)/);
+  assert.match(appSource, /window\.requestAnimationFrame\(\(\) => \{[\s\S]*fitTerminalToPanel\(\);[\s\S]*scrollTerminalToBottom\(\);/);
   assert.match(cssSource, /\.stepper-control/);
   assert.match(cssSource, /\.stepper-control strong/);
 });
