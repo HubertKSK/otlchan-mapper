@@ -12,7 +12,13 @@ test("server publishes Otchlan position from process memory", () => {
   assert.match(serverSource, /const OTCHLAN_DEV_POSITION_READER = path\.join\(__dirname, "src", "OtchlanMemoryReader"/);
   assert.match(serverSource, /const OTCHLAN_POSITION_POLL_MS = Number\(process\.env\.OTCHLAN_POSITION_POLL_MS \|\| 100\);/);
   assert.match(serverSource, /const OTCHLAN_MOB_POLL_MS = Number\(process\.env\.OTCHLAN_MOB_POLL_MS \|\| 1000\);/);
-  assert.match(serverSource, /startGamePositionReader\(gameProcess\.pid\);/);
+  assert.match(serverSource, /const OTCHLAN_GAME_IDLE_AFTER_MS = Number\(process\.env\.OTCHLAN_GAME_IDLE_AFTER_MS \|\| 60000\);/);
+  assert.match(serverSource, /const OTCHLAN_GAME_IDLE_CHECK_MS = Number\(process\.env\.OTCHLAN_GAME_IDLE_CHECK_MS \|\| 5000\);/);
+  assert.match(serverSource, /const OTCHLAN_IDLE_POSITION_POLL_MS = Number\(process\.env\.OTCHLAN_IDLE_POSITION_POLL_MS \|\| 0\);/);
+  assert.match(serverSource, /const OTCHLAN_IDLE_MOB_POLL_MS = Number\(process\.env\.OTCHLAN_IDLE_MOB_POLL_MS \|\| 0\);/);
+  assert.match(serverSource, /let gameReaderMode = "stopped";/);
+  assert.match(serverSource, /let lastGameInputAt = 0;/);
+  assert.match(serverSource, /markGameInputActivity\("start-game"\);/);
   assert.match(serverSource, /sendEvent\(client, "game-position", lastGamePosition\);/);
   assert.match(serverSource, /broadcast\("game-position", lastGamePosition\);/);
   assert.match(serverSource, /const readerKind = nativeReaderAvailable \? "native-dotnet" : "powershell";/);
@@ -36,6 +42,29 @@ test("server publishes Otchlan position from process memory", () => {
   assert.match(serverSource, /function normalizeGameTime\(time = \{\}\) \{/);
   assert.match(serverSource, /function normalizeGameEnvironment\(environment = \{\}\) \{/);
   assert.match(serverSource, /canObserveMobs: environment\.canObserveMobs !== false/);
+});
+
+test("server pauses memory reader while game is idle and resumes on input", () => {
+  assert.match(serverSource, /setInterval\(checkGameReaderIdleState, OTCHLAN_GAME_IDLE_CHECK_MS\);/);
+  assert.match(serverSource, /function markGameInputActivity\(reason = "input"\) \{/);
+  assert.match(serverSource, /lastGameInputAt = Date\.now\(\);/);
+  assert.match(serverSource, /if \(gameProcess\) setGameReaderMode\("active", reason\);/);
+  assert.match(serverSource, /function setGameReaderMode\(mode, reason = "mode-change"\) \{/);
+  assert.match(serverSource, /event: "game-reader-mode-changed"/);
+  assert.match(serverSource, /restartGamePositionReaderForMode\(\);/);
+  assert.match(serverSource, /function restartGamePositionReaderForMode\(\) \{/);
+  assert.match(serverSource, /if \(gameReaderMode === "idle" && shouldPauseGameReaderInIdle\(\)\) return;/);
+  assert.match(serverSource, /function shouldPauseGameReaderInIdle\(\) \{/);
+  assert.match(serverSource, /return getGameReaderPollMs\("idle"\) <= 0 \|\| getGameReaderMobPollMs\("idle"\) <= 0;/);
+  assert.match(serverSource, /function checkGameReaderIdleState\(\) \{/);
+  assert.match(serverSource, /Date\.now\(\) - lastGameInputAt >= OTCHLAN_GAME_IDLE_AFTER_MS/);
+  assert.match(serverSource, /setGameReaderMode\("idle", "idle-timeout"\)/);
+  assert.match(serverSource, /markGameInputActivity\("game-command"\);/);
+  assert.match(serverSource, /markGameInputActivity\("terminal-input"\);/);
+  assert.match(serverSource, /setGameReaderMode\("stopped", "game-stop"\);/);
+  assert.match(serverSource, /setGameReaderMode\("stopped", "game-exit"\);/);
+  assert.match(serverSource, /const spawnedReaderProcess = memoryReaderProcess;/);
+  assert.match(serverSource, /if \(memoryReaderProcess === spawnedReaderProcess\) \{[\s\S]*memoryReaderProcess = null;[\s\S]*memoryReaderBuffer = "";/);
 });
 
 test("server enriches unnamed memory effects from extracted game symbols", () => {
