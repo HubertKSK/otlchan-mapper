@@ -155,6 +155,14 @@
                       <span>Opis lokacji</span>
                       <span class="toggle-switch" aria-hidden="true"></span>
                     </button>
+                    <button id="toggleRoomTagsBtn" class="setting-toggle" type="button" title="Pokaz lub ukryj tagi pola w panelu UI" aria-pressed="true">
+                      <span>Tagi pola</span>
+                      <span class="toggle-switch" aria-hidden="true"></span>
+                    </button>
+                    <button id="toggleRoomNotesBtn" class="setting-toggle" type="button" title="Pokaz lub ukryj notatki pola w panelu UI" aria-pressed="true">
+                      <span>Notatki pola</span>
+                      <span class="toggle-switch" aria-hidden="true"></span>
+                    </button>
                     <button id="toggleNotesBtn" class="setting-toggle" type="button" title="Pokaz lub ukryj panel notesu" aria-pressed="true">
                       <span>Notes</span>
                       <span class="toggle-switch" aria-hidden="true"></span>
@@ -262,10 +270,10 @@
             <label id="roomDescriptionField" class="full-label readonly-field room-description-field">Opis
               <textarea id="roomDescriptionInput" rows="5" placeholder="Opis lokacji z gry lub wlasne streszczenie..." readonly></textarea>
             </label>
-            <label class="full-label editable-field">Tagi
+            <label id="roomTagsField" class="full-label editable-field room-tags-field">Tagi
               <input id="roomTagsInput" placeholder="sklep, quest, ukryte">
             </label>
-            <label class="full-label editable-field">Notatki
+            <label id="roomNotesField" class="full-label editable-field room-notes-field">Notatki
               <textarea id="roomNotesInput" rows="4" placeholder="Mob, sklep, zagadka, droga powrotna..."></textarea>
             </label>
           </div>

@@ -137,16 +137,36 @@ test("server request failures show a bottom-right error toast", () => {
 
 test("location description visibility can be toggled from the app menu", () => {
   assert.match(htmlSource, /id="toggleDescriptionBtn"/);
+  assert.match(htmlSource, /id="toggleRoomTagsBtn"[\s\S]*Tagi pola/);
+  assert.match(htmlSource, /id="toggleRoomNotesBtn"[\s\S]*Notatki pola/);
   assert.match(htmlSource, /class="setting-toggle"/);
   assert.match(htmlSource, /Opis lokacji/);
   assert.match(htmlSource, /class="toggle-switch"/);
   assert.match(htmlSource, /id="roomDescriptionField"[^>]*room-description-field/);
+  assert.match(htmlSource, /id="roomTagsField"[^>]*room-tags-field/);
+  assert.match(htmlSource, /id="roomNotesField"[^>]*room-notes-field/);
   assert.match(appSource, /const DESCRIPTION_VISIBLE_KEY = "otchlan-automapper-description-visible";/);
+  assert.match(appSource, /const ROOM_TAGS_VISIBLE_KEY = "otchlan-automapper-room-tags-visible";/);
+  assert.match(appSource, /const ROOM_NOTES_VISIBLE_KEY = "otchlan-automapper-room-notes-visible";/);
   assert.match(appSource, /function applySavedDescriptionVisibility\(\)/);
   assert.match(appSource, /function setDescriptionVisibility\(visible, options = \{\}\)/);
+  assert.match(appSource, /function applySavedRoomTagsVisibility\(\)/);
+  assert.match(appSource, /function setRoomTagsVisibility\(visible, options = \{\}\)/);
+  assert.match(appSource, /function applySavedRoomNotesVisibility\(\)/);
+  assert.match(appSource, /function setRoomNotesVisibility\(visible, options = \{\}\)/);
+  assert.match(appSource, /function updateLocationFieldsVisibilityState\(\) \{/);
   assert.match(appSource, /setDescriptionVisibility\(!descriptionVisible\)/);
+  assert.match(appSource, /setRoomTagsVisibility\(!roomTagsVisible\)/);
+  assert.match(appSource, /setRoomNotesVisibility\(!roomNotesVisible\)/);
   assert.match(appSource, /classList\.toggle\("is-on", descriptionVisible\)/);
+  assert.match(appSource, /classList\.toggle\("is-on", roomTagsVisible\)/);
+  assert.match(appSource, /classList\.toggle\("is-on", roomNotesVisible\)/);
+  assert.match(appSource, /classList\.toggle\("location-fields-hidden", !descriptionVisible && !roomTagsVisible && !roomNotesVisible\)/);
   assert.match(cssSource, /\.description-hidden \.room-description-field/);
+  assert.match(cssSource, /\.room-tags-hidden \.room-tags-field/);
+  assert.match(cssSource, /\.room-notes-hidden \.room-notes-field/);
+  assert.match(cssSource, /\.location-fields-hidden \.location-panel/);
+  assert.match(cssSource, /body\.location-fields-hidden \.layout\[data-workspace="game"\] \.global-notes-panel\s*\{[\s\S]*grid-column: 2 \/ 4;/);
   assert.match(cssSource, /\.toggle-switch::after/);
 });
 

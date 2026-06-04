@@ -9,6 +9,8 @@ import { Terminal } from "/vendor/@xterm/xterm/lib/xterm.mjs";
 const THEME_KEY = "otchlan-automapper-theme";
 const WORKSPACE_KEY = "otchlan-automapper-workspace-mode";
 const DESCRIPTION_VISIBLE_KEY = "otchlan-automapper-description-visible";
+const ROOM_TAGS_VISIBLE_KEY = "otchlan-automapper-room-tags-visible";
+const ROOM_NOTES_VISIBLE_KEY = "otchlan-automapper-room-notes-visible";
 const MOBS_VISIBLE_KEY = "otchlan-automapper-mobs-visible";
 const NOTES_VISIBLE_KEY = "otchlan-automapper-notes-visible";
 const STATS_VISIBLE_KEY = "otchlan-automapper-stats-visible";
@@ -52,6 +54,8 @@ const els = {
   followPlayerBtn: document.querySelector("#followPlayerBtn"),
   roomContext: document.querySelector("#roomContext"),
   roomDescriptionField: document.querySelector("#roomDescriptionField"),
+  roomTagsField: document.querySelector("#roomTagsField"),
+  roomNotesField: document.querySelector("#roomNotesField"),
   roomTitleInput: document.querySelector("#roomTitleInput"),
   roomTagsInput: document.querySelector("#roomTagsInput"),
   roomDescriptionInput: document.querySelector("#roomDescriptionInput"),
@@ -82,6 +86,8 @@ const els = {
   menuPanel: document.querySelector("#appMenuPanel"),
   themeBtn: document.querySelector("#themeBtn"),
   toggleDescriptionBtn: document.querySelector("#toggleDescriptionBtn"),
+  toggleRoomTagsBtn: document.querySelector("#toggleRoomTagsBtn"),
+  toggleRoomNotesBtn: document.querySelector("#toggleRoomNotesBtn"),
   toggleMobsBtn: document.querySelector("#toggleMobsBtn"),
   toggleNotesBtn: document.querySelector("#toggleNotesBtn"),
   statVisibilityButtons: document.querySelectorAll("[data-stat-toggle]"),
@@ -121,6 +127,8 @@ let pendingGameMemoryPosition = null;
 let pendingPlayerTravelAnimation = null;
 let followPlayer = project.followPlayer !== false;
 let descriptionVisible = true;
+let roomTagsVisible = true;
+let roomNotesVisible = true;
 let mobsVisible = true;
 let notesVisible = true;
 let statVisibility = { ...DEFAULT_STAT_VISIBILITY };
@@ -174,6 +182,8 @@ const parserTerm = term;
 bindEvents();
 applySavedWorkspace();
 applySavedDescriptionVisibility();
+applySavedRoomTagsVisibility();
+applySavedRoomNotesVisibility();
 applySavedMobsVisibility();
 applySavedNotesVisibility();
 applySavedStatVisibility();
@@ -793,6 +803,14 @@ function bindEvents() {
   els.toggleDescriptionBtn?.addEventListener("click", () => {
     setDescriptionVisibility(!descriptionVisible);
     showToast(descriptionVisible ? "Opis lokacji wlaczony." : "Opis lokacji ukryty.", "success");
+  });
+  els.toggleRoomTagsBtn?.addEventListener("click", () => {
+    setRoomTagsVisibility(!roomTagsVisible);
+    showToast(roomTagsVisible ? "Tagi pola wlaczone." : "Tagi pola ukryte.", "success");
+  });
+  els.toggleRoomNotesBtn?.addEventListener("click", () => {
+    setRoomNotesVisibility(!roomNotesVisible);
+    showToast(roomNotesVisible ? "Notatki pola wlaczone." : "Notatki pola ukryte.", "success");
   });
   els.toggleMobsBtn?.addEventListener("click", () => {
     setMobsVisibility(!mobsVisible);
@@ -1755,6 +1773,51 @@ function setDescriptionVisibility(visible, options = {}) {
   if (options.persist !== false) {
     localStorage.setItem(DESCRIPTION_VISIBLE_KEY, descriptionVisible ? "true" : "false");
   }
+  updateLocationFieldsVisibilityState();
+}
+
+function applySavedRoomTagsVisibility() {
+  const saved = localStorage.getItem(ROOM_TAGS_VISIBLE_KEY);
+  setRoomTagsVisibility(saved !== "false", { persist: false });
+}
+
+function setRoomTagsVisibility(visible, options = {}) {
+  roomTagsVisible = Boolean(visible);
+  document.body.classList.toggle("room-tags-hidden", !roomTagsVisible);
+  if (els.roomTagsField) els.roomTagsField.hidden = !roomTagsVisible;
+  if (els.toggleRoomTagsBtn) {
+    els.toggleRoomTagsBtn.classList.toggle("is-on", roomTagsVisible);
+    els.toggleRoomTagsBtn.setAttribute("aria-pressed", roomTagsVisible ? "true" : "false");
+    els.toggleRoomTagsBtn.title = roomTagsVisible ? "Ukryj tagi pola w panelu UI" : "Pokaz tagi pola w panelu UI";
+  }
+  if (options.persist !== false) {
+    localStorage.setItem(ROOM_TAGS_VISIBLE_KEY, roomTagsVisible ? "true" : "false");
+  }
+  updateLocationFieldsVisibilityState();
+}
+
+function applySavedRoomNotesVisibility() {
+  const saved = localStorage.getItem(ROOM_NOTES_VISIBLE_KEY);
+  setRoomNotesVisibility(saved !== "false", { persist: false });
+}
+
+function setRoomNotesVisibility(visible, options = {}) {
+  roomNotesVisible = Boolean(visible);
+  document.body.classList.toggle("room-notes-hidden", !roomNotesVisible);
+  if (els.roomNotesField) els.roomNotesField.hidden = !roomNotesVisible;
+  if (els.toggleRoomNotesBtn) {
+    els.toggleRoomNotesBtn.classList.toggle("is-on", roomNotesVisible);
+    els.toggleRoomNotesBtn.setAttribute("aria-pressed", roomNotesVisible ? "true" : "false");
+    els.toggleRoomNotesBtn.title = roomNotesVisible ? "Ukryj notatki pola w panelu UI" : "Pokaz notatki pola w panelu UI";
+  }
+  if (options.persist !== false) {
+    localStorage.setItem(ROOM_NOTES_VISIBLE_KEY, roomNotesVisible ? "true" : "false");
+  }
+  updateLocationFieldsVisibilityState();
+}
+
+function updateLocationFieldsVisibilityState() {
+  document.body.classList.toggle("location-fields-hidden", !descriptionVisible && !roomTagsVisible && !roomNotesVisible);
 }
 
 function applySavedMobsVisibility() {

@@ -518,6 +518,12 @@ textarea:focus-visible,
   display: none;
 }
 
+.room-tags-hidden .room-tags-field,
+.room-notes-hidden .room-notes-field,
+.location-fields-hidden .location-panel {
+  display: none;
+}
+
 .notes-hidden .global-notes-panel {
   display: none;
 }
@@ -580,6 +586,10 @@ textarea:focus-visible,
 }
 
 body.notes-hidden .layout[data-workspace="game"] .location-panel {
+  grid-column: 2 / 4;
+}
+
+body.location-fields-hidden .layout[data-workspace="game"] .global-notes-panel {
   grid-column: 2 / 4;
 }
 
@@ -654,6 +664,10 @@ body.notes-hidden .layout[data-workspace="game"] .location-panel {
   }
 
   body.notes-hidden .layout[data-workspace="game"] .location-panel {
+    grid-column: 1 / 3;
+  }
+
+  body.location-fields-hidden .layout[data-workspace="game"] .global-notes-panel {
     grid-column: 1 / 3;
   }
 
