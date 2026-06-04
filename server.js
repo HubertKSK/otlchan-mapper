@@ -35,6 +35,10 @@ const OTCHLAN_RELEASE_POSITION_READER = path.join(__dirname, "bin", "OtchlanMemo
 const OTCHLAN_DEV_POSITION_READER = path.join(__dirname, "src", "OtchlanMemoryReader", "bin", "Release", "net8.0", "OtchlanMemoryReader.exe");
 const OTCHLAN_POSITION_POLL_MS = Number(process.env.OTCHLAN_POSITION_POLL_MS || 100);
 const OTCHLAN_MOB_POLL_MS = Number(process.env.OTCHLAN_MOB_POLL_MS || 1000);
+const OTCHLAN_GAME_IDLE_AFTER_MS = Number(process.env.OTCHLAN_GAME_IDLE_AFTER_MS || 60000);
+const OTCHLAN_GAME_IDLE_CHECK_MS = Number(process.env.OTCHLAN_GAME_IDLE_CHECK_MS || 5000);
+const OTCHLAN_IDLE_POSITION_POLL_MS = Number(process.env.OTCHLAN_IDLE_POSITION_POLL_MS || 0);
+const OTCHLAN_IDLE_MOB_POLL_MS = Number(process.env.OTCHLAN_IDLE_MOB_POLL_MS || 0);
 const GAME_POSITION_LOG_INTERVAL_MS = Number(process.env.OTCHLAN_POSITION_LOG_INTERVAL_MS || 5000);
 const DEFAULT_TERMINAL_COLS = Number(process.env.OTCHLAN_TERMINAL_COLS || 120);
 const TERMINAL_ROWS = Number(process.env.OTCHLAN_TERMINAL_ROWS || 48);
@@ -55,6 +59,8 @@ let worldCacheEffectNames = null;
 let worldCacheEffectNamesMtimeMs = 0;
 let worldBuildTask = null;
 let updateStatusCache = null;
+let gameReaderMode = "stopped";
+let lastGameInputAt = 0;
 let terminalSize = {
   cols: DEFAULT_TERMINAL_COLS,
   rows: TERMINAL_ROWS
@@ -316,6 +322,7 @@ server.listen(PORT, () => {
 });
 
 await startWatcher();
+setInterval(checkGameReaderIdleState, OTCHLAN_GAME_IDLE_CHECK_MS);
 
 async function startWatcher() {
   if (!existsSync(GAME_DIR)) {
@@ -810,6 +817,59 @@ function updateGameState(patch) {
   broadcast("game-status", gameState);
 }
 
+function markGameInputActivity(reason = "input") {
+  lastGameInputAt = Date.now();
+  if (gameProcess) setGameReaderMode("active", reason);
+}
+
+function setGameReaderMode(mode, reason = "mode-change") {
+  const nextMode = mode === "active" || mode === "idle" ? mode : "stopped";
+  if (gameReaderMode === nextMode) return;
+  const previousMode = gameReaderMode;
+  gameReaderMode = nextMode;
+  writeServerLog({
+    level: "info",
+    event: "game-reader-mode-changed",
+    from: previousMode,
+    to: nextMode,
+    reason,
+    pid: gameProcess?.pid || null,
+    idleAfterMs: OTCHLAN_GAME_IDLE_AFTER_MS,
+    pollMs: getGameReaderPollMs(nextMode),
+    mobPollMs: getGameReaderMobPollMs(nextMode)
+  }).catch((error) => console.error("[server:error] failed to write reader mode log", error));
+  restartGamePositionReaderForMode();
+}
+
+function restartGamePositionReaderForMode() {
+  stopGamePositionReader();
+  if (!gameProcess?.pid || gameReaderMode === "stopped") return;
+  if (gameReaderMode === "idle" && shouldPauseGameReaderInIdle()) return;
+  startGamePositionReader(gameProcess.pid, gameReaderMode);
+}
+
+function shouldPauseGameReaderInIdle() {
+  return getGameReaderPollMs("idle") <= 0 || getGameReaderMobPollMs("idle") <= 0;
+}
+
+function getGameReaderPollMs(mode = gameReaderMode) {
+  return mode === "idle" ? OTCHLAN_IDLE_POSITION_POLL_MS : OTCHLAN_POSITION_POLL_MS;
+}
+
+function getGameReaderMobPollMs(mode = gameReaderMode) {
+  return mode === "idle" ? OTCHLAN_IDLE_MOB_POLL_MS : OTCHLAN_MOB_POLL_MS;
+}
+
+function checkGameReaderIdleState() {
+  if (!gameProcess) {
+    if (gameReaderMode !== "stopped") setGameReaderMode("stopped", "game-not-running");
+    return;
+  }
+  if (gameReaderMode !== "active") return;
+  if (!lastGameInputAt) return;
+  if (Date.now() - lastGameInputAt >= OTCHLAN_GAME_IDLE_AFTER_MS) setGameReaderMode("idle", "idle-timeout");
+}
+
 function claimMapper(instanceId, reason = "claim") {
   const id = String(instanceId || "").trim();
   if (!id) return { ok: false, error: "missing-instance-id", state: mapperState };
@@ -874,7 +934,7 @@ function startGame(args = ["/bezokien", "/nointro"]) {
     exitCode: null,
     message: `Otchlan uruchomiona w aplikacji (PID ${gameProcess.pid}).`
   });
-  startGamePositionReader(gameProcess.pid);
+  markGameInputActivity("start-game");
   rememberGameOutput({ source: "system", text: `Start: otchlan.exe ${safeArgs.join(" ")}` });
 
   gameProcess.onData((chunk) => rememberGameOutput({ source: "stdout", text: decodeTerminalBytes(chunk) }));
@@ -882,7 +942,7 @@ function startGame(args = ["/bezokien", "/nointro"]) {
     rememberGameOutput({ source: "system", text: `Gra zakonczona. Kod: ${exitCode ?? "brak"}` });
     gameProcess = null;
     lastGamePosition = null;
-    stopGamePositionReader();
+    setGameReaderMode("stopped", "game-exit");
     updateGameState({ running: false, pid: null, exitCode, message: "Gra nie jest uruchomiona w aplikacji." });
   });
 
@@ -893,6 +953,7 @@ function sendGameCommand(command) {
   const value = String(command || "").trim();
   if (!value) return { ok: false, error: "empty-command" };
   if (!gameProcess) return { ok: false, error: "game-not-running" };
+  markGameInputActivity("game-command");
   gameProcess.write(`${value}\r`);
   rememberGameOutput({ source: "command", text: `> ${value}` });
   writeServerLog({
@@ -908,6 +969,7 @@ function sendGameInput(data, instanceId) {
   const value = String(data || "");
   if (!value) return { ok: false, error: "empty-input" };
   if (!gameProcess) return { ok: false, error: "game-not-running" };
+  markGameInputActivity("terminal-input");
   claimMapper(instanceId, "terminal-input");
   gameProcess.write(value);
   broadcast("game-input", { data: value, at: new Date().toISOString() });
@@ -950,11 +1012,12 @@ function clampTerminalDimension(value, min, max, fallback) {
 
 function stopGame() {
   if (!gameProcess) return { ok: true, status: gameState };
+  setGameReaderMode("stopped", "game-stop");
   gameProcess.kill();
   return { ok: true, status: gameState };
 }
 
-function startGamePositionReader(pid) {
+function startGamePositionReader(pid, mode = gameReaderMode) {
   stopGamePositionReader();
   if (!pid) return;
   const nativeReaderPath = getNativePositionReaderPath();
@@ -962,6 +1025,9 @@ function startGamePositionReader(pid) {
   const powershellReaderAvailable = existsSync(OTCHLAN_POSITION_READER);
   if (!nativeReaderAvailable && !powershellReaderAvailable) return;
   memoryReaderBuffer = "";
+  const pollMs = getGameReaderPollMs(mode);
+  const mobPollMs = getGameReaderMobPollMs(mode);
+  if (pollMs <= 0 || mobPollMs <= 0) return;
   const readerKind = nativeReaderAvailable ? "native-dotnet" : "powershell";
   const readerCommand = nativeReaderAvailable ? nativeReaderPath : "powershell.exe";
   const readerArgs = nativeReaderAvailable
@@ -969,9 +1035,9 @@ function startGamePositionReader(pid) {
         "-GamePid",
         String(pid),
         "-PollMs",
-        String(OTCHLAN_POSITION_POLL_MS),
+        String(pollMs),
         "-MobPollMs",
-        String(OTCHLAN_MOB_POLL_MS)
+        String(mobPollMs)
       ]
     : [
         "-NoProfile",
@@ -982,21 +1048,23 @@ function startGamePositionReader(pid) {
         "-GamePid",
         String(pid),
         "-PollMs",
-        String(OTCHLAN_POSITION_POLL_MS)
+        String(pollMs)
       ];
   memoryReaderProcess = spawnProcess(readerCommand, readerArgs, {
     cwd: __dirname,
     windowsHide: true,
     stdio: ["ignore", "pipe", "pipe"]
   });
+  const spawnedReaderProcess = memoryReaderProcess;
 
   writeServerLog({
     level: "info",
     event: "game-position-reader-started",
     pid,
+    mode,
     reader: readerKind,
-    pollMs: OTCHLAN_POSITION_POLL_MS,
-    mobPollMs: OTCHLAN_MOB_POLL_MS
+    pollMs,
+    mobPollMs
   }).catch((error) => console.error("[server:error] failed to write position reader log", error));
 
   memoryReaderProcess.stdout.setEncoding("utf8");
@@ -1019,7 +1087,7 @@ function startGamePositionReader(pid) {
     }).catch((error) => console.error("[server:error] failed to write position reader stderr log", error));
   });
 
-  memoryReaderProcess.on("exit", (code, signal) => {
+  spawnedReaderProcess.on("exit", (code, signal) => {
     writeServerLog({
       level: code ? "warn" : "info",
       event: "game-position-reader-exit",
@@ -1027,8 +1095,10 @@ function startGamePositionReader(pid) {
       code,
       signal
     }).catch((error) => console.error("[server:error] failed to write position reader exit log", error));
-    memoryReaderProcess = null;
-    memoryReaderBuffer = "";
+    if (memoryReaderProcess === spawnedReaderProcess) {
+      memoryReaderProcess = null;
+      memoryReaderBuffer = "";
+    }
   });
 }
 
