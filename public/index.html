@@ -27,6 +27,7 @@
     </header>
 
     <main id="appShell" class="layout" data-workspace="game">
+      <div class="layout-column terminal-column">
       <section class="terminal-panel" aria-label="Terminal Otchlani">
         <div class="panel-head">
           <div>
@@ -106,6 +107,28 @@
         </div>
       </section>
 
+      <section class="location-panel" aria-label="Informacje o lokacji">
+        <section class="current-card">
+          <div class="room-heading">
+            <input id="roomTitleInput" aria-label="Nazwa lokacji" value="Start" readonly>
+          </div>
+          <p id="roomContext" class="room-context" hidden></p>
+          <div class="text-fields">
+            <label id="roomDescriptionField" class="full-label readonly-field room-description-field">Opis
+              <textarea id="roomDescriptionInput" rows="5" placeholder="Opis lokacji z gry lub wlasne streszczenie..." readonly></textarea>
+            </label>
+            <label id="roomTagsField" class="full-label editable-field room-tags-field">Tagi
+              <input id="roomTagsInput" placeholder="sklep, quest, ukryte">
+            </label>
+            <label id="roomNotesField" class="full-label editable-field room-notes-field">Notatki
+              <textarea id="roomNotesInput" rows="4" placeholder="Mob, sklep, zagadka, droga powrotna..."></textarea>
+            </label>
+          </div>
+        </section>
+      </section>
+      </div>
+
+      <div class="layout-column map-column">
       <section class="map-panel" aria-label="Mapa">
         <div class="panel-head">
           <div>
@@ -167,6 +190,14 @@
                       <span>Notes</span>
                       <span class="toggle-switch" aria-hidden="true"></span>
                     </button>
+                    <div class="setting-control" aria-label="Wielkosc czcionki terminala">
+                      <span>Czcionka terminala</span>
+                      <div class="stepper-control" role="group" aria-label="Wielkosc czcionki terminala">
+                        <button id="terminalFontSizeDownBtn" class="icon-btn" type="button" title="Zmniejsz czcionke terminala" aria-label="Zmniejsz czcionke terminala">-</button>
+                        <strong id="terminalFontSizeValue">14</strong>
+                        <button id="terminalFontSizeUpBtn" class="icon-btn" type="button" title="Powieksz czcionke terminala" aria-label="Powieksz czcionke terminala">+</button>
+                      </div>
+                    </div>
                   </section>
                   <section class="settings-section" aria-label="Mapa">
                     <strong>Mapa</strong>
@@ -260,26 +291,6 @@
         </div>
       </section>
 
-      <section class="location-panel" aria-label="Informacje o lokacji">
-        <section class="current-card">
-          <div class="room-heading">
-            <input id="roomTitleInput" aria-label="Nazwa lokacji" value="Start" readonly>
-          </div>
-          <p id="roomContext" class="room-context" hidden></p>
-          <div class="text-fields">
-            <label id="roomDescriptionField" class="full-label readonly-field room-description-field">Opis
-              <textarea id="roomDescriptionInput" rows="5" placeholder="Opis lokacji z gry lub wlasne streszczenie..." readonly></textarea>
-            </label>
-            <label id="roomTagsField" class="full-label editable-field room-tags-field">Tagi
-              <input id="roomTagsInput" placeholder="sklep, quest, ukryte">
-            </label>
-            <label id="roomNotesField" class="full-label editable-field room-notes-field">Notatki
-              <textarea id="roomNotesInput" rows="4" placeholder="Mob, sklep, zagadka, droga powrotna..."></textarea>
-            </label>
-          </div>
-        </section>
-      </section>
-
       <section class="global-notes-panel" aria-label="Notes">
         <div class="notes-panel-head">
           <strong>Notes</strong>
@@ -291,6 +302,7 @@
         </div>
         <textarea id="globalNotesInput" rows="8" aria-label="Notatki wybranej strony" placeholder="Plan wyprawy, rzeczy do sprawdzenia, cele niezalezne od lokacji..."></textarea>
       </section>
+      </div>
     </main>
 
     <div id="resetConfirmModal" class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="resetConfirmTitle" hidden>
