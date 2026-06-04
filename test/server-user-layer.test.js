@@ -23,7 +23,23 @@ test("server exposes user-layer save and load endpoints", () => {
   assert.match(serverSource, /async function saveUserLayerPosition\(payload\) \{/);
 });
 
+test("server exposes GitHub release update status endpoint", () => {
+  assert.match(serverSource, /import \{ compareSemver, normalizeVersionTag \} from "\.\/app-update\.js";/);
+  assert.match(serverSource, /const GITHUB_REPO = "HubertKSK\/otchlan-mapper";/);
+  assert.match(serverSource, /const GITHUB_LATEST_RELEASE_URL = `https:\/\/api\.github\.com\/repos\/\$\{GITHUB_REPO\}\/releases\/latest`;/);
+  assert.match(serverSource, /const UPDATE_STATUS_CACHE_MS = 6 \* 60 \* 60 \* 1000;/);
+  assert.match(serverSource, /let updateStatusCache = null;/);
+  assert.match(serverSource, /url\.pathname === "\/api\/app\/update-status"/);
+  assert.match(serverSource, /async function getAppUpdateStatus\(options = \{\}\) \{/);
+  assert.match(serverSource, /fetchLatestGithubRelease\(options\.fetchImpl \|\| fetch\)/);
+  assert.match(serverSource, /compareSemver\(latestVersion, APP_VERSION\) > 0/);
+  assert.match(serverSource, /releaseUrl: release\.html_url \|\| `https:\/\/github\.com\/\$\{GITHUB_REPO\}\/releases\/latest`/);
+  assert.match(serverSource, /error: String\(error\?\.message \|\| error\)/);
+});
+
 test("server exposes world extraction and atlas build endpoints", () => {
+  assert.match(serverSource, /const PACKAGE_JSON = JSON\.parse\(readFileSync\(path\.join\(__dirname, "package\.json"\), "utf8"\)\);/);
+  assert.match(serverSource, /const APP_VERSION = String\(PACKAGE_JSON\.version \|\| "0\.0\.0"\);/);
   assert.match(serverSource, /const WORLD_CACHE_FILE = path\.join\(__dirname, "world-cache\.json"\);/);
   assert.match(serverSource, /const WORLD_ATLAS_FILE = path\.join\(__dirname, "world-atlas\.json"\);/);
   assert.match(serverSource, /url\.pathname === "\/api\/world\/status"/);
@@ -33,6 +49,9 @@ test("server exposes world extraction and atlas build endpoints", () => {
   assert.match(serverSource, /async function runWorldBuildStep\(step\)/);
   assert.match(serverSource, /spawnProcess\(process\.execPath, \[script\]/);
   assert.match(serverSource, /world-build-step-finished/);
+  assert.match(serverSource, /validateWorldFileVersion\(payload, label\);/);
+  assert.match(serverSource, /error: "world-file-version-mismatch"/);
+  assert.match(serverSource, /ready: cache\.ready && atlas\.ready/);
 });
 
 test("server prefers packaged memory reader before development build output", () => {
@@ -64,6 +83,10 @@ test("server writes root error log and returns json server errors", () => {
   assert.match(serverSource, /await rotateLogFileIfNeeded\(file\);/);
   assert.match(serverSource, /appendFile\(file, `\$\{JSON\.stringify\(\{[\s\S]*\.\.\.record[\s\S]*\}\)\}\\n`, "utf8"\)/);
   assert.match(serverSource, /renameWithWindowsRetry\(file, first\)/);
+});
+
+test("server disables browser cache for local static files", () => {
+  assert.match(serverSource, /"Cache-Control": "no-store"/);
 });
 
 test("server validates and atomically writes user-layer payloads", () => {

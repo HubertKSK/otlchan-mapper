@@ -41,6 +41,8 @@ Ustawienia pozwalają ukrywać elementy interfejsu i zarządzać atlasem oraz ba
 - Uruchamianie i zatrzymywanie Otchlani z poziomu interfejsu.
 - Terminal gry w przeglądarce oparty o xterm.js.
 - Stały rozmiar terminala `120 x 48`.
+- Kompaktowy widok UI może przewijać terminal w pionie bez zmiany rozmiaru terminala gry.
+- Nie zmniejszamy dynamicznie PTY, bo Otchłań używa ANSI redraw i absolutnych pozycji kursora.
 - Przekazywanie inputu użytkownika do gry bez interpretowania komend jako źródła prawdy dla mappera.
 - Claim aktywności mappera po powrocie do karty, focusie okna i kliknięciu terminala.
 - Opcjonalne nagrywanie outputu terminala w trybie debug.

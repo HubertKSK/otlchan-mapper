@@ -6,9 +6,15 @@ import { appendFile, mkdir, readdir, readFile, rename, rm, stat, writeFile } fro
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { StringDecoder } from "node:string_decoder";
+import { compareSemver, normalizeVersionTag } from "./app-update.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, "public");
+const PACKAGE_JSON = JSON.parse(readFileSync(path.join(__dirname, "package.json"), "utf8"));
+const APP_VERSION = String(PACKAGE_JSON.version || "0.0.0");
+const GITHUB_REPO = "HubertKSK/otchlan-mapper";
+const GITHUB_LATEST_RELEASE_URL = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`;
+const UPDATE_STATUS_CACHE_MS = 6 * 60 * 60 * 1000;
 const DEFAULT_GAME_DIR = "C:\\Program Files (x86)\\Otchlan 1.3";
 const GAME_DIR = process.env.OTCHLAN_DIR || DEFAULT_GAME_DIR;
 const PORT = Number(process.env.PORT || 5173);
@@ -48,6 +54,7 @@ let lastGamePositionLogAt = 0;
 let worldCacheEffectNames = null;
 let worldCacheEffectNamesMtimeMs = 0;
 let worldBuildTask = null;
+let updateStatusCache = null;
 let terminalSize = {
   cols: DEFAULT_TERMINAL_COLS,
   rows: TERMINAL_ROWS
@@ -134,6 +141,11 @@ async function handleRequest(req, res) {
 
   if (url.pathname === "/api/status") {
     sendJson(res, status);
+    return;
+  }
+
+  if (url.pathname === "/api/app/update-status") {
+    sendJson(res, await getAppUpdateStatus());
     return;
   }
 
@@ -280,7 +292,10 @@ async function handleRequest(req, res) {
   try {
     const body = await readFile(filePath);
     const ext = path.extname(filePath).toLowerCase();
-    res.writeHead(200, { "Content-Type": mimeTypes[ext] || "application/octet-stream" });
+    res.writeHead(200, {
+      "Content-Type": mimeTypes[ext] || "application/octet-stream",
+      "Cache-Control": "no-store"
+    });
     res.end(body);
   } catch {
     res.writeHead(404);
@@ -317,6 +332,54 @@ async function startWatcher() {
   setInterval(pollTrackedFiles, 800);
 }
 
+async function getAppUpdateStatus(options = {}) {
+  const now = Date.now();
+  if (!options.force && updateStatusCache && now - updateStatusCache.cachedAtMs < UPDATE_STATUS_CACHE_MS) {
+    return updateStatusCache.payload;
+  }
+
+  const checkedAt = new Date().toISOString();
+  try {
+    const release = await fetchLatestGithubRelease(options.fetchImpl || fetch);
+    const latestVersion = normalizeVersionTag(release.tag_name || release.name || "");
+    const payload = {
+      ok: true,
+      currentVersion: APP_VERSION,
+      latestVersion,
+      updateAvailable: compareSemver(latestVersion, APP_VERSION) > 0,
+      releaseUrl: release.html_url || `https://github.com/${GITHUB_REPO}/releases/latest`,
+      checkedAt
+    };
+    updateStatusCache = { cachedAtMs: now, payload };
+    return payload;
+  } catch (error) {
+    const payload = {
+      ok: false,
+      currentVersion: APP_VERSION,
+      latestVersion: "",
+      updateAvailable: false,
+      releaseUrl: `https://github.com/${GITHUB_REPO}/releases/latest`,
+      checkedAt,
+      error: String(error?.message || error)
+    };
+    updateStatusCache = { cachedAtMs: now, payload };
+    return payload;
+  }
+}
+
+async function fetchLatestGithubRelease(fetchImpl = fetch) {
+  const response = await fetchImpl(GITHUB_LATEST_RELEASE_URL, {
+    headers: {
+      Accept: "application/vnd.github+json",
+      "User-Agent": `otchlan-mapper/${APP_VERSION}`
+    }
+  });
+  if (!response.ok) {
+    throw new Error(`GitHub release check failed: HTTP ${response.status}`);
+  }
+  return response.json();
+}
+
 function normalizeStaticPath(urlPath) {
   const decoded = decodeURIComponent(urlPath);
   if (decoded === "/") return "index.html";
@@ -330,30 +393,37 @@ function sendJson(res, payload, statusCode = 200) {
 
 async function sendWorldCache(res) {
   try {
-    const body = await readFile(WORLD_CACHE_FILE, "utf8");
+    const body = await readValidatedWorldFile(WORLD_CACHE_FILE, "world-cache.json");
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
     res.end(body);
-  } catch {
-    res.writeHead(404, { "Content-Type": "application/json; charset=utf-8" });
-    res.end(JSON.stringify({
-      ok: false,
-      message: "world-cache.json nie istnieje. Uruchom npm.cmd run world:extract."
-    }));
+  } catch (error) {
+    sendJson(res, makeWorldFileError("world-cache.json", "world:extract", error), worldFileErrorStatus(error));
   }
 }
 
 async function sendWorldAtlas(res) {
   try {
-    const body = await readFile(WORLD_ATLAS_FILE, "utf8");
+    const body = await readValidatedWorldFile(WORLD_ATLAS_FILE, "world-atlas.json");
     res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
     res.end(body);
-  } catch {
-    res.writeHead(404, { "Content-Type": "application/json; charset=utf-8" });
-    res.end(JSON.stringify({
-      ok: false,
-      message: "world-atlas.json nie istnieje. Uruchom npm.cmd run world:atlas."
-    }));
+  } catch (error) {
+    sendJson(res, makeWorldFileError("world-atlas.json", "world:atlas", error), worldFileErrorStatus(error));
   }
+}
+
+async function readValidatedWorldFile(file, label) {
+  const body = await readFile(file, "utf8");
+  const payload = JSON.parse(body);
+  validateWorldFileVersion(payload, label);
+  return body;
+}
+
+function validateWorldFileVersion(payload, label) {
+  if (String(payload?.appVersion || "") === APP_VERSION) return;
+  const error = new Error(`${label} ma niezgodna wersje aplikacji.`);
+  error.code = "world-file-version-mismatch";
+  error.fileVersion = String(payload?.appVersion || "");
+  throw error;
 }
 
 async function getWorldBuildStatus(extra = {}) {
@@ -363,10 +433,11 @@ async function getWorldBuildStatus(extra = {}) {
   ]);
   return {
     ok: true,
+    appVersion: APP_VERSION,
     gameDir: GAME_DIR,
     cache,
     atlas,
-    ready: cache.exists && atlas.exists,
+    ready: cache.ready && atlas.ready,
     busy: Boolean(worldBuildTask),
     runningStep: worldBuildTask?.step || null,
     ...extra
@@ -376,20 +447,57 @@ async function getWorldBuildStatus(extra = {}) {
 async function getLocalFileStatus(file) {
   try {
     const info = await stat(file);
+    const body = await readFile(file, "utf8");
+    const payload = JSON.parse(body);
+    const fileVersion = String(payload?.appVersion || "");
+    const ready = fileVersion === APP_VERSION;
     return {
       exists: true,
+      ready,
+      stale: !ready,
       file: path.relative(__dirname, file),
       bytes: info.size,
-      updatedAt: info.mtime.toISOString()
+      updatedAt: info.mtime.toISOString(),
+      appVersion: fileVersion || null,
+      expectedAppVersion: APP_VERSION
     };
-  } catch {
+  } catch (error) {
     return {
-      exists: false,
+      exists: existsSync(file),
+      ready: false,
+      stale: existsSync(file),
       file: path.relative(__dirname, file),
       bytes: 0,
-      updatedAt: null
+      updatedAt: null,
+      appVersion: null,
+      expectedAppVersion: APP_VERSION,
+      error: existsSync(file) ? String(error?.code || error?.message || error) : null
     };
   }
+}
+
+function makeWorldFileError(file, command, error) {
+  if (error?.code === "world-file-version-mismatch") {
+    return {
+      ok: false,
+      error: "world-file-version-mismatch",
+      file,
+      appVersion: error.fileVersion || null,
+      expectedAppVersion: APP_VERSION,
+      message: `${file} jest z wersji aplikacji ${error.fileVersion || "brak"}; wymagana wersja to ${APP_VERSION}. Uruchom npm.cmd run ${command}.`
+    };
+  }
+  return {
+    ok: false,
+    error: "world-file-missing",
+    file,
+    expectedAppVersion: APP_VERSION,
+    message: `${file} nie istnieje albo jest uszkodzony. Uruchom npm.cmd run ${command}.`
+  };
+}
+
+function worldFileErrorStatus(error) {
+  return error?.code === "world-file-version-mismatch" ? 409 : 404;
 }
 
 async function runWorldBuildStep(step) {

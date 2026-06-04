@@ -7,9 +7,9 @@ const ciWorkflowSource = await readFile(new URL("../.github/workflows/ci.yml", i
 const packageSource = await readFile(new URL("../package.json", import.meta.url), "utf8");
 const readmeSource = await readFile(new URL("../README.md", import.meta.url), "utf8");
 
-test("package is prepared for 1.0 GitHub release", () => {
+test("package is prepared for 1.1 GitHub release", () => {
   const pkg = JSON.parse(packageSource);
-  assert.equal(pkg.version, "1.0.0");
+  assert.equal(pkg.version, "1.1.0");
   assert.equal(pkg.scripts["release:build"], undefined);
   assert.equal(pkg.scripts.stop, "powershell.exe -NoProfile -ExecutionPolicy Bypass -File scripts/stop-server.ps1");
 });
@@ -41,7 +41,7 @@ test("GitHub Actions CI runs the full local verification suite", () => {
 
 test("README documents user-facing release package", () => {
   assert.match(readmeSource, /## Najprostsze Uruchomienie/);
-  assert.match(readmeSource, /otchlan-mapper-1\.0\.0\.zip/);
+  assert.match(readmeSource, /otchlan-mapper-1\.1\.0\.zip/);
   assert.match(readmeSource, /Uruchom `run\.cmd`/);
   assert.match(readmeSource, /Ekstrahuj dane gry/);
   assert.doesNotMatch(readmeSource, /git tag v1\.0\.0/);

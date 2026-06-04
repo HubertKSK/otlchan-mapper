@@ -7,8 +7,19 @@ const htmlSource = await readFile(new URL("../public/index.html", import.meta.ur
 const cssSource = await readFile(new URL("../public/styles.css", import.meta.url), "utf8");
 
 test("terminal keeps only a small technical scrollback", () => {
-  assert.match(appSource, /const TERMINAL_SCROLLBACK_LINES = 200;/);
+  assert.match(appSource, /const TERMINAL_SCROLLBACK_LINES = 120;/);
   assert.match(appSource, /scrollback: TERMINAL_SCROLLBACK_LINES/);
+});
+
+test("terminal viewport is compact without resizing the game pty", () => {
+  assert.match(appSource, /const TERMINAL_COLS = 120;/);
+  assert.match(appSource, /const TERMINAL_ROWS = 48;/);
+  assert.match(appSource, /rows: TERMINAL_ROWS/);
+  assert.match(appSource, /function fitTerminalToPanel\(\) \{[\s\S]*term\.resize\(TERMINAL_COLS, TERMINAL_ROWS\);[\s\S]*fitAtlasTerminalPreview\(\);/);
+  assert.doesNotMatch(appSource, /fixed terminal resize failed/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.terminal-panel \{[\s\S]*align-self: start;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.terminal-stage \{[\s\S]*max-height: clamp\([\s\S]*overflow: auto;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.terminal-panel \.xterm-viewport \{[\s\S]*scrollbar-width: thin;/);
 });
 
 test("process memory position is the only mapper position sync", () => {
@@ -34,7 +45,7 @@ test("refresh waits for process memory before showing player position", () => {
 });
 
 test("terminal output no longer drives mapper position", () => {
-  assert.match(appSource, /term\.write\(text\);/);
+  assert.match(appSource, /term\.write\(text, \(\) => \{/);
   assert.doesNotMatch(appSource, /processTerminalText/);
   assert.doesNotMatch(appSource, /processTerminalSnapshot/);
   assert.doesNotMatch(appSource, /readRoomObservationsFromTerminal/);
@@ -100,10 +111,16 @@ test("terminal footer renders process-memory character vitals", () => {
 test("debug map renders only rooms near current viewport", () => {
   assert.match(appSource, /function getMapGridRenderWindow\(cell, paddingCells = 2\) \{/);
   assert.match(appSource, /function isMapItemInRenderWindow\(item, window\) \{/);
-  assert.match(appSource, /allMapItems\.filter\(\(item\) => isMapItemInRenderWindow\(item, debugRenderWindow\)\)/);
+  assert.match(appSource, /const viewportRenderWindow = getMapGridRenderWindow\(cell, 3\);/);
+  assert.match(appSource, /const normalRenderWindow = mapDebugAll \? null : viewportRenderWindow;/);
+  assert.match(appSource, /\.filter\(\(item\) => !normalRenderWindow \|\| shouldRenderNormalMapRoom\(item, normalRenderWindow\)\)/);
+  assert.match(appSource, /allMapItems\.filter\(\(item\) => isMapItemInRenderWindow\(item, activeRenderWindow\) \|\| shouldAlwaysRenderMapRoom\(item\.room\)\)/);
+  assert.match(appSource, /function shouldRenderNormalMapRoom\(room, window\) \{/);
+  assert.match(appSource, /function shouldAlwaysRenderMapRoom\(room\) \{/);
   assert.match(appSource, /getDebugWorldBaseRooms\(z, canCullDebugSourceRooms \? debugRenderWindow : null\)/);
-  assert.match(appSource, /function scheduleDebugMapViewportRender\(\) \{/);
-  assert.match(appSource, /scheduleDebugMapViewportRender\(\);/);
+  assert.match(appSource, /function scheduleMapViewportRender\(\) \{/);
+  assert.match(appSource, /renderMap\(mapDebugAll \? "ui-debug-viewport" : "ui-map-viewport"\);/);
+  assert.match(appSource, /scheduleMapViewportRender\(\);/);
   assert.match(appSource, /for \(const worldKey of worldRenderIds\.keys\(\)\)/);
 });
 

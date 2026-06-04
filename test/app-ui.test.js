@@ -35,7 +35,7 @@ test("documentation demo mode provides stable UI state without live server loops
   assert.doesNotMatch(appSource, /getRoomByWorldKey/);
   assert.match(appSource, /if \(DOCUMENTATION_DEMO_MODE && mob\.visibleCardinal4\) return true;/);
   assert.match(appSource, /if \(DOCUMENTATION_DEMO_MODE\) return;[\s\S]*sendQueuedGameInput\(data\);/);
-  assert.match(appSource, /if \(!DOCUMENTATION_DEMO_MODE\) \{[\s\S]*\/api\/game\/resize/);
+  assert.doesNotMatch(appSource, /fixed terminal resize failed/);
 });
 
 test("game control lives in the terminal header as one dynamic button", () => {
@@ -136,17 +136,50 @@ test("server request failures show a bottom-right error toast", () => {
 });
 
 test("location description visibility can be toggled from the app menu", () => {
+  assert.match(htmlSource, /class="layout-column terminal-column"[\s\S]*class="terminal-panel"[\s\S]*class="location-panel"/);
+  assert.match(htmlSource, /class="layout-column map-column"[\s\S]*class="map-panel"[\s\S]*class="global-notes-panel"/);
   assert.match(htmlSource, /id="toggleDescriptionBtn"/);
+  assert.match(htmlSource, /id="toggleRoomTagsBtn"[\s\S]*Tagi pola/);
+  assert.match(htmlSource, /id="toggleRoomNotesBtn"[\s\S]*Notatki pola/);
   assert.match(htmlSource, /class="setting-toggle"/);
   assert.match(htmlSource, /Opis lokacji/);
   assert.match(htmlSource, /class="toggle-switch"/);
   assert.match(htmlSource, /id="roomDescriptionField"[^>]*room-description-field/);
+  assert.match(htmlSource, /id="roomTagsField"[^>]*room-tags-field/);
+  assert.match(htmlSource, /id="roomNotesField"[^>]*room-notes-field/);
   assert.match(appSource, /const DESCRIPTION_VISIBLE_KEY = "otchlan-automapper-description-visible";/);
+  assert.match(appSource, /const ROOM_TAGS_VISIBLE_KEY = "otchlan-automapper-room-tags-visible";/);
+  assert.match(appSource, /const ROOM_NOTES_VISIBLE_KEY = "otchlan-automapper-room-notes-visible";/);
   assert.match(appSource, /function applySavedDescriptionVisibility\(\)/);
   assert.match(appSource, /function setDescriptionVisibility\(visible, options = \{\}\)/);
+  assert.match(appSource, /function applySavedRoomTagsVisibility\(\)/);
+  assert.match(appSource, /function setRoomTagsVisibility\(visible, options = \{\}\)/);
+  assert.match(appSource, /function applySavedRoomNotesVisibility\(\)/);
+  assert.match(appSource, /function setRoomNotesVisibility\(visible, options = \{\}\)/);
+  assert.match(appSource, /function updateLocationFieldsVisibilityState\(\) \{/);
   assert.match(appSource, /setDescriptionVisibility\(!descriptionVisible\)/);
+  assert.match(appSource, /setRoomTagsVisibility\(!roomTagsVisible\)/);
+  assert.match(appSource, /setRoomNotesVisibility\(!roomNotesVisible\)/);
   assert.match(appSource, /classList\.toggle\("is-on", descriptionVisible\)/);
+  assert.match(appSource, /classList\.toggle\("is-on", roomTagsVisible\)/);
+  assert.match(appSource, /classList\.toggle\("is-on", roomNotesVisible\)/);
+  assert.match(appSource, /classList\.toggle\("location-fields-hidden", !descriptionVisible && !roomTagsVisible && !roomNotesVisible\)/);
   assert.match(cssSource, /\.description-hidden \.room-description-field/);
+  assert.match(cssSource, /\.room-tags-hidden \.room-tags-field/);
+  assert.match(cssSource, /\.room-notes-hidden \.room-notes-field/);
+  assert.match(cssSource, /\.location-fields-hidden \.location-panel/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.terminal-column\s*\{[\s\S]*grid-column: 1;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.map-column\s*\{[\s\S]*grid-column: 2;/);
+  assert.match(cssSource, /--app-max-width: 2560px;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\]\s*\{[\s\S]*align-items: stretch;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.layout-column\s*\{[\s\S]*height: 100%;[\s\S]*align-content: stretch;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.terminal-column\s*\{[\s\S]*grid-template-rows: auto minmax\(0, 1fr\);/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.map-column\s*\{[\s\S]*grid-template-rows: minmax\(320px, 1fr\) minmax\(180px, 0\.34fr\);/);
+  assert.match(cssSource, /@media \(min-width: 1680px\) \{[\s\S]*\.layout\[data-workspace="game"\]\s*\{[\s\S]*grid-template-rows: minmax\(0, 1fr\);/);
+  assert.match(cssSource, /@media \(min-width: 1680px\) \{[\s\S]*\.topbar,\s*[\s\S]*\.layout\s*\{[\s\S]*width: min\(100%, var\(--app-max-width\)\);[\s\S]*margin-inline: auto;/);
+  assert.match(cssSource, /\.layout\[data-workspace="atlas"\] \.layout-column\s*\{[\s\S]*display: contents;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.map-column > \.map-panel,\s*[\s\S]*\.layout\[data-workspace="game"\] \.map-column > \.global-notes-panel\s*\{[\s\S]*grid-column: 1;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.location-panel\s*\{[\s\S]*align-self: start;/);
   assert.match(cssSource, /\.toggle-switch::after/);
 });
 
@@ -159,13 +192,41 @@ test("global notes panel visibility can be toggled from settings", () => {
   assert.match(appSource, /document\.body\.classList\.toggle\("notes-hidden", !notesVisible\)/);
   assert.match(appSource, /setNotesVisibility\(!notesVisible\)/);
   assert.match(cssSource, /\.notes-hidden \.global-notes-panel\s*\{[\s\S]*display: none;/);
-  assert.match(cssSource, /body\.notes-hidden \.layout\[data-workspace="game"\] \.location-panel\s*\{[\s\S]*grid-column: 2 \/ 4;/);
+  assert.match(cssSource, /\.notes-hidden \.global-notes-panel\s*\{[\s\S]*display: none;/);
+});
+
+test("terminal font size can be changed from settings", () => {
+  assert.match(htmlSource, /id="terminalFontSizeDownBtn"[\s\S]*-/);
+  assert.match(htmlSource, /id="terminalFontSizeValue"[\s\S]*14/);
+  assert.match(htmlSource, /id="terminalFontSizeUpBtn"[\s\S]*\+/);
+  assert.match(appSource, /const TERMINAL_FONT_SIZE_KEY = "otchlan-automapper-terminal-font-size";/);
+  assert.match(appSource, /const TERMINAL_DEFAULT_FONT_SIZE = 14;/);
+  assert.match(appSource, /const TERMINAL_MIN_FONT_SIZE = 10;/);
+  assert.match(appSource, /const TERMINAL_MAX_FONT_SIZE = 18;/);
+  assert.match(appSource, /terminalFontSizeDownBtn: document\.querySelector\("#terminalFontSizeDownBtn"\)/);
+  assert.match(appSource, /terminalFontSizeUpBtn: document\.querySelector\("#terminalFontSizeUpBtn"\)/);
+  assert.match(appSource, /terminalFontSizeValue: document\.querySelector\("#terminalFontSizeValue"\)/);
+  assert.match(appSource, /function applySavedTerminalFontSize\(\) \{/);
+  assert.match(appSource, /function setTerminalFontSize\(fontSize, options = \{\}\) \{/);
+  assert.match(appSource, /term\.options\.fontSize = nextFontSize;/);
+  assert.match(appSource, /terminalFontSizeValue\.textContent = String\(nextFontSize\)/);
+  assert.match(appSource, /terminalFontSizeDownBtn\.disabled = nextFontSize <= TERMINAL_MIN_FONT_SIZE/);
+  assert.match(appSource, /terminalFontSizeUpBtn\.disabled = nextFontSize >= TERMINAL_MAX_FONT_SIZE/);
+  assert.match(appSource, /localStorage\.setItem\(TERMINAL_FONT_SIZE_KEY, String\(nextFontSize\)\)/);
+  assert.match(appSource, /function refreshTerminalLayoutAfterFontSizeChange\(\) \{/);
+  assert.match(appSource, /term\.refresh\(0, Math\.max\(0, term\.rows - 1\)\)/);
+  assert.match(appSource, /window\.requestAnimationFrame\(\(\) => \{[\s\S]*fitTerminalToPanel\(\);[\s\S]*scrollTerminalToBottom\(\);/);
+  assert.match(cssSource, /\.stepper-control/);
+  assert.match(cssSource, /\.stepper-control strong/);
 });
 
 test("app menu is structured as settings with map mob visibility toggle", () => {
   assert.match(htmlSource, /class="settings-panel"/);
   assert.match(htmlSource, /class="settings-head"[\s\S]*Ustawienia/);
   assert.match(htmlSource, /class="settings-section" aria-label="Interfejs"/);
+  assert.match(htmlSource, /class="settings-section" aria-label="Aktualizacja"/);
+  assert.match(htmlSource, /id="updateStatusText"[\s\S]*Sprawdzam aktualizacje/);
+  assert.match(htmlSource, /id="updateReleaseLink"[\s\S]*Pobierz z GitHub/);
   assert.match(htmlSource, /class="settings-section" aria-label="Mapa"/);
   assert.match(htmlSource, /id="toggleMobsBtn"[\s\S]*Moby na mapie/);
   assert.match(htmlSource, /class="settings-section" aria-label="Postac"/);
@@ -180,6 +241,22 @@ test("app menu is structured as settings with map mob visibility toggle", () => 
   assert.match(appSource, /return mobsVisible && canObserveGameMobs\(\);/);
   assert.match(cssSource, /\.settings-panel/);
   assert.match(cssSource, /\.settings-section/);
+  assert.match(cssSource, /\.update-status/);
+});
+
+test("app checks GitHub release update status without blocking startup", () => {
+  assert.match(appSource, /const UPDATE_TOAST_VERSION_KEY = "otchlan-automapper-update-toast-version";/);
+  assert.match(appSource, /checkAppUpdateStatus\(\);/);
+  assert.match(appSource, /async function checkAppUpdateStatus\(\) \{/);
+  assert.match(appSource, /await fetchJson\("\/api\/app\/update-status"\)/);
+  assert.match(appSource, /function updateAppUpdateStatus\(status = \{\}\) \{/);
+  assert.match(appSource, /els\.updateStatusText\.textContent = `Dostepna wersja \$\{formatReleaseVersion\(latestVersion\)\}\.`/);
+  assert.match(appSource, /els\.updateStatusText\.textContent = "Nie udalo sie sprawdzic aktualizacji\."/);
+  assert.match(appSource, /els\.updateReleaseLink\.hidden = !status\.updateAvailable;/);
+  assert.match(appSource, /function maybeShowUpdateToast\(status = \{\}\) \{/);
+  assert.match(appSource, /localStorage\.getItem\(UPDATE_TOAST_VERSION_KEY\) === toastKey/);
+  assert.match(appSource, /localStorage\.setItem\(UPDATE_TOAST_VERSION_KEY, toastKey\)/);
+  assert.match(appSource, /showToast\(`Dostepna nowa wersja: \$\{toastKey\}\.`, "success"\)/);
 });
 
 test("world atlas setup can be managed from settings and onboarding", () => {
@@ -194,6 +271,10 @@ test("world atlas setup can be managed from settings and onboarding", () => {
   assert.match(appSource, /async function initWorldSetup\(\) \{/);
   assert.match(appSource, /await fetchJson\("\/api\/world\/status"\)/);
   assert.match(appSource, /function updateWorldSetupStatus\(status = \{\}\) \{/);
+  assert.match(appSource, /const cacheReady = Boolean\(status\.cache\?\.ready\);/);
+  assert.match(appSource, /function getWorldFileStatusText\(fileStatus = \{\}\) \{/);
+  assert.match(appSource, /if \(fileStatus\.stale\) return "nieaktualny";/);
+  assert.match(appSource, /function getWorldFileStatusState\(fileStatus = \{\}\) \{/);
   assert.match(appSource, /els\.worldSetupWelcome\.hidden = cacheReady && atlasReady;/);
   assert.match(appSource, /runWorldSetupStep\("extract"\)/);
   assert.match(appSource, /runWorldSetupStep\("atlas"\)/);
@@ -248,6 +329,12 @@ test("player movement animation moves the player marker instead of a room rectan
   assert.match(htmlSource, /id="mapSvg"[\s\S]*id="mapPlayerLayer"[\s\S]*id="mapLevelTransitionOverlay"/);
   assert.match(appSource, /mapPlayerLayer: document\.querySelector\("#mapPlayerLayer"\)/);
   assert.match(appSource, /function createPlayerLocationMarker\(point, cell, extraClass = ""\)/);
+  assert.match(appSource, /function getPlayerMarkerCenter\(point, cell\) \{/);
+  assert.match(appSource, /class: "player-location-marker-frame"/);
+  assert.match(appSource, /const inset = 6;/);
+  assert.match(appSource, /y: point\.y \+ cell \/ 2/);
+  assert.match(appSource, /const \{ x: targetX, y: targetY \} = getPlayerMarkerCenter\(point, cell\);/);
+  assert.doesNotMatch(appSource, /point\.y \+ cell - 13/);
   assert.match(appSource, /function renderPlayerMarkerLayer\(coords, cell, z\) \{/);
   assert.match(appSource, /function animateSvgMarkerTravel\(marker, fromX, fromY, toX, toY, duration, options = \{\}\)/);
   assert.match(appSource, /marker\.setAttribute\("transform", `translate\(\$\{x\}, \$\{y\}\)`\)/);
@@ -263,6 +350,9 @@ test("player movement animation moves the player marker instead of a room rectan
   assert.match(appSource, /els\.mapPlayerLayer\.classList\.add\("player-marker-animating"\)/);
   assert.match(appSource, /els\.mapPlayerLayer\?\.setAttribute\("viewBox"/);
   assert.match(cssSource, /\.map-player-layer/);
+  assert.match(cssSource, /\.player-location-marker-frame\s*\{[\s\S]*stroke-dasharray: 5 4;/);
+  assert.match(cssSource, /\.player-location-marker-frame\s*\{[\s\S]*stroke-width: 1\.6;/);
+  assert.doesNotMatch(cssSource, /\.player-location-marker-ring/);
   assert.doesNotMatch(cssSource, /\.player-marker-animating \.room-node\.current \.player-location-marker/);
   assert.doesNotMatch(appSource, /class: "player-travel-marker player-travel-marker-moving"/);
   assert.doesNotMatch(cssSource, /player-travel-marker-pulse/);
@@ -277,6 +367,34 @@ test("map view follows player movement with animated viewBox panning", () => {
   assert.match(appSource, /setSvgViewBox\(\{[\s\S]*x: from\.x \+ \(to\.x - from\.x\) \* eased/);
 });
 
+test("position-only movement updates the map without rebuilding the SVG", () => {
+  assert.match(appSource, /let lastRenderedMapCoords = new Map\(\);/);
+  assert.match(appSource, /"data-room-id": item\.id/);
+  assert.match(appSource, /function renderPositionOnlyMapUpdate\(previousPlayerRoomId, previousSelectedRoomId, reason = "position-only"\) \{/);
+  assert.match(appSource, /if \(mapDebugAll\) return false;/);
+  assert.match(appSource, /if \(!lastRenderedMapCoords\.has\(playerRoomId\)\) return false;/);
+  assert.match(appSource, /updateRoomNodeState\(previousPlayerRoomId\);/);
+  assert.match(appSource, /renderPlayerMarkerLayer\(lastRenderedMapCoords, lastRenderedMapCell, z\);/);
+  assert.match(appSource, /renderPositionOnlyMapUpdate\(previousPlayerRoomId, previousSelectedRoomId, "memory-position"\)/);
+});
+
+test("UI performance profiler is opt-in through the perf query flag", () => {
+  assert.match(appSource, /const UI_PERF_MODE = new URLSearchParams\(window\.location\.search\)\.get\("perf"\) === "1";/);
+  assert.match(appSource, /function initUiPerfProbe\(\) \{/);
+  assert.match(appSource, /if \(!UI_PERF_MODE\) return;/);
+  assert.match(appSource, /window\.__otchlanPerf = probe;/);
+  assert.match(appSource, /renderMapReasons: \{\}/);
+  assert.match(appSource, /positionOnlyReasons: \{\}/);
+  assert.match(appSource, /mobOnlyReasons: \{\}/);
+  assert.match(appSource, /renderMapByReason: summarizePerfRecordsByReason\(probe\.renderMapRecords\)/);
+  assert.match(appSource, /node\.id = "uiPerfReport";/);
+  assert.match(appSource, /node\.textContent = JSON\.stringify\(probe\.report\(\)\);/);
+  assert.match(appSource, /function recordUiRenderMapDuration\(startedAt, reason = "unknown"\) \{/);
+  assert.match(appSource, /function recordUiPositionOnlyUpdate\(reason = "unknown"\) \{/);
+  assert.match(appSource, /function recordUiMobOnlyUpdate\(reason = "unknown"\) \{/);
+  assert.match(appSource, /recordUiRenderMapDuration\(renderStartedAt, reason\);/);
+});
+
 test("map renders process-memory mobs as a separate marker layer", () => {
   assert.match(appSource, /let currentGameMobs = \[\];/);
   assert.match(appSource, /let currentGameMobVisibilityKey = "";/);
@@ -286,7 +404,13 @@ test("map renders process-memory mobs as a separate marker layer", () => {
   assert.match(appSource, /const worldKey = `\$\{areaFile\}:\$\{x\},\$\{y\},\$\{z\}`;/);
   assert.match(appSource, /const mobsChanged = updateGameMobs\(position\);/);
   assert.match(appSource, /if \(positionChanged \|\| layerChanged\) saveProject/);
+  assert.match(appSource, /if \(mobsChanged && !renderMobOnlyMapUpdate\("memory-same-room-mobs"\)\)/);
   assert.match(appSource, /drawMobMarkers\(coords, worldRenderIds, cell, z\);/);
+  assert.match(appSource, /function getMobMarkerLayer\(\) \{/);
+  assert.match(appSource, /class: "mob-marker-layer"/);
+  assert.match(appSource, /function renderMobOnlyMapUpdate\(reason = "mob-only"\) \{/);
+  assert.match(appSource, /drawMobMarkers\(lastRenderedMapCoords, lastRenderedWorldRenderIds, lastRenderedMapCell, z\);/);
+  assert.match(appSource, /recordUiMobOnlyUpdate\(reason\);/);
   assert.match(appSource, /function getRenderableMobs\(z\) \{/);
   assert.match(appSource, /if \(!canRenderGameMobs\(\)\) return \[\];/);
   assert.match(appSource, /function getPlayerVisibleMobWorldKeys\(\) \{/);
@@ -295,9 +419,18 @@ test("map renders process-memory mobs as a separate marker layer", () => {
   assert.match(appSource, /function isWorldSightOpen\(worldRoom, direction\) \{/);
   assert.match(appSource, /return mapDebugAll \|\| visibleMobWorldKeys\.has\(mob\.worldKey\);/);
   assert.match(appSource, /class: "mob-location-marker"/);
+  assert.match(appSource, /const centerY = point\.y \+ cell - 12;/);
+  assert.doesNotMatch(appSource, /const centerY = point\.y \+ 12;/);
   assert.match(appSource, /formatMobMarkerTitle\(mobs\)/);
   assert.match(cssSource, /\.mob-location-marker/);
   assert.match(cssSource, /\.mob-location-marker-count/);
+});
+
+test("mob markers use a different room slot than vertical level badges", () => {
+  assert.match(appSource, /const centerX = point\.x \+ cell - 12;/);
+  assert.match(appSource, /const centerY = point\.y \+ cell - 12;/);
+  assert.match(appSource, /const y = point\.y \+ 6;/);
+  assert.match(appSource, /class: `map-badge map-badge-\$\{badge\.kind\}`/);
 });
 
 test("mob layer respects darkness when player cannot look around", () => {

@@ -1,6 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { buildAtlas } from "../scripts/build-world-atlas.mjs";
+
+const atlasSource = await readFile(new URL("../scripts/build-world-atlas.mjs", import.meta.url), "utf8");
+
+test("atlas output is marked with the application version", () => {
+  assert.match(atlasSource, /import packageJson from "\.\.\/package\.json" with \{ type: "json" \};/);
+  assert.match(atlasSource, /appVersion: packageJson\.version/);
+});
 
 test("atlas preserves sparse same-axis visual distance and adds corridor cells", () => {
   const atlas = buildAtlas({
