@@ -35,7 +35,7 @@ test("documentation demo mode provides stable UI state without live server loops
   assert.doesNotMatch(appSource, /getRoomByWorldKey/);
   assert.match(appSource, /if \(DOCUMENTATION_DEMO_MODE && mob\.visibleCardinal4\) return true;/);
   assert.match(appSource, /if \(DOCUMENTATION_DEMO_MODE\) return;[\s\S]*sendQueuedGameInput\(data\);/);
-  assert.match(appSource, /if \(!DOCUMENTATION_DEMO_MODE\) \{[\s\S]*\/api\/game\/resize/);
+  assert.doesNotMatch(appSource, /fixed terminal resize failed/);
 });
 
 test("game control lives in the terminal header as one dynamic button", () => {
@@ -180,6 +180,28 @@ test("global notes panel visibility can be toggled from settings", () => {
   assert.match(appSource, /setNotesVisibility\(!notesVisible\)/);
   assert.match(cssSource, /\.notes-hidden \.global-notes-panel\s*\{[\s\S]*display: none;/);
   assert.match(cssSource, /body\.notes-hidden \.layout\[data-workspace="game"\] \.location-panel\s*\{[\s\S]*grid-column: 2 \/ 4;/);
+});
+
+test("terminal font size can be changed from settings", () => {
+  assert.match(htmlSource, /id="terminalFontSizeDownBtn"[\s\S]*-/);
+  assert.match(htmlSource, /id="terminalFontSizeValue"[\s\S]*14/);
+  assert.match(htmlSource, /id="terminalFontSizeUpBtn"[\s\S]*\+/);
+  assert.match(appSource, /const TERMINAL_FONT_SIZE_KEY = "otchlan-automapper-terminal-font-size";/);
+  assert.match(appSource, /const TERMINAL_DEFAULT_FONT_SIZE = 14;/);
+  assert.match(appSource, /const TERMINAL_MIN_FONT_SIZE = 10;/);
+  assert.match(appSource, /const TERMINAL_MAX_FONT_SIZE = 18;/);
+  assert.match(appSource, /terminalFontSizeDownBtn: document\.querySelector\("#terminalFontSizeDownBtn"\)/);
+  assert.match(appSource, /terminalFontSizeUpBtn: document\.querySelector\("#terminalFontSizeUpBtn"\)/);
+  assert.match(appSource, /terminalFontSizeValue: document\.querySelector\("#terminalFontSizeValue"\)/);
+  assert.match(appSource, /function applySavedTerminalFontSize\(\) \{/);
+  assert.match(appSource, /function setTerminalFontSize\(fontSize, options = \{\}\) \{/);
+  assert.match(appSource, /term\.options\.fontSize = nextFontSize;/);
+  assert.match(appSource, /terminalFontSizeValue\.textContent = String\(nextFontSize\)/);
+  assert.match(appSource, /terminalFontSizeDownBtn\.disabled = nextFontSize <= TERMINAL_MIN_FONT_SIZE/);
+  assert.match(appSource, /terminalFontSizeUpBtn\.disabled = nextFontSize >= TERMINAL_MAX_FONT_SIZE/);
+  assert.match(appSource, /localStorage\.setItem\(TERMINAL_FONT_SIZE_KEY, String\(nextFontSize\)\)/);
+  assert.match(cssSource, /\.stepper-control/);
+  assert.match(cssSource, /\.stepper-control strong/);
 });
 
 test("app menu is structured as settings with map mob visibility toggle", () => {

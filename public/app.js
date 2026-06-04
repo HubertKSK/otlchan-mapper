@@ -14,10 +14,14 @@ const ROOM_NOTES_VISIBLE_KEY = "otchlan-automapper-room-notes-visible";
 const MOBS_VISIBLE_KEY = "otchlan-automapper-mobs-visible";
 const NOTES_VISIBLE_KEY = "otchlan-automapper-notes-visible";
 const STATS_VISIBLE_KEY = "otchlan-automapper-stats-visible";
+const TERMINAL_FONT_SIZE_KEY = "otchlan-automapper-terminal-font-size";
 const ACTIVE_MAPPER_KEY = "otchlan-automapper-active-instance";
 const INSTANCE_ID = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 const TERMINAL_COLS = 120;
 const TERMINAL_ROWS = 48;
+const TERMINAL_DEFAULT_FONT_SIZE = 14;
+const TERMINAL_MIN_FONT_SIZE = 10;
+const TERMINAL_MAX_FONT_SIZE = 18;
 const DEFAULT_STAT_VISIBILITY = Object.freeze({
   hp: true,
   mana: true,
@@ -28,7 +32,7 @@ const DEFAULT_STAT_VISIBILITY = Object.freeze({
   clock: true,
   date: true
 });
-const TERMINAL_SCROLLBACK_LINES = 200;
+const TERMINAL_SCROLLBACK_LINES = 120;
 const TERMINAL_PARSE_WINDOW_LINES = 100;
 const SERVER_AUTOSAVE_MS = 120000;
 const SERVER_SAVE_DEBOUNCE_MS = 250;
@@ -90,6 +94,9 @@ const els = {
   toggleRoomNotesBtn: document.querySelector("#toggleRoomNotesBtn"),
   toggleMobsBtn: document.querySelector("#toggleMobsBtn"),
   toggleNotesBtn: document.querySelector("#toggleNotesBtn"),
+  terminalFontSizeDownBtn: document.querySelector("#terminalFontSizeDownBtn"),
+  terminalFontSizeUpBtn: document.querySelector("#terminalFontSizeUpBtn"),
+  terminalFontSizeValue: document.querySelector("#terminalFontSizeValue"),
   statVisibilityButtons: document.querySelectorAll("[data-stat-toggle]"),
   worldSetupWelcome: document.querySelector("#worldSetupWelcome"),
   worldCacheStatus: document.querySelector("#worldCacheStatus"),
@@ -142,6 +149,7 @@ let serverSaveTimer = null;
 let serverSavePromise = null;
 let lastServerErrorToast = { message: "", at: 0 };
 let terminalResizeObserver = null;
+let terminalStagePinnedToBottom = true;
 let gameInputSendQueue = Promise.resolve();
 let mapperLogSeq = 0;
 let worldCache = null;
@@ -173,7 +181,7 @@ const term = new Terminal({
   cursorBlink: true,
   convertEol: false,
   fontFamily: "Consolas, 'Courier New', monospace",
-  fontSize: 13,
+  fontSize: TERMINAL_DEFAULT_FONT_SIZE,
   scrollback: TERMINAL_SCROLLBACK_LINES,
   theme: terminalTheme("light")
 });
@@ -186,6 +194,7 @@ applySavedRoomTagsVisibility();
 applySavedRoomNotesVisibility();
 applySavedMobsVisibility();
 applySavedNotesVisibility();
+applySavedTerminalFontSize();
 applySavedStatVisibility();
 initXterm();
 initMapperActivation();
@@ -646,6 +655,7 @@ async function initWorldAtlas() {
 
 function initXterm() {
   term.open(els.gameOutput);
+  scrollTerminalToBottom();
   scheduleTerminalFit();
   if (window.ResizeObserver) {
     terminalResizeObserver = new ResizeObserver(() => scheduleTerminalFit());
@@ -656,9 +666,14 @@ function initXterm() {
   }
   term.onData((data) => {
     claimMapperActivation("terminal-input");
+    terminalStagePinnedToBottom = true;
+    scrollTerminalToBottom();
     if (DOCUMENTATION_DEMO_MODE) return;
     sendQueuedGameInput(data);
   });
+  els.terminalStage?.addEventListener("scroll", () => {
+    terminalStagePinnedToBottom = isTerminalStageNearBottom();
+  }, { passive: true });
 }
 
 function sendQueuedGameInput(data) {
@@ -676,11 +691,23 @@ function fitTerminalToPanel() {
   if (term.cols !== TERMINAL_COLS || term.rows !== TERMINAL_ROWS) {
     term.resize(TERMINAL_COLS, TERMINAL_ROWS);
   }
-  if (!DOCUMENTATION_DEMO_MODE) {
-    postJson("/api/game/resize", { cols: TERMINAL_COLS, rows: TERMINAL_ROWS })
-      .catch((error) => console.warn("[terminal:warn] fixed terminal resize failed", error));
-  }
   fitAtlasTerminalPreview();
+  if (terminalStagePinnedToBottom) scrollTerminalToBottom();
+}
+
+function isTerminalStageNearBottom() {
+  const stage = els.terminalStage;
+  if (!stage) return true;
+  return stage.scrollHeight - stage.clientHeight - stage.scrollTop < 24;
+}
+
+function scrollTerminalToBottom() {
+  window.requestAnimationFrame(() => {
+    term.scrollToBottom();
+    if (els.terminalStage) {
+      els.terminalStage.scrollTop = els.terminalStage.scrollHeight;
+    }
+  });
 }
 
 function fitAtlasTerminalPreview() {
@@ -819,6 +846,14 @@ function bindEvents() {
   els.toggleNotesBtn?.addEventListener("click", () => {
     setNotesVisibility(!notesVisible);
     showToast(notesVisible ? "Notes wlaczony." : "Notes ukryty.", "success");
+  });
+  els.terminalFontSizeDownBtn?.addEventListener("click", () => {
+    const fontSize = setTerminalFontSize(Number(term.options.fontSize) - 1);
+    showToast(`Czcionka terminala: ${fontSize}px.`, "success");
+  });
+  els.terminalFontSizeUpBtn?.addEventListener("click", () => {
+    const fontSize = setTerminalFontSize(Number(term.options.fontSize) + 1);
+    showToast(`Czcionka terminala: ${fontSize}px.`, "success");
   });
   els.extractWorldBtn?.addEventListener("click", () => runWorldSetupStep("extract"));
   els.welcomeExtractWorldBtn?.addEventListener("click", () => runWorldSetupStep("extract"));
@@ -1175,12 +1210,16 @@ function setWorkspaceMode(mode, options = {}) {
 }
 
 function addGameOutput(entry, live) {
+  const shouldStickToBottom = terminalStagePinnedToBottom || isTerminalStageNearBottom();
   if (entry.source === "stdout") {
     const text = String(entry.text || "");
-    term.write(text);
-    
+    term.write(text, () => {
+      if (shouldStickToBottom) scrollTerminalToBottom();
+    });
   } else {
-    term.writeln(cleanTerminalText(entry.text || ""));
+    term.write(`${cleanTerminalText(entry.text || "")}\r\n`, () => {
+      if (shouldStickToBottom) scrollTerminalToBottom();
+    });
   }
 }
 
@@ -1856,6 +1895,30 @@ function setNotesVisibility(visible, options = {}) {
   if (options.persist !== false) {
     localStorage.setItem(NOTES_VISIBLE_KEY, notesVisible ? "true" : "false");
   }
+}
+
+function applySavedTerminalFontSize() {
+  const saved = Number(localStorage.getItem(TERMINAL_FONT_SIZE_KEY));
+  setTerminalFontSize(saved, { persist: false });
+}
+
+function setTerminalFontSize(fontSize, options = {}) {
+  const nextFontSize = normalizeTerminalFontSize(fontSize);
+  term.options.fontSize = nextFontSize;
+  if (els.terminalFontSizeValue) els.terminalFontSizeValue.textContent = String(nextFontSize);
+  if (els.terminalFontSizeDownBtn) els.terminalFontSizeDownBtn.disabled = nextFontSize <= TERMINAL_MIN_FONT_SIZE;
+  if (els.terminalFontSizeUpBtn) els.terminalFontSizeUpBtn.disabled = nextFontSize >= TERMINAL_MAX_FONT_SIZE;
+  if (options.persist !== false) {
+    localStorage.setItem(TERMINAL_FONT_SIZE_KEY, String(nextFontSize));
+  }
+  scheduleTerminalFit();
+  return nextFontSize;
+}
+
+function normalizeTerminalFontSize(fontSize) {
+  const value = Number(fontSize);
+  if (!Number.isFinite(value)) return TERMINAL_DEFAULT_FONT_SIZE;
+  return Math.max(TERMINAL_MIN_FONT_SIZE, Math.min(TERMINAL_MAX_FONT_SIZE, Math.round(value)));
 }
 
 function applySavedStatVisibility() {
