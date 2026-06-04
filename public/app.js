@@ -14,11 +14,8 @@ const ROOM_NOTES_VISIBLE_KEY = "otchlan-automapper-room-notes-visible";
 const MOBS_VISIBLE_KEY = "otchlan-automapper-mobs-visible";
 const NOTES_VISIBLE_KEY = "otchlan-automapper-notes-visible";
 const STATS_VISIBLE_KEY = "otchlan-automapper-stats-visible";
-<<<<<<< HEAD
 const UPDATE_TOAST_VERSION_KEY = "otchlan-automapper-update-toast-version";
-=======
 const TERMINAL_FONT_SIZE_KEY = "otchlan-automapper-terminal-font-size";
->>>>>>> 7a3b74b6f7ecd1fd45ecfcd108177ea05fa5c0aa
 const ACTIVE_MAPPER_KEY = "otchlan-automapper-active-instance";
 const INSTANCE_ID = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 const TERMINAL_COLS = 120;
