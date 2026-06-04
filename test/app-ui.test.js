@@ -35,7 +35,7 @@ test("documentation demo mode provides stable UI state without live server loops
   assert.doesNotMatch(appSource, /getRoomByWorldKey/);
   assert.match(appSource, /if \(DOCUMENTATION_DEMO_MODE && mob\.visibleCardinal4\) return true;/);
   assert.match(appSource, /if \(DOCUMENTATION_DEMO_MODE\) return;[\s\S]*sendQueuedGameInput\(data\);/);
-  assert.match(appSource, /if \(!DOCUMENTATION_DEMO_MODE\) \{[\s\S]*\/api\/game\/resize/);
+  assert.doesNotMatch(appSource, /fixed terminal resize failed/);
 });
 
 test("game control lives in the terminal header as one dynamic button", () => {
@@ -136,6 +136,8 @@ test("server request failures show a bottom-right error toast", () => {
 });
 
 test("location description visibility can be toggled from the app menu", () => {
+  assert.match(htmlSource, /class="layout-column terminal-column"[\s\S]*class="terminal-panel"[\s\S]*class="location-panel"/);
+  assert.match(htmlSource, /class="layout-column map-column"[\s\S]*class="map-panel"[\s\S]*class="global-notes-panel"/);
   assert.match(htmlSource, /id="toggleDescriptionBtn"/);
   assert.match(htmlSource, /id="toggleRoomTagsBtn"[\s\S]*Tagi pola/);
   assert.match(htmlSource, /id="toggleRoomNotesBtn"[\s\S]*Notatki pola/);
@@ -166,7 +168,18 @@ test("location description visibility can be toggled from the app menu", () => {
   assert.match(cssSource, /\.room-tags-hidden \.room-tags-field/);
   assert.match(cssSource, /\.room-notes-hidden \.room-notes-field/);
   assert.match(cssSource, /\.location-fields-hidden \.location-panel/);
-  assert.match(cssSource, /body\.location-fields-hidden \.layout\[data-workspace="game"\] \.global-notes-panel\s*\{[\s\S]*grid-column: 2 \/ 4;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.terminal-column\s*\{[\s\S]*grid-column: 1;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.map-column\s*\{[\s\S]*grid-column: 2;/);
+  assert.match(cssSource, /--app-max-width: 2560px;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\]\s*\{[\s\S]*align-items: stretch;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.layout-column\s*\{[\s\S]*height: 100%;[\s\S]*align-content: stretch;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.terminal-column\s*\{[\s\S]*grid-template-rows: auto minmax\(0, 1fr\);/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.map-column\s*\{[\s\S]*grid-template-rows: minmax\(320px, 1fr\) minmax\(180px, 0\.34fr\);/);
+  assert.match(cssSource, /@media \(min-width: 1680px\) \{[\s\S]*\.layout\[data-workspace="game"\]\s*\{[\s\S]*grid-template-rows: minmax\(0, 1fr\);/);
+  assert.match(cssSource, /@media \(min-width: 1680px\) \{[\s\S]*\.topbar,\s*[\s\S]*\.layout\s*\{[\s\S]*width: min\(100%, var\(--app-max-width\)\);[\s\S]*margin-inline: auto;/);
+  assert.match(cssSource, /\.layout\[data-workspace="atlas"\] \.layout-column\s*\{[\s\S]*display: contents;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.map-column > \.map-panel,\s*[\s\S]*\.layout\[data-workspace="game"\] \.map-column > \.global-notes-panel\s*\{[\s\S]*grid-column: 1;/);
+  assert.match(cssSource, /\.layout\[data-workspace="game"\] \.location-panel\s*\{[\s\S]*align-self: start;/);
   assert.match(cssSource, /\.toggle-switch::after/);
 });
 
@@ -179,7 +192,32 @@ test("global notes panel visibility can be toggled from settings", () => {
   assert.match(appSource, /document\.body\.classList\.toggle\("notes-hidden", !notesVisible\)/);
   assert.match(appSource, /setNotesVisibility\(!notesVisible\)/);
   assert.match(cssSource, /\.notes-hidden \.global-notes-panel\s*\{[\s\S]*display: none;/);
-  assert.match(cssSource, /body\.notes-hidden \.layout\[data-workspace="game"\] \.location-panel\s*\{[\s\S]*grid-column: 2 \/ 4;/);
+  assert.match(cssSource, /\.notes-hidden \.global-notes-panel\s*\{[\s\S]*display: none;/);
+});
+
+test("terminal font size can be changed from settings", () => {
+  assert.match(htmlSource, /id="terminalFontSizeDownBtn"[\s\S]*-/);
+  assert.match(htmlSource, /id="terminalFontSizeValue"[\s\S]*14/);
+  assert.match(htmlSource, /id="terminalFontSizeUpBtn"[\s\S]*\+/);
+  assert.match(appSource, /const TERMINAL_FONT_SIZE_KEY = "otchlan-automapper-terminal-font-size";/);
+  assert.match(appSource, /const TERMINAL_DEFAULT_FONT_SIZE = 14;/);
+  assert.match(appSource, /const TERMINAL_MIN_FONT_SIZE = 10;/);
+  assert.match(appSource, /const TERMINAL_MAX_FONT_SIZE = 18;/);
+  assert.match(appSource, /terminalFontSizeDownBtn: document\.querySelector\("#terminalFontSizeDownBtn"\)/);
+  assert.match(appSource, /terminalFontSizeUpBtn: document\.querySelector\("#terminalFontSizeUpBtn"\)/);
+  assert.match(appSource, /terminalFontSizeValue: document\.querySelector\("#terminalFontSizeValue"\)/);
+  assert.match(appSource, /function applySavedTerminalFontSize\(\) \{/);
+  assert.match(appSource, /function setTerminalFontSize\(fontSize, options = \{\}\) \{/);
+  assert.match(appSource, /term\.options\.fontSize = nextFontSize;/);
+  assert.match(appSource, /terminalFontSizeValue\.textContent = String\(nextFontSize\)/);
+  assert.match(appSource, /terminalFontSizeDownBtn\.disabled = nextFontSize <= TERMINAL_MIN_FONT_SIZE/);
+  assert.match(appSource, /terminalFontSizeUpBtn\.disabled = nextFontSize >= TERMINAL_MAX_FONT_SIZE/);
+  assert.match(appSource, /localStorage\.setItem\(TERMINAL_FONT_SIZE_KEY, String\(nextFontSize\)\)/);
+  assert.match(appSource, /function refreshTerminalLayoutAfterFontSizeChange\(\) \{/);
+  assert.match(appSource, /term\.refresh\(0, Math\.max\(0, term\.rows - 1\)\)/);
+  assert.match(appSource, /window\.requestAnimationFrame\(\(\) => \{[\s\S]*fitTerminalToPanel\(\);[\s\S]*scrollTerminalToBottom\(\);/);
+  assert.match(cssSource, /\.stepper-control/);
+  assert.match(cssSource, /\.stepper-control strong/);
 });
 
 test("app menu is structured as settings with map mob visibility toggle", () => {
