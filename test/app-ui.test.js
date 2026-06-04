@@ -186,6 +186,9 @@ test("app menu is structured as settings with map mob visibility toggle", () => 
   assert.match(htmlSource, /class="settings-panel"/);
   assert.match(htmlSource, /class="settings-head"[\s\S]*Ustawienia/);
   assert.match(htmlSource, /class="settings-section" aria-label="Interfejs"/);
+  assert.match(htmlSource, /class="settings-section" aria-label="Aktualizacja"/);
+  assert.match(htmlSource, /id="updateStatusText"[\s\S]*Sprawdzam aktualizacje/);
+  assert.match(htmlSource, /id="updateReleaseLink"[\s\S]*Pobierz z GitHub/);
   assert.match(htmlSource, /class="settings-section" aria-label="Mapa"/);
   assert.match(htmlSource, /id="toggleMobsBtn"[\s\S]*Moby na mapie/);
   assert.match(htmlSource, /class="settings-section" aria-label="Postac"/);
@@ -200,6 +203,22 @@ test("app menu is structured as settings with map mob visibility toggle", () => 
   assert.match(appSource, /return mobsVisible && canObserveGameMobs\(\);/);
   assert.match(cssSource, /\.settings-panel/);
   assert.match(cssSource, /\.settings-section/);
+  assert.match(cssSource, /\.update-status/);
+});
+
+test("app checks GitHub release update status without blocking startup", () => {
+  assert.match(appSource, /const UPDATE_TOAST_VERSION_KEY = "otchlan-automapper-update-toast-version";/);
+  assert.match(appSource, /checkAppUpdateStatus\(\);/);
+  assert.match(appSource, /async function checkAppUpdateStatus\(\) \{/);
+  assert.match(appSource, /await fetchJson\("\/api\/app\/update-status"\)/);
+  assert.match(appSource, /function updateAppUpdateStatus\(status = \{\}\) \{/);
+  assert.match(appSource, /els\.updateStatusText\.textContent = `Dostepna wersja \$\{formatReleaseVersion\(latestVersion\)\}\.`/);
+  assert.match(appSource, /els\.updateStatusText\.textContent = "Nie udalo sie sprawdzic aktualizacji\."/);
+  assert.match(appSource, /els\.updateReleaseLink\.hidden = !status\.updateAvailable;/);
+  assert.match(appSource, /function maybeShowUpdateToast\(status = \{\}\) \{/);
+  assert.match(appSource, /localStorage\.getItem\(UPDATE_TOAST_VERSION_KEY\) === toastKey/);
+  assert.match(appSource, /localStorage\.setItem\(UPDATE_TOAST_VERSION_KEY, toastKey\)/);
+  assert.match(appSource, /showToast\(`Dostepna nowa wersja: \$\{toastKey\}\.`, "success"\)/);
 });
 
 test("world atlas setup can be managed from settings and onboarding", () => {

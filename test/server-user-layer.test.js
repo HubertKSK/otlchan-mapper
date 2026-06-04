@@ -23,6 +23,20 @@ test("server exposes user-layer save and load endpoints", () => {
   assert.match(serverSource, /async function saveUserLayerPosition\(payload\) \{/);
 });
 
+test("server exposes GitHub release update status endpoint", () => {
+  assert.match(serverSource, /import \{ compareSemver, normalizeVersionTag \} from "\.\/app-update\.js";/);
+  assert.match(serverSource, /const GITHUB_REPO = "HubertKSK\/otchlan-mapper";/);
+  assert.match(serverSource, /const GITHUB_LATEST_RELEASE_URL = `https:\/\/api\.github\.com\/repos\/\$\{GITHUB_REPO\}\/releases\/latest`;/);
+  assert.match(serverSource, /const UPDATE_STATUS_CACHE_MS = 6 \* 60 \* 60 \* 1000;/);
+  assert.match(serverSource, /let updateStatusCache = null;/);
+  assert.match(serverSource, /url\.pathname === "\/api\/app\/update-status"/);
+  assert.match(serverSource, /async function getAppUpdateStatus\(options = \{\}\) \{/);
+  assert.match(serverSource, /fetchLatestGithubRelease\(options\.fetchImpl \|\| fetch\)/);
+  assert.match(serverSource, /compareSemver\(latestVersion, APP_VERSION\) > 0/);
+  assert.match(serverSource, /releaseUrl: release\.html_url \|\| `https:\/\/github\.com\/\$\{GITHUB_REPO\}\/releases\/latest`/);
+  assert.match(serverSource, /error: String\(error\?\.message \|\| error\)/);
+});
+
 test("server exposes world extraction and atlas build endpoints", () => {
   assert.match(serverSource, /const PACKAGE_JSON = JSON\.parse\(readFileSync\(path\.join\(__dirname, "package\.json"\), "utf8"\)\);/);
   assert.match(serverSource, /const APP_VERSION = String\(PACKAGE_JSON\.version \|\| "0\.0\.0"\);/);

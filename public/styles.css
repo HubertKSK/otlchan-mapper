@@ -403,6 +403,34 @@ textarea:focus-visible,
   color: var(--danger);
 }
 
+.update-status {
+  display: grid;
+  gap: 7px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel-soft);
+}
+
+.update-status span {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.update-status a {
+  width: max-content;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.update-status a:hover {
+  color: var(--accent-2);
+  text-decoration: underline;
+}
+
 .menu-panel button,
 .menu-panel .file-btn {
   width: 100%;

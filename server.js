@@ -6,11 +6,15 @@ import { appendFile, mkdir, readdir, readFile, rename, rm, stat, writeFile } fro
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { StringDecoder } from "node:string_decoder";
+import { compareSemver, normalizeVersionTag } from "./app-update.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC_DIR = path.join(__dirname, "public");
 const PACKAGE_JSON = JSON.parse(readFileSync(path.join(__dirname, "package.json"), "utf8"));
 const APP_VERSION = String(PACKAGE_JSON.version || "0.0.0");
+const GITHUB_REPO = "HubertKSK/otchlan-mapper";
+const GITHUB_LATEST_RELEASE_URL = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`;
+const UPDATE_STATUS_CACHE_MS = 6 * 60 * 60 * 1000;
 const DEFAULT_GAME_DIR = "C:\\Program Files (x86)\\Otchlan 1.3";
 const GAME_DIR = process.env.OTCHLAN_DIR || DEFAULT_GAME_DIR;
 const PORT = Number(process.env.PORT || 5173);
@@ -50,6 +54,7 @@ let lastGamePositionLogAt = 0;
 let worldCacheEffectNames = null;
 let worldCacheEffectNamesMtimeMs = 0;
 let worldBuildTask = null;
+let updateStatusCache = null;
 let terminalSize = {
   cols: DEFAULT_TERMINAL_COLS,
   rows: TERMINAL_ROWS
@@ -136,6 +141,11 @@ async function handleRequest(req, res) {
 
   if (url.pathname === "/api/status") {
     sendJson(res, status);
+    return;
+  }
+
+  if (url.pathname === "/api/app/update-status") {
+    sendJson(res, await getAppUpdateStatus());
     return;
   }
 
@@ -320,6 +330,54 @@ async function startWatcher() {
   watchDirectory(path.join(GAME_DIR, "zapisy"));
   setInterval(scanForLogs, 2500);
   setInterval(pollTrackedFiles, 800);
+}
+
+async function getAppUpdateStatus(options = {}) {
+  const now = Date.now();
+  if (!options.force && updateStatusCache && now - updateStatusCache.cachedAtMs < UPDATE_STATUS_CACHE_MS) {
+    return updateStatusCache.payload;
+  }
+
+  const checkedAt = new Date().toISOString();
+  try {
+    const release = await fetchLatestGithubRelease(options.fetchImpl || fetch);
+    const latestVersion = normalizeVersionTag(release.tag_name || release.name || "");
+    const payload = {
+      ok: true,
+      currentVersion: APP_VERSION,
+      latestVersion,
+      updateAvailable: compareSemver(latestVersion, APP_VERSION) > 0,
+      releaseUrl: release.html_url || `https://github.com/${GITHUB_REPO}/releases/latest`,
+      checkedAt
+    };
+    updateStatusCache = { cachedAtMs: now, payload };
+    return payload;
+  } catch (error) {
+    const payload = {
+      ok: false,
+      currentVersion: APP_VERSION,
+      latestVersion: "",
+      updateAvailable: false,
+      releaseUrl: `https://github.com/${GITHUB_REPO}/releases/latest`,
+      checkedAt,
+      error: String(error?.message || error)
+    };
+    updateStatusCache = { cachedAtMs: now, payload };
+    return payload;
+  }
+}
+
+async function fetchLatestGithubRelease(fetchImpl = fetch) {
+  const response = await fetchImpl(GITHUB_LATEST_RELEASE_URL, {
+    headers: {
+      Accept: "application/vnd.github+json",
+      "User-Agent": `otchlan-mapper/${APP_VERSION}`
+    }
+  });
+  if (!response.ok) {
+    throw new Error(`GitHub release check failed: HTTP ${response.status}`);
+  }
+  return response.json();
 }
 
 function normalizeStaticPath(urlPath) {

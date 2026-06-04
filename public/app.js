@@ -14,6 +14,7 @@ const ROOM_NOTES_VISIBLE_KEY = "otchlan-automapper-room-notes-visible";
 const MOBS_VISIBLE_KEY = "otchlan-automapper-mobs-visible";
 const NOTES_VISIBLE_KEY = "otchlan-automapper-notes-visible";
 const STATS_VISIBLE_KEY = "otchlan-automapper-stats-visible";
+const UPDATE_TOAST_VERSION_KEY = "otchlan-automapper-update-toast-version";
 const ACTIVE_MAPPER_KEY = "otchlan-automapper-active-instance";
 const INSTANCE_ID = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 const TERMINAL_COLS = 120;
@@ -98,6 +99,8 @@ const els = {
   buildWorldAtlasBtn: document.querySelector("#buildWorldAtlasBtn"),
   welcomeExtractWorldBtn: document.querySelector("#welcomeExtractWorldBtn"),
   welcomeBuildAtlasBtn: document.querySelector("#welcomeBuildAtlasBtn"),
+  updateStatusText: document.querySelector("#updateStatusText"),
+  updateReleaseLink: document.querySelector("#updateReleaseLink"),
   debugRecordBtn: document.querySelector("#debugRecordBtn"),
   debugSettingsSection: document.querySelector(".settings-section.debug-only"),
   resetConfirmModal: document.querySelector("#resetConfirmModal"),
@@ -188,6 +191,7 @@ applySavedMobsVisibility();
 applySavedNotesVisibility();
 applySavedStatVisibility();
 initXterm();
+checkAppUpdateStatus();
 initMapperActivation();
 applySavedTheme();
 if (DOCUMENTATION_DEMO_MODE) {
@@ -564,6 +568,54 @@ function updateWorldSetupStatus(status = {}) {
     button.disabled = busy || !cacheReady;
     button.textContent = busy && status.runningStep === "atlas" ? "Buduje..." : "Zbuduj atlas";
   }
+}
+
+async function checkAppUpdateStatus() {
+  try {
+    const status = await fetchJson("/api/app/update-status");
+    updateAppUpdateStatus(status);
+  } catch (error) {
+    updateAppUpdateStatus({ error: String(error?.message || error) });
+    logMapper("app-update-check-failed", { message: String(error?.message || error) }, "warn");
+  }
+}
+
+function updateAppUpdateStatus(status = {}) {
+  const currentVersion = status.currentVersion || "";
+  const latestVersion = status.latestVersion || "";
+  const releaseUrl = status.releaseUrl || "https://github.com/HubertKSK/otchlan-mapper/releases/latest";
+  if (els.updateReleaseLink) {
+    els.updateReleaseLink.href = releaseUrl;
+    els.updateReleaseLink.hidden = !status.updateAvailable;
+  }
+  if (els.updateStatusText) {
+    if (status.updateAvailable && latestVersion) {
+      els.updateStatusText.textContent = `Dostepna wersja ${formatReleaseVersion(latestVersion)}.`;
+    } else if (status.error) {
+      els.updateStatusText.textContent = "Nie udalo sie sprawdzic aktualizacji.";
+    } else {
+      els.updateStatusText.textContent = `Masz aktualna wersje ${currentVersion || "aplikacji"}.`;
+    }
+  }
+  maybeShowUpdateToast(status);
+}
+
+function maybeShowUpdateToast(status = {}) {
+  if (!status.updateAvailable || !status.latestVersion) return;
+  const latestVersion = normalizeReleaseVersion(status.latestVersion);
+  const toastKey = `v${latestVersion}`;
+  if (localStorage.getItem(UPDATE_TOAST_VERSION_KEY) === toastKey) return;
+  localStorage.setItem(UPDATE_TOAST_VERSION_KEY, toastKey);
+  showToast(`Dostepna nowa wersja: ${toastKey}.`, "success");
+}
+
+function formatReleaseVersion(version) {
+  const normalized = normalizeReleaseVersion(version);
+  return normalized ? `v${normalized}` : "";
+}
+
+function normalizeReleaseVersion(version) {
+  return String(version || "").trim().replace(/^v/i, "");
 }
 
 function getWorldFileStatusText(fileStatus = {}) {
